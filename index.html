@@ -261,6 +261,195 @@
       color: #6b5344;
       margin-top: 40%;
     }
+    /* Floating Action Button (FAB) */
+.fab-comment {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: #5c3a21;
+  color: #f3ece1;
+  border: 2px solid #8b5a2b;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  z-index: 9999;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.fab-comment:hover {
+  transform: scale(1.1);
+  background-color: #7a4f2d;
+}
+
+/* Modal Window Komentar */
+.comment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.comment-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.comment-modal {
+  width: 90%;
+  max-width: 420px;
+  max-height: 85dvh;
+  background-color: #fbf7ef;
+  border-radius: 8px;
+  border: 2px solid #3d2716;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: inherit;
+  color: #2c221e;
+}
+
+.modal-header {
+  padding: 12px 16px;
+  background-color: #3d2716;
+  color: #f3ece1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 1.05rem;
+  font-weight: normal;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #f3ece1;
+  font-size: 1.4rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* Container Komentar Scrollable */
+.comments-list {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #f7f2e7;
+}
+
+.comment-item {
+  background: #ffffff;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-left: 4px solid #5c3a21;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 0.88rem;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.78rem;
+  color: #7a6352;
+}
+
+.comment-author {
+  font-weight: bold;
+  color: #3d2716;
+}
+
+.comment-body {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  color: #2c221e;
+  line-height: 1.35;
+}
+
+/* Form Input Komentar */
+.comment-form {
+  padding: 12px;
+  background-color: #fbf7ef;
+  border-top: 1px solid rgba(139, 90, 43, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-input, .comment-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cfc5b8;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  background-color: #fff;
+  color: #2c221e;
+  outline: none;
+}
+
+.comment-input:focus, .comment-textarea:focus {
+  border-color: #5c3a21;
+}
+
+.comment-textarea {
+  resize: none;
+  height: 60px;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.char-counter {
+  font-size: 0.75rem;
+  color: #7a6352;
+}
+
+.submit-btn {
+  background: #5c3a21;
+  color: #f3ece1;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #7a4f2d;
+}
+
+.submit-btn:disabled {
+  background: #cfc5b8;
+  cursor: not-allowed;
+}
+
   </style>
 </head>
 <body>
@@ -669,6 +858,124 @@
         recalculatePagination();
       }
     });
+    
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
+
+function openCommentModal() {
+  document.getElementById('commentModalOverlay').classList.add('active');
+  fetchComments();
+}
+
+function closeCommentModal() {
+  document.getElementById('commentModalOverlay').classList.remove('active');
+}
+
+function updateCharCount() {
+  const textarea = document.getElementById('messageInput');
+  const counter = document.getElementById('charCounter');
+  counter.innerText = `${textarea.value.length} / 160`;
+}
+
+// Fetch data dari Google Sheets
+async function fetchComments() {
+  const listEl = document.getElementById('commentsList');
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+    
+    if (data.length === 0) {
+      listEl.innerHTML = '<div class="status-msg">Belum ada komentar. Jadi yang pertama!</div>';
+      return;
+    }
+
+    listEl.innerHTML = data.reverse().map(item => `
+      <div class="comment-item">
+        <div class="comment-header">
+          <span class="comment-author">${escapeHtml(item.nama)}</span>
+          <span>${escapeHtml(item.timestamp)}</span>
+        </div>
+        <div class="comment-body">${escapeHtml(item.pesan)}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    listEl.innerHTML = '<div class="status-msg" style="color:#a33;">Gagal memuat komentar.</div>';
+  }
+}
+
+// Kirim data ke Google Sheets
+async function submitComment(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('submitBtn');
+  const nama = document.getElementById('authorInput').value.trim();
+  const pesan = document.getElementById('messageInput').value.trim();
+
+  if (!nama || !pesan) return;
+
+  submitBtn.disabled = true;
+  submitBtn.innerText = 'Mengirim...';
+
+  try {
+    const payload = JSON.stringify({ nama, pesan });
+    
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: payload
+    });
+
+    document.getElementById('commentForm').reset();
+    updateCharCount();
+    await fetchComments(); // Refresh list komentar
+  } catch (err) {
+    alert('Gagal mengirim komentar. Silakan coba lagi.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerText = 'Kirim';
+  }
+}
+
+// Utility Sanitasi HTML (Mencegah XSS)
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
   </script>
+  <!-- Floating Button Komentar -->
+<div class="fab-comment" onclick="openCommentModal()" title="Buku Tamu / Komentar">
+  💬
+</div>
+
+<!-- Modal Window Komentar -->
+<div class="comment-modal-overlay" id="commentModalOverlay">
+  <div class="comment-modal">
+    <div class="modal-header">
+      <h3>Buku Tamu & Komentar</h3>
+      <button class="close-btn" onclick="closeCommentModal()">&times;</button>
+    </div>
+
+    <!-- Area Komentar Scrollable -->
+    <div class="comments-list" id="commentsList">
+      <div class="status-msg">Memuat komentar...</div>
+    </div>
+
+    <!-- Form Input Komentar -->
+    <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
+      <input type="text" id="authorInput" class="comment-input" placeholder="Nama Anda" maxlength="30" required>
+      
+      <textarea id="messageInput" class="comment-textarea" placeholder="Tulis komentar (maks. 160 karakter)..." maxlength="160" required oninput="updateCharCount()"></textarea>
+      
+      <div class="form-footer">
+        <span class="char-counter" id="charCounter">0 / 160</span>
+        <button type="submit" class="submit-btn" id="submitBtn">Kirim</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 </body>
 </html>
