@@ -110,7 +110,18 @@
       flex-shrink: 0;
       transition: filter 0.4s ease;
     }
-
+/* Efek Drop Cap untuk Paragraf Pertama di Setiap Halaman */
+.first-page-paragraph::first-letter {
+  font-size: 3.2em;
+  float: left;
+  line-height: 0.8;
+  margin-right: 0.15em;
+  margin-top: 0.05em;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: bold;
+  color: #3d2716; /* Warna disesuaikan dengan tema buku */
+  text-transform: uppercase; 
+}
     /* Konten Teks Dalam Buku */
     .book-content {
       flex: 1;
@@ -619,20 +630,31 @@
     }        
 
     // 3. Render Halaman
-    function renderPage() {
-      const contentDiv = document.getElementById('bookContent');
-      const pageIndicator = document.getElementById('pageIndicator');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
+// 3. Render Halaman
+function renderPage() {
+  const contentDiv = document.getElementById('bookContent');
+  const pageIndicator = document.getElementById('pageIndicator');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
 
-      if (pages.length === 0) return;
+  if (pages.length === 0) return;
 
-      contentDiv.innerHTML = pages[currentPage];
-      pageIndicator.innerText = `Hal. ${currentPage + 1} / ${pages.length}`;
+  // Masukkan konten HTML halaman aktif
+  contentDiv.innerHTML = pages[currentPage];
 
-      prevBtn.disabled = currentPage === 0;
-      nextBtn.disabled = currentPage === pages.length - 1;
-    }
+  // Cari paragraf pertama di halaman saat ini dan tambahkan kelas Drop Cap
+  const firstP = contentDiv.querySelector('p');
+  
+  if (firstP) {
+    firstP.classList.add('first-page-paragraph');
+  }  
+
+  pageIndicator.innerText = `Hal. ${currentPage + 1} / ${pages.length}`;
+
+  prevBtn.disabled = currentPage === 0;
+  nextBtn.disabled = currentPage === pages.length - 1;
+  
+}
 
     // 4. Navigasi Halaman
     function changePage(direction) {
