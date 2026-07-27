@@ -458,8 +458,7 @@
       recalculatePagination();
     }
 
-    // 6. Penataan Foto Polaroid
-        // 6. Penataan Foto Polaroid (Mendukung Otomatis Baca Folder di GitHub Pages & Localhost)
+    // 6. Penataan Foto Polaroid (Fix Akurat untuk GitHub Pages User/Project Site & Localhost)
     async function randomizePolaroids() {
       const polaroidConfigs = [
         { id: 'polaroid1', baseArea: { x: [-300, -230], y: [-150, -60] } },
@@ -473,30 +472,32 @@
 
       let foundImages = [];
 
-      // --- TRIK GITHUB API: Ambil username & repository secara otomatis dari URL halaman ---
-      const host = window.location.hostname;
-      const pathSegments = window.location.pathname.split('/').filter(Boolean);
-
-      if (host.includes('github.io') && pathSegments.length > 0) {
-        const username = host.split('.')[0];
-        const repo = pathSegments[0];
+      // A. JIKA DIBUKA DI GITHUB PAGES (Dinamis mendeteksi User Site maupun Project Site)
+      if (window.location.hostname.includes('github.io')) {
+        const username = window.location.hostname.split('.')[0];
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        
+        // Jika URL berupa username.github.io/namarepo -> repo = namarepo
+        // Jika URL berupa username.github.io -> repo = username.github.io
+        const repo = pathSegments.length > 0 ? pathSegments[0] : `${username}.github.io`;
         const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/images`;
 
         try {
           const res = await fetch(apiUrl);
           if (res.ok) {
             const files = await res.json();
-            // Ambil semua file yang berakhiran .jpeg atau .jpg (case-insensitive)
             foundImages = files
               .map(file => file.name)
               .filter(name => name.match(/\.(jpe?g)$/i));
+          } else {
+            console.warn('GitHub API Response status:', res.status);
           }
         } catch (e) {
-          console.log('Gagal memuat via GitHub API:', e);
+          console.error('Gagal mengambil daftar gambar dari GitHub API:', e);
         }
       }
 
-      // --- FALLBACK UNTUK LOCALHOST (Membaca Directory Listing Lokal) ---
+      // B. JIKA DIBUKA DI LOCALHOST (Directory Listing)
       if (foundImages.length === 0) {
         try {
           const res = await fetch('images/');
@@ -511,17 +512,22 @@
               .map(href => href.split('/').pop());
           }
         } catch (e) {
-          console.log('Auto-index server lokal tidak aktif.');
+          console.log('Local directory listing tidak tersedia.');
         }
       }
 
-      // Jika masih tidak ketemu gambar sama sekali:
+      // C. JIKA SEMUA CARA OTOMATIS DI ATAS GAGAL (Atau jika API terkena Rate Limit)
       if (foundImages.length === 0) {
-        console.warn('Tidak ada gambar .jpeg yang ditemukan di folder images/');
-        return;
+        console.warn('Menggunakan fallback image finder...');
+        // Opsi darurat untuk memastikan foto tetap dicoba muat
+        for (let i = 1; i <= 20; i++) {
+          foundImages.push(`${i}.jpeg`);
+          foundImages.push(`foto${i}.jpeg`);
+          foundImages.push(`image${i}.jpeg`);
+        }
       }
 
-      // Acak urutan gambar yang ditemukan
+      // Acak urutan gambar
       let shuffled = [...foundImages].sort(() => 0.5 - Math.random());
 
       polaroidConfigs.forEach((config, index) => {
@@ -532,6 +538,12 @@
         const selectedImg = shuffled[index % shuffled.length];
         
         imgEl.src = `images/${selectedImg}`;
+
+        // Jika foto gagal muat (misal karena nama tebakan fallback tidak ada), sembunyikan atau biarkan onerror menangani
+        imgEl.onerror = function() {
+          // Mencegah gambar pecah/error berulang
+          this.onerror = null;
+        };
 
         const randomX = Math.floor(Math.random() * (config.baseArea.x[1] - config.baseArea.x[0])) + config.baseArea.x[0];
         const randomY = Math.floor(Math.random() * (config.baseArea.y[1] - config.baseArea.y[0])) + config.baseArea.y[0];
@@ -546,6 +558,7 @@
         makeElementDraggableAndZoomable(el);
       });
     }
+
 
     // 7. Drag & Drop + Click to Zoom Listener
     function makeElementDraggableAndZoomable(el) {
