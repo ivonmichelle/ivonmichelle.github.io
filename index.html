@@ -81,12 +81,12 @@
       width: 420px;
       max-width: 90vw;
       
-      height: 88vh; /* Menggunakan vh standar yang lebih aman untuk kalkulasi flex HP */
+      height: 88vh;
       max-height: 560px;
       
       background-color: #fbf7ef;
       border-radius: 4px 12px 12px 4px;
-      padding: 14px 20px 10px 25px; /* Padding disesuaikan sedikit agar lebih lega */
+      padding: 14px 20px 10px 25px;
       box-shadow: 
         -10px 0 20px rgba(0,0,0,0.4),
         0 15px 35px rgba(0,0,0,0.6),
@@ -106,15 +106,19 @@
     }
 
     /* Efek Drop Cap untuk Paragraf Pertama di Setiap Halaman */
+    .first-page-paragraph {
+      text-indent: 0 !important;
+    }
+
     .first-page-paragraph::first-letter {
       font-size: 3.2em;
       float: left;
       line-height: 0.8;
-      margin-right: 0.15em;
+      margin-right: 0.12em;
       margin-top: 0.05em;
       font-family: 'Georgia', 'Times New Roman', serif;
       font-weight: bold;
-      color: #3d2716; /* Warna disesuaikan dengan tema buku */
+      color: #3d2716;
       text-transform: uppercase; 
     }
 
@@ -190,7 +194,7 @@
       box-shadow: none;
     }
 
-    /* Slider Pengaturan Ukuran Font (5 Tingkat) */
+    /* Slider Pengaturan Ukuran Font */
     .font-slider-container {
       display: flex;
       align-items: center;
@@ -224,7 +228,7 @@
       transform: scale(1.2);
     }
 
-    /* Styling 7 Foto Polaroid */
+    /* Styling Polaroid */
     .polaroid {
       position: absolute;
       top: 50%;
@@ -245,7 +249,6 @@
       cursor: grabbing;
     }
 
-    /* Mode Zoomed Polaroid */
     .polaroid.zoomed {
       z-index: 10000 !important;
       cursor: pointer;
@@ -267,31 +270,6 @@
       font-style: italic;
       color: #6b5344;
       margin-top: 40%;
-    }
-
-    /* Floating Action Button (FAB) */
-    .fab-comment {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background-color: #5c3a21;
-      color: #f3ece1;
-      border: 2px solid #8b5a2b;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-      z-index: 9999;
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
-
-    .fab-comment:hover {
-      transform: scale(1.1);
-      background-color: #7a4f2d;
     }
 
     /* Modal Window Komentar */
@@ -355,7 +333,6 @@
       line-height: 1;
     }
 
-    /* Container Komentar Scrollable */
     .comments-list {
       flex: 1;
       padding: 14px;
@@ -396,7 +373,6 @@
       line-height: 1.35;
     }
 
-    /* Form Input Komentar */
     .comment-form {
       padding: 12px;
       background-color: #fbf7ef;
@@ -406,7 +382,24 @@
       gap: 8px;
     }
 
-    .comment-input, .comment-textarea {
+    .comment-user-badge {
+      font-size: 0.8rem;
+      color: #5c3a21;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .change-name-btn {
+      font-size: 0.72rem;
+      color: #8c7360;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: normal;
+    }
+
+    .comment-textarea {
       width: 100%;
       padding: 8px 10px;
       border: 1px solid #cfc5b8;
@@ -416,15 +409,12 @@
       background-color: #fff;
       color: #2c221e;
       outline: none;
-    }
-
-    .comment-input:focus, .comment-textarea:focus {
-      border-color: #5c3a21;
-    }
-
-    .comment-textarea {
       resize: none;
       height: 60px;
+    }
+
+    .comment-textarea:focus {
+      border-color: #5c3a21;
     }
 
     .form-footer {
@@ -458,18 +448,16 @@
       cursor: not-allowed;
     }
 
-    /* Container Floating Action Buttons (Berjajar ke Samping / Horizontal di Kanan Bawah) */
     .fab-container {
       position: fixed;
       bottom: 20px;
       right: 20px;
       display: flex;
-      flex-direction: row; /* Berjajar kesamping */
+      flex-direction: row;
       gap: 12px;
       z-index: 9999;
     }
 
-    /* Ukuran & Desain Tombol Seragam */
     .fab-btn {
       width: 50px;
       height: 50px;
@@ -497,7 +485,6 @@
       transform: scale(0.95);
     }
 
-    /* Animasi putar ikon saat tombol refresh diklik */
     .spin-icon {
       animation: spin 0.5s ease-in-out;
     }
@@ -507,7 +494,6 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Styling Copyright Footer */
     .copyright-text {
       text-align: center;
       font-size: 0.72rem;
@@ -518,21 +504,20 @@
       letter-spacing: 0.5px;
     }
 
-    /* --- STYLING INTRO AVATAR IVON & BUBBLE TEXT --- */
+    /* --- INTRO AVATAR IVON & BUBBLE TEXT --- */
     .ivon-intro-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(5px);
       -webkit-backdrop-filter: blur(5px);
       z-index: 20000;
       display: flex;
       justify-content: center;
       align-items: center;
-      cursor: pointer;
       opacity: 1;
       transition: opacity 0.4s ease, visibility 0.4s ease;
     }
@@ -570,6 +555,7 @@
       line-height: 1.45;
       text-align: left;
       margin-bottom: 20px;
+      width: 100%;
     }
 
     .ivon-speech-bubble::after {
@@ -599,6 +585,37 @@
       z-index: 1;
     }
 
+    .ivon-intro-input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 12px;
+      border: 2px solid #5c3a21;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      background-color: #fff;
+    }
+
+    .ivon-intro-btn {
+      margin-top: 12px;
+      width: 100%;
+      background: #5c3a21;
+      color: #f3ece1;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: bold;
+      transition: background 0.2s ease;
+    }
+
+    .ivon-intro-btn:hover {
+      background: #7a4f2d;
+    }
+
     .ivon-avatar-img {
       width: 110px;
       height: 110px;
@@ -615,19 +632,9 @@
       50% { transform: translateY(-8px); }
     }
 
-    .ivon-click-hint {
-      margin-top: 12px;
-      font-size: 0.75rem;
-      color: #f3ece1;
-      font-style: italic;
-      letter-spacing: 0.5px;
-      opacity: 0.8;
-    }
-
-    /* Penyesuaian ukuran Polaroid khusus layar ponsel (Mobile) */
     @media (max-width: 768px) {
       .polaroid {
-        width: 80px !important; /* Ukuran lebih ringkas di HP */
+        width: 80px !important;
         padding: 5px 5px 10px 5px !important;
       }
       .polaroid img {
@@ -645,21 +652,30 @@
         height: 90px;
       }
     }
-
   </style>
 </head>
 <body>
 
-  <div class="ivon-intro-overlay" id="ivonIntroOverlay" onclick="dismissIvonIntro()">
+  <div class="ivon-intro-overlay" id="ivonIntroOverlay">
     <div class="ivon-intro-card">
-      <div class="ivon-speech-bubble">
-        <strong>Aww, pahlawanku udah datang! 💖</strong><br><br>
+      
+      <div class="ivon-speech-bubble" id="introStep1">
+        <strong>Halo, traveler manis! ✨</strong><br><br>
+        Sebelum kita berpetualang di buku kenangan ini, Ivon boleh tahu nama kamu siapa? 💖
+        <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off">
+        <button class="ivon-intro-btn" onclick="submitReaderName()">Lanjut ➔</button>
+      </div>
+
+      <div class="ivon-speech-bubble" id="introStep2" style="display: none;">
+        <strong>Aww, pahlawanku <span id="displayReaderName"></span> udah datang! 💖</strong><br><br>
         Halo, Halo! Selamat datang di website tempat kisah kita tersimpan!<br><br>
         Buat yang belum tahu, kenalin... aku Ivon! Cewek paling ceria, paling penyayang, dan pastinya pahlawan super yang bakal selalu ada buat bikin hari-harimu jadi lebih warna-warni! Ya... walau kadang aku agak manja, gampang ngambek (dikit doang!), dan suka bikin pusing... tapi itu kan yang bikin aku makin gemesin? Hehehe.<br><br>
         Di sini, kamu bisa ngeliat semua perjalanan kisah manis, konyol, dan penuh cinta antara aku dan Beni. Jadi, siapin mental buat kena sugar rush, ya! Yuk, langsung masuk dan kepoin cerita kita! ✨
+        
+        <button class="ivon-intro-btn" style="margin-top: 16px;" onclick="dismissIvonIntro()">Masuk ke Buku 📖</button>
       </div>
+
       <img src="images/avatarivon.png" alt="Ivon Avatar" class="ivon-avatar-img">
-      <div class="ivon-click-hint">( Klik di mana saja untuk melanjutkan )</div>
     </div>
   </div>
 
@@ -700,7 +716,47 @@
   </div>
 
   <script>
-    // --- FUNGSI MENUTUP INTRO AVATAR IVON ---
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
+
+    // --- LOGIKA INTRO & NAMA PEMBACA ---
+    let currentReaderName = localStorage.getItem('benivon_reader_name') || '';
+
+    function checkIntroStatus() {
+      const overlay = document.getElementById('ivonIntroOverlay');
+      if (currentReaderName) {
+        overlay.style.display = 'none';
+      } else {
+        document.getElementById('introStep1').style.display = 'block';
+        document.getElementById('introStep2').style.display = 'none';
+      }
+    }
+
+    async function submitReaderName() {
+      const inputEl = document.getElementById('readerNameInput');
+      const nama = inputEl.value.trim();
+
+      if (!nama) {
+        alert('Isi nama kamu dulu yaa!');
+        return;
+      }
+
+      currentReaderName = nama;
+      localStorage.setItem('benivon_reader_name', nama);
+
+      document.getElementById('displayReaderName').innerText = nama;
+      document.getElementById('introStep1').style.display = 'none';
+      document.getElementById('introStep2').style.display = 'block';
+
+      try {
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'pembaca', nama: nama })
+        });
+      } catch (err) {
+        console.error('Gagal mencatat pembaca:', err);
+      }
+    }
+
     function dismissIvonIntro() {
       const overlay = document.getElementById('ivonIntroOverlay');
       if (overlay) {
@@ -711,28 +767,45 @@
       }
     }
 
+    function changeReaderName() {
+      const newName = prompt('Ubah nama kamu:', currentReaderName);
+      if (newName && newName.trim() !== '') {
+        currentReaderName = newName.trim();
+        localStorage.setItem('benivon_reader_name', currentReaderName);
+        updateCommentUserBadge();
+      }
+    }
+
+    function updateCommentUserBadge() {
+      const badge = document.getElementById('commentUserBadge');
+      if (badge) {
+        badge.innerHTML = `
+          <span>Komentar sebagai: <strong>${escapeHtml(currentReaderName)}</strong></span>
+          <span class="change-name-btn" onclick="changeReaderName()">Ganti</span>
+        `;
+      }
+    }
+
+    // --- LOGIKA BUKU NOVEL ---
     const FILE_URL = 'benivon1.txt';
     let rawParagraphs = [];
     let pages = [];
     let currentPage = 0;
 
-    // 5 Tingkat Ukuran Font
     const fontSizes = ['0.82rem', '0.92rem', '1.0rem', '1.1rem', '1.22rem'];
     let topZIndex = 100;
     let activeZoomedEl = null;
 
-    // --- PROTEKSI PINCH-TO-ZOOM VIA JAVASCRIPT ---
     document.addEventListener('touchmove', function (event) {
       if (event.touches.length > 1) {
-        event.preventDefault(); // Blokir zoom 2 jari
+        event.preventDefault();
       }
     }, { passive: false });
 
     document.addEventListener('gesturestart', function (event) {
-      event.preventDefault(); // Blokir gestur pinch iOS Safari
+      event.preventDefault();
     });
 
-    // 1. Memuat File TXT
     async function loadNovel() {
       try {
         const response = await fetch(FILE_URL);
@@ -748,7 +821,6 @@
       }
     }
 
-    // 2. Kalkulasi Pagination
     function recalculatePagination() {
       if (rawParagraphs.length === 0) return;
 
@@ -760,7 +832,6 @@
       contentContainer.innerHTML = '';
       pages = [];
 
-      // Pengukur Dummy Element
       const tempDiv = document.createElement('div');
       tempDiv.className = 'book-content';
       tempDiv.style.visibility = 'hidden';
@@ -837,7 +908,6 @@
       renderPage();
     }        
 
-    // 3. Render Halaman
     function renderPage() {
       const contentDiv = document.getElementById('bookContent');
       const pageIndicator = document.getElementById('pageIndicator');
@@ -846,12 +916,14 @@
 
       if (pages.length === 0) return;
 
-      // Masukkan konten HTML halaman aktif
       contentDiv.innerHTML = pages[currentPage];
 
-      // Cari paragraf pertama di halaman saat ini dan tambahkan kelas Drop Cap
-      const firstP = contentDiv.querySelector('p');
-      
+      // Cari paragraf pertama di halaman yang BUKAN sambungan kalimat (.continuation)
+      let firstP = contentDiv.querySelector('p:not(.continuation)');
+      if (!firstP) {
+        firstP = contentDiv.querySelector('p');
+      }
+
       if (firstP) {
         firstP.classList.add('first-page-paragraph');
       }  
@@ -862,7 +934,6 @@
       nextBtn.disabled = currentPage === pages.length - 1;
     }
 
-    // 4. Navigasi Halaman
     function changePage(direction) {
       if (currentPage + direction >= 0 && currentPage + direction < pages.length) {
         currentPage += direction;
@@ -870,40 +941,35 @@
       }
     }
 
-    // 5. Perubahan Slider Font Size
     function changeFontSize(val) {
       recalculatePagination();
     }
 
-    // 6. Penataan Foto Polaroid (Dinamis & Responsif Layar Mobile/Desktop)
+    // --- POLAROID RANDOMIZER ---
     async function randomizePolaroids() {
       const isMobile = window.innerWidth <= 768;
       const screenW = window.innerWidth;
       const screenH = window.innerHeight;
       
-      // Estimasi batas aman setengah layar (karena titik acuan translate dari tengah/50%)
       const polaroidW = isMobile ? 80 : 110;
       const polaroidH = isMobile ? 90 : 120;
       
       const maxX = (screenW / 2) - (polaroidW / 2) - 10;
       const maxY = (screenH / 2) - (polaroidH / 2) - 10;
 
-      // Area acak dinamis
       let polaroidConfigs = [];
 
       if (isMobile) {
-        // Di Mobile: Sebar foto di bagian Atas, Bawah, dan Sudut Pinggir Buku
         polaroidConfigs = [
-          { id: 'polaroid1', area: { x: [-maxX, -maxX * 0.4], y: [-maxY, -maxY * 0.5] } }, // Kiri Atas
-          { id: 'polaroid2', area: { x: [maxX * 0.4, maxX], y: [-maxY, -maxY * 0.5] } },   // Kanan Atas
-          { id: 'polaroid3', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY, -maxY * 0.75] } }, // Tengah Atas
-          { id: 'polaroid4', area: { x: [-maxX, -maxX * 0.5], y: [-maxY * 0.2, maxY * 0.2] } },  // Kiri Tengah (Mengintip)
-          { id: 'polaroid5', area: { x: [maxX * 0.5, maxX], y: [-maxY * 0.2, maxY * 0.2] } },   // Kanan Tengah (Mengintip)
-          { id: 'polaroid6', area: { x: [-maxX, -maxX * 0.3], y: [maxY * 0.5, maxY] } },   // Kiri Bawah
-          { id: 'polaroid7', area: { x: [maxX * 0.3, maxX], y: [maxY * 0.5, maxY] } }     // Kanan Bawah
+          { id: 'polaroid1', area: { x: [-maxX, -maxX * 0.4], y: [-maxY, -maxY * 0.5] } },
+          { id: 'polaroid2', area: { x: [maxX * 0.4, maxX], y: [-maxY, -maxY * 0.5] } },
+          { id: 'polaroid3', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY, -maxY * 0.75] } },
+          { id: 'polaroid4', area: { x: [-maxX, -maxX * 0.5], y: [-maxY * 0.2, maxY * 0.2] } },
+          { id: 'polaroid5', area: { x: [maxX * 0.5, maxX], y: [-maxY * 0.2, maxY * 0.2] } },
+          { id: 'polaroid6', area: { x: [-maxX, -maxX * 0.3], y: [maxY * 0.5, maxY] } },
+          { id: 'polaroid7', area: { x: [maxX * 0.3, maxX], y: [maxY * 0.5, maxY] } }
         ];
       } else {
-        // Di Desktop: Sebar di Kiri, Kanan, Atas, Bawah secara fleksibel
         polaroidConfigs = [
           { id: 'polaroid1', area: { x: [-maxX * 0.9, -maxX * 0.6], y: [-maxY * 0.8, -maxY * 0.3] } },
           { id: 'polaroid2', area: { x: [-maxX * 0.95, -maxX * 0.65], y: [-maxY * 0.2, maxY * 0.2] } },
@@ -917,7 +983,6 @@
 
       let foundImages = [];
 
-      // A. JIKA DIBUKA DI GITHUB PAGES
       if (window.location.hostname.includes('github.io')) {
         const username = window.location.hostname.split('.')[0];
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
@@ -933,11 +998,10 @@
               .filter(name => name.match(/\.(jpe?g)$/i));
           }
         } catch (e) {
-          console.error('Gagal mengambil daftar gambar dari GitHub API:', e);
+          console.error('Gagal mengambil gambar:', e);
         }
       }
 
-      // B. JIKA LOCALHOST / FALLBACK
       if (foundImages.length === 0) {
         try {
           const res = await fetch('images/');
@@ -977,7 +1041,6 @@
           this.onerror = null;
         };
 
-        // Hitung posisi acak dalam rentang area yang sudah dipastikan aman untuk layar
         const minX = config.area.x[0];
         const maxXRange = config.area.x[1];
         const minY = config.area.y[0];
@@ -997,18 +1060,16 @@
       });
     }
 
-    // 7. Drag & Drop + Click to Zoom Listener
     function makeElementDraggableAndZoomable(el) {
       let isDragging = false;
       let startX, startY;
       let initialX = parseFloat(el.dataset.x) || 0;
       let initialY = parseFloat(el.dataset.y) || 0;
       let rotate = parseFloat(el.dataset.rotate) || 0;
-      
-      let moveDistance = 0; // Untuk membedakan Klik biasa vs Dragging
+      let moveDistance = 0;
 
       function onStart(e) {
-        if (el.classList.contains('zoomed')) return; // Abaikan jika sedang mode zoom
+        if (el.classList.contains('zoomed')) return;
 
         isDragging = true;
         moveDistance = 0;
@@ -1054,7 +1115,6 @@
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('touchend', onEnd);
 
-        // Jika tidak diseret (moveDistance kecil), anggap sebagai KLIK / TAP
         if (moveDistance < 5) {
           toggleZoomPolaroid(el);
         }
@@ -1064,7 +1124,6 @@
       el.addEventListener('touchstart', onStart, { passive: false });
     }
 
-    // 8. Logika Zoom / Unzoom Polaroid & Blur Background
     function toggleZoomPolaroid(el) {
       if (el.classList.contains('zoomed')) {
         closeZoomedPolaroid();
@@ -1097,6 +1156,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      checkIntroStatus();
       randomizePolaroids();
       loadNovel();
     });
@@ -1106,10 +1166,20 @@
         recalculatePagination();
       }
     });
-    
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
 
+    // --- MODAL KOMENTAR ---
     function openCommentModal() {
+      if (!currentReaderName) {
+        const nameInput = prompt('Masukkan nama kamu dulu sebelum berkomentar:');
+        if (nameInput && nameInput.trim() !== '') {
+          currentReaderName = nameInput.trim();
+          localStorage.setItem('benivon_reader_name', currentReaderName);
+        } else {
+          return;
+        }
+      }
+
+      updateCommentUserBadge();
       document.getElementById('commentModalOverlay').classList.add('active');
       fetchComments();
     }
@@ -1124,7 +1194,6 @@
       counter.innerText = `${textarea.value.length} / 160`;
     }
 
-    // Fetch data dari Google Sheets
     async function fetchComments() {
       const listEl = document.getElementById('commentsList');
       try {
@@ -1150,30 +1219,32 @@
       }
     }
 
-    // Kirim data ke Google Sheets
     async function submitComment(e) {
       e.preventDefault();
       
       const submitBtn = document.getElementById('submitBtn');
-      const nama = document.getElementById('authorInput').value.trim();
       const pesan = document.getElementById('messageInput').value.trim();
 
-      if (!nama || !pesan) return;
+      if (!pesan || !currentReaderName) return;
 
       submitBtn.disabled = true;
       submitBtn.innerText = 'Mengirim...';
 
       try {
-        const payload = JSON.stringify({ nama, pesan });
+        const payload = JSON.stringify({
+          action: 'komentar',
+          nama: currentReaderName,
+          pesan: pesan
+        });
         
         await fetch(SCRIPT_URL, {
           method: 'POST',
           body: payload
         });
 
-        document.getElementById('commentForm').reset();
+        document.getElementById('messageInput').value = '';
         updateCharCount();
-        await fetchComments(); // Refresh list komentar
+        await fetchComments();
       } catch (err) {
         alert('Gagal mengirim komentar. Silakan coba lagi.');
       } finally {
@@ -1182,7 +1253,6 @@
       }
     }
 
-    // Utility Sanitasi HTML (Mencegah XSS)
     function escapeHtml(text) {
       return String(text)
         .replace(/&/g, "&amp;")
@@ -1192,22 +1262,18 @@
         .replace(/'/g, "&#039;");
     }
 
-    // Fungsi untuk mereset/refresh hanya foto-foto Polaroid
     function refreshPolaroidsOnly() {
       const refreshBtn = document.getElementById('btnRefreshPhotos');
       
-      // Efek animasi putar ikon saat diklik
       refreshBtn.classList.add('spin-icon');
       setTimeout(() => {
         refreshBtn.classList.remove('spin-icon');
       }, 500);
 
-      // Jika ada foto yang sedang di-zoom, tutup terlebih dahulu
       if (typeof closeZoomedPolaroid === 'function') {
         closeZoomedPolaroid();
       }
 
-      // Acak & muat ulang foto Polaroid tanpa merefresh halaman/teks
       randomizePolaroids();
     }
   </script>
@@ -1234,8 +1300,8 @@
       </div>
 
       <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
-        <input type="text" id="authorInput" class="comment-input" placeholder="Nama Anda" maxlength="30" required>
-        
+        <div class="comment-user-badge" id="commentUserBadge"></div>
+
         <textarea id="messageInput" class="comment-textarea" placeholder="Tulis komentar (maks. 160 karakter)..." maxlength="160" required oninput="updateCharCount()"></textarea>
         
         <div class="form-footer">
