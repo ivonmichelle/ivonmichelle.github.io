@@ -859,11 +859,10 @@ async function randomizePolaroids() {
   });
 }
 
-// 7. Drag & Drop + Click to Zoom Listener (Diperbaiki)
+// 7. Drag & Drop + Click to Zoom Listener (FIXED ROTATE BUG)
 function makeElementDraggableAndZoomable(el) {
   let isDragging = false;
-  let startX, startY;
-  let initialX, initialY, rotate;
+  let startX = 0, startY = 0;
   let moveDistance = 0;
 
   function onStart(e) {
@@ -874,16 +873,16 @@ function makeElementDraggableAndZoomable(el) {
     topZIndex++;
     el.style.zIndex = topZIndex;
 
-    // AMBIL NILAI TERBARU DARI DATASET SAAT MULAI DRAG
-    initialX = parseFloat(el.dataset.x) || 0;
-    initialY = parseFloat(el.dataset.y) || 0;
-    rotate = parseFloat(el.dataset.rotate) || 0;
+    // Ambil koordinat posisi saat ini
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
 
     const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
     const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-    startX = clientX - initialX;
-    startY = clientY - initialY;
+    // Hitung offset klik relatif terhadap posisi foto
+    startX = clientX - currentX;
+    startY = clientY - currentY;
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onEnd);
@@ -898,18 +897,24 @@ function makeElementDraggableAndZoomable(el) {
     const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
     const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-    const deltaX = clientX - startX - initialX;
-    const deltaY = clientY - startY - initialY;
-    moveDistance += Math.abs(deltaX) + Math.abs(deltaY);
+    // Hitung posisi baru
+    const newX = clientX - startX;
+    const newY = clientY - startY;
 
-    initialX = clientX - startX;
-    initialY = clientY - startY;
+    // Deteksi jarak pergerakan untuk membedakan KLIK vs DRAG
+    const oldX = parseFloat(el.dataset.x) || 0;
+    const oldY = parseFloat(el.dataset.y) || 0;
+    moveDistance += Math.abs(newX - oldX) + Math.abs(newY - oldY);
 
-    el.dataset.x = initialX;
-    el.dataset.y = initialY;
+    // Simpan posisi baru ke dataset
+    el.dataset.x = newX;
+    el.dataset.y = newY;
 
-    // Tetap pertahankan nilai rotate saat digeser
-    el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
+    // BACA ROTASI LANGSUNG DARI DATASET SETIAP KALI BERGERAK (Mencegah tegak lurus)
+    const currentRotate = parseFloat(el.dataset.rotate) || 0;
+
+    // Terapkan posisi + rotasi miringnya
+    el.style.transform = `translate(${newX}px, ${newY}px) rotate(${currentRotate}deg)`;
   }
 
   function onEnd() {
@@ -919,6 +924,7 @@ function makeElementDraggableAndZoomable(el) {
     document.removeEventListener('touchmove', onMove);
     document.removeEventListener('touchend', onEnd);
 
+    // Jika cuma diklik (tidak digeser), jalankan zoom
     if (moveDistance < 5) {
       toggleZoomPolaroid(el);
     }
