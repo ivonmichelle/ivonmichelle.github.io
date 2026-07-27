@@ -514,6 +514,16 @@ html, body {
   user-select: none;
   letter-spacing: 0.5px;
 }
+/* Penyesuaian ukuran Polaroid khusus layar ponsel (Mobile) */
+@media (max-width: 768px) {
+  .polaroid {
+    width: 80px !important; /* Ukuran lebih ringkas di HP */
+    padding: 5px 5px 10px 5px !important;
+  }
+  .polaroid img {
+    height: 70px !important;
+  }
+}
 
   </style>
 </head>
@@ -729,107 +739,127 @@ function renderPage() {
       recalculatePagination();
     }
 
-    // 6. Penataan Foto Polaroid (Fix Akurat untuk GitHub Pages User/Project Site & Localhost)
-    async function randomizePolaroids() {
-      const polaroidConfigs = [
-        { id: 'polaroid1', baseArea: { x: [-300, -230], y: [-150, -60] } },
-        { id: 'polaroid2', baseArea: { x: [-310, -240], y: [-20, 50] } },
-        { id: 'polaroid3', baseArea: { x: [-290, -220], y: [90, 150] } },
-        { id: 'polaroid4', baseArea: { x: [-60, 60], y: [-160, -120] } },
-        { id: 'polaroid5', baseArea: { x: [230, 300], y: [-150, -60] } },
-        { id: 'polaroid6', baseArea: { x: [240, 310], y: [-20, 50] } },
-        { id: 'polaroid7', baseArea: { x: [220, 290], y: [90, 150] } }
-      ];
+// 6. Penataan Foto Polaroid (Dinamis & Responsif Layar Mobile/Desktop)
+async function randomizePolaroids() {
+  const isMobile = window.innerWidth <= 768;
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+  
+  // Estimasi batas aman setengah layar (karena titik acuan translate dari tengah/50%)
+  const polaroidW = isMobile ? 80 : 110;
+  const polaroidH = isMobile ? 90 : 120;
+  
+  const maxX = (screenW / 2) - (polaroidW / 2) - 10;
+  const maxY = (screenH / 2) - (polaroidH / 2) - 10;
 
-      let foundImages = [];
+  // Area acak dinamis
+  let polaroidConfigs = [];
 
-      // A. JIKA DIBUKA DI GITHUB PAGES (Dinamis mendeteksi User Site maupun Project Site)
-      if (window.location.hostname.includes('github.io')) {
-        const username = window.location.hostname.split('.')[0];
-        const pathSegments = window.location.pathname.split('/').filter(Boolean);
-        
-        // Jika URL berupa username.github.io/namarepo -> repo = namarepo
-        // Jika URL berupa username.github.io -> repo = username.github.io
-        const repo = pathSegments.length > 0 ? pathSegments[0] : `${username}.github.io`;
-        const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/images`;
+  if (isMobile) {
+    // Di Mobile: Sebar foto di bagian Atas, Bawah, dan Sudut Pinggir Buku
+    polaroidConfigs = [
+      { id: 'polaroid1', area: { x: [-maxX, -maxX * 0.4], y: [-maxY, -maxY * 0.5] } }, // Kiri Atas
+      { id: 'polaroid2', area: { x: [maxX * 0.4, maxX], y: [-maxY, -maxY * 0.5] } },   // Kanan Atas
+      { id: 'polaroid3', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY, -maxY * 0.75] } }, // Tengah Atas
+      { id: 'polaroid4', area: { x: [-maxX, -maxX * 0.5], y: [-maxY * 0.2, maxY * 0.2] } },  // Kiri Tengah (Mengintip)
+      { id: 'polaroid5', area: { x: [maxX * 0.5, maxX], y: [-maxY * 0.2, maxY * 0.2] } },   // Kanan Tengah (Mengintip)
+      { id: 'polaroid6', area: { x: [-maxX, -maxX * 0.3], y: [maxY * 0.5, maxY] } },   // Kiri Bawah
+      { id: 'polaroid7', area: { x: [maxX * 0.3, maxX], y: [maxY * 0.5, maxY] } }     // Kanan Bawah
+    ];
+  } else {
+    // Di Desktop: Sebar di Kiri, Kanan, Atas, Bawah secara fleksibel
+    polaroidConfigs = [
+      { id: 'polaroid1', area: { x: [-maxX * 0.9, -maxX * 0.6], y: [-maxY * 0.8, -maxY * 0.3] } },
+      { id: 'polaroid2', area: { x: [-maxX * 0.95, -maxX * 0.65], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid3', area: { x: [-maxX * 0.85, -maxX * 0.55], y: [maxY * 0.3, maxY * 0.8] } },
+      { id: 'polaroid4', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY * 0.9, -maxY * 0.7] } },
+      { id: 'polaroid5', area: { x: [maxX * 0.55, maxX * 0.85], y: [-maxY * 0.8, -maxY * 0.3] } },
+      { id: 'polaroid6', area: { x: [maxX * 0.65, maxX * 0.95], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid7', area: { x: [maxX * 0.55, maxX * 0.85], y: [maxY * 0.3, maxY * 0.8] } }
+    ];
+  }
 
-        try {
-          const res = await fetch(apiUrl);
-          if (res.ok) {
-            const files = await res.json();
-            foundImages = files
-              .map(file => file.name)
-              .filter(name => name.match(/\.(jpe?g)$/i));
-          } else {
-            console.warn('GitHub API Response status:', res.status);
-          }
-        } catch (e) {
-          console.error('Gagal mengambil daftar gambar dari GitHub API:', e);
-        }
+  let foundImages = [];
+
+  // A. JIKA DIBUKA DI GITHUB PAGES
+  if (window.location.hostname.includes('github.io')) {
+    const username = window.location.hostname.split('.')[0];
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    const repo = pathSegments.length > 0 ? pathSegments[0] : `${username}.github.io`;
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/images`;
+
+    try {
+      const res = await fetch(apiUrl);
+      if (res.ok) {
+        const files = await res.json();
+        foundImages = files
+          .map(file => file.name)
+          .filter(name => name.match(/\.(jpe?g)$/i));
       }
-
-      // B. JIKA DIBUKA DI LOCALHOST (Directory Listing)
-      if (foundImages.length === 0) {
-        try {
-          const res = await fetch('images/');
-          if (res.ok) {
-            const htmlText = await res.text();
-            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-            const links = Array.from(doc.querySelectorAll('a'));
-            
-            foundImages = links
-              .map(a => a.getAttribute('href'))
-              .filter(href => href && href.match(/\.(jpe?g)$/i))
-              .map(href => href.split('/').pop());
-          }
-        } catch (e) {
-          console.log('Local directory listing tidak tersedia.');
-        }
-      }
-
-      // C. JIKA SEMUA CARA OTOMATIS DI ATAS GAGAL (Atau jika API terkena Rate Limit)
-      if (foundImages.length === 0) {
-        console.warn('Menggunakan fallback image finder...');
-        // Opsi darurat untuk memastikan foto tetap dicoba muat
-        for (let i = 1; i <= 20; i++) {
-          foundImages.push(`${i}.jpeg`);
-          foundImages.push(`foto${i}.jpeg`);
-          foundImages.push(`image${i}.jpeg`);
-        }
-      }
-
-      // Acak urutan gambar
-      let shuffled = [...foundImages].sort(() => 0.5 - Math.random());
-
-      polaroidConfigs.forEach((config, index) => {
-        const el = document.getElementById(config.id);
-        if (!el) return;
-
-        const imgEl = el.querySelector('img');
-        const selectedImg = shuffled[index % shuffled.length];
-        
-        imgEl.src = `images/${selectedImg}`;
-
-        // Jika foto gagal muat (misal karena nama tebakan fallback tidak ada), sembunyikan atau biarkan onerror menangani
-        imgEl.onerror = function() {
-          // Mencegah gambar pecah/error berulang
-          this.onerror = null;
-        };
-
-        const randomX = Math.floor(Math.random() * (config.baseArea.x[1] - config.baseArea.x[0])) + config.baseArea.x[0];
-        const randomY = Math.floor(Math.random() * (config.baseArea.y[1] - config.baseArea.y[0])) + config.baseArea.y[0];
-        const randomRotate = Math.floor(Math.random() * 50) - 25;
-
-        el.dataset.x = randomX;
-        el.dataset.y = randomY;
-        el.dataset.rotate = randomRotate;
-
-        el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
-
-        makeElementDraggableAndZoomable(el);
-      });
+    } catch (e) {
+      console.error('Gagal mengambil daftar gambar dari GitHub API:', e);
     }
+  }
 
+  // B. JIKA LOCALHOST / FALLBACK
+  if (foundImages.length === 0) {
+    try {
+      const res = await fetch('images/');
+      if (res.ok) {
+        const htmlText = await res.text();
+        const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+        const links = Array.from(doc.querySelectorAll('a'));
+        foundImages = links
+          .map(a => a.getAttribute('href'))
+          .filter(href => href && href.match(/\.(jpe?g)$/i))
+          .map(href => href.split('/').pop());
+      }
+    } catch (e) {
+      console.log('Local directory listing tidak tersedia.');
+    }
+  }
+
+  if (foundImages.length === 0) {
+    for (let i = 1; i <= 20; i++) {
+      foundImages.push(`${i}.jpeg`);
+      foundImages.push(`foto${i}.jpeg`);
+      foundImages.push(`image${i}.jpeg`);
+    }
+  }
+
+  let shuffled = [...foundImages].sort(() => 0.5 - Math.random());
+
+  polaroidConfigs.forEach((config, index) => {
+    const el = document.getElementById(config.id);
+    if (!el) return;
+
+    const imgEl = el.querySelector('img');
+    const selectedImg = shuffled[index % shuffled.length];
+    imgEl.src = `images/${selectedImg}`;
+
+    imgEl.onerror = function() {
+      this.onerror = null;
+    };
+
+    // Hitung posisi acak dalam rentang area yang sudah dipastikan aman untuk layar
+    const minX = config.area.x[0];
+    const maxXRange = config.area.x[1];
+    const minY = config.area.y[0];
+    const maxYRange = config.area.y[1];
+
+    const randomX = Math.floor(Math.random() * (maxXRange - minX)) + minX;
+    const randomY = Math.floor(Math.random() * (maxYRange - minY)) + minY;
+    const randomRotate = Math.floor(Math.random() * 40) - 20;
+
+    el.dataset.x = randomX;
+    el.dataset.y = randomY;
+    el.dataset.rotate = randomRotate;
+
+    el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
+
+    makeElementDraggableAndZoomable(el);
+  });
+}
 
     // 7. Drag & Drop + Click to Zoom Listener
     function makeElementDraggableAndZoomable(el) {
