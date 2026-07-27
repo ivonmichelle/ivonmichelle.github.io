@@ -740,35 +740,31 @@ function renderPage() {
       recalculatePagination();
     }
 
-// 6. Penataan Foto Polaroid (Dinamis & Responsif Layar Mobile/Desktop)
+// 6. Penataan Foto Polaroid (Dinamis & Bebas Bug Drag)
 async function randomizePolaroids() {
   const isMobile = window.innerWidth <= 768;
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
   
-  // Estimasi batas aman setengah layar (karena titik acuan translate dari tengah/50%)
   const polaroidW = isMobile ? 80 : 110;
   const polaroidH = isMobile ? 90 : 120;
   
   const maxX = (screenW / 2) - (polaroidW / 2) - 10;
   const maxY = (screenH / 2) - (polaroidH / 2) - 10;
 
-  // Area acak dinamis
   let polaroidConfigs = [];
 
   if (isMobile) {
-    // Di Mobile: Sebar foto di bagian Atas, Bawah, dan Sudut Pinggir Buku
     polaroidConfigs = [
-      { id: 'polaroid1', area: { x: [-maxX, -maxX * 0.4], y: [-maxY, -maxY * 0.5] } }, // Kiri Atas
-      { id: 'polaroid2', area: { x: [maxX * 0.4, maxX], y: [-maxY, -maxY * 0.5] } },   // Kanan Atas
-      { id: 'polaroid3', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY, -maxY * 0.75] } }, // Tengah Atas
-      { id: 'polaroid4', area: { x: [-maxX, -maxX * 0.5], y: [-maxY * 0.2, maxY * 0.2] } },  // Kiri Tengah (Mengintip)
-      { id: 'polaroid5', area: { x: [maxX * 0.5, maxX], y: [-maxY * 0.2, maxY * 0.2] } },   // Kanan Tengah (Mengintip)
-      { id: 'polaroid6', area: { x: [-maxX, -maxX * 0.3], y: [maxY * 0.5, maxY] } },   // Kiri Bawah
-      { id: 'polaroid7', area: { x: [maxX * 0.3, maxX], y: [maxY * 0.5, maxY] } }     // Kanan Bawah
+      { id: 'polaroid1', area: { x: [-maxX, -maxX * 0.4], y: [-maxY, -maxY * 0.5] } },
+      { id: 'polaroid2', area: { x: [maxX * 0.4, maxX], y: [-maxY, -maxY * 0.5] } },
+      { id: 'polaroid3', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY, -maxY * 0.75] } },
+      { id: 'polaroid4', area: { x: [-maxX, -maxX * 0.5], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid5', area: { x: [maxX * 0.5, maxX], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid6', area: { x: [-maxX, -maxX * 0.3], y: [maxY * 0.5, maxY] } },
+      { id: 'polaroid7', area: { x: [maxX * 0.3, maxX], y: [maxY * 0.5, maxY] } }
     ];
   } else {
-    // Di Desktop: Sebar di Kiri, Kanan, Atas, Bawah secara fleksibel
     polaroidConfigs = [
       { id: 'polaroid1', area: { x: [-maxX * 0.9, -maxX * 0.6], y: [-maxY * 0.8, -maxY * 0.3] } },
       { id: 'polaroid2', area: { x: [-maxX * 0.95, -maxX * 0.65], y: [-maxY * 0.2, maxY * 0.2] } },
@@ -782,7 +778,6 @@ async function randomizePolaroids() {
 
   let foundImages = [];
 
-  // A. JIKA DIBUKA DI GITHUB PAGES
   if (window.location.hostname.includes('github.io')) {
     const username = window.location.hostname.split('.')[0];
     const pathSegments = window.location.pathname.split('/').filter(Boolean);
@@ -802,7 +797,6 @@ async function randomizePolaroids() {
     }
   }
 
-  // B. JIKA LOCALHOST / FALLBACK
   if (foundImages.length === 0) {
     try {
       const res = await fetch('images/');
@@ -842,7 +836,6 @@ async function randomizePolaroids() {
       this.onerror = null;
     };
 
-    // Hitung posisi acak dalam rentang area yang sudah dipastikan aman untuk layar
     const minX = config.area.x[0];
     const maxXRange = config.area.x[1];
     const minY = config.area.y[0];
@@ -858,75 +851,82 @@ async function randomizePolaroids() {
 
     el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
 
+    // PASANG EVENT LISTENER HANYA JIKA BELUM PERNAH DIPASANG (Mencegah ganda)
+    if (!el.dataset.bound) {
+      makeElementDraggableAndZoomable(el);
+      el.dataset.bound = "true";
+    }
   });
 }
 
-    // 7. Drag & Drop + Click to Zoom Listener
-    function makeElementDraggableAndZoomable(el) {
-      let isDragging = false;
-      let startX, startY;
-      let initialX = parseFloat(el.dataset.x) || 0;
-      let initialY = parseFloat(el.dataset.y) || 0;
-      let rotate = parseFloat(el.dataset.rotate) || 0;
-      
-      let moveDistance = 0; // Untuk membedakan Klik biasa vs Dragging
+// 7. Drag & Drop + Click to Zoom Listener (Diperbaiki)
+function makeElementDraggableAndZoomable(el) {
+  let isDragging = false;
+  let startX, startY;
+  let initialX, initialY, rotate;
+  let moveDistance = 0;
 
-      function onStart(e) {
-        if (el.classList.contains('zoomed')) return; // Abaikan jika sedang mode zoom
+  function onStart(e) {
+    if (el.classList.contains('zoomed')) return;
 
-        isDragging = true;
-        moveDistance = 0;
-        topZIndex++;
-        el.style.zIndex = topZIndex;
+    isDragging = true;
+    moveDistance = 0;
+    topZIndex++;
+    el.style.zIndex = topZIndex;
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+    // AMBIL NILAI TERBARU DARI DATASET SAAT MULAI DRAG
+    initialX = parseFloat(el.dataset.x) || 0;
+    initialY = parseFloat(el.dataset.y) || 0;
+    rotate = parseFloat(el.dataset.rotate) || 0;
 
-        startX = clientX - initialX;
-        startY = clientY - initialY;
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onEnd);
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', onEnd);
-      }
+    startX = clientX - initialX;
+    startY = clientY - initialY;
 
-      function onMove(e) {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault();
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+  function onMove(e) {
+    if (!isDragging) return;
+    if (e.cancelable) e.preventDefault();
 
-        const deltaX = clientX - startX - initialX;
-        const deltaY = clientY - startY - initialY;
-        moveDistance += Math.abs(deltaX) + Math.abs(deltaY);
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        initialX = clientX - startX;
-        initialY = clientY - startY;
+    const deltaX = clientX - startX - initialX;
+    const deltaY = clientY - startY - initialY;
+    moveDistance += Math.abs(deltaX) + Math.abs(deltaY);
 
-        el.dataset.x = initialX;
-        el.dataset.y = initialY;
+    initialX = clientX - startX;
+    initialY = clientY - startY;
 
-        el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
-      }
+    el.dataset.x = initialX;
+    el.dataset.y = initialY;
 
-      function onEnd() {
-        isDragging = false;
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onEnd);
-        document.removeEventListener('touchmove', onMove);
-        document.removeEventListener('touchend', onEnd);
+    // Tetap pertahankan nilai rotate saat digeser
+    el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
+  }
 
-        // Jika tidak diseret (moveDistance kecil), anggap sebagai KLIK / TAP
-        if (moveDistance < 5) {
-          toggleZoomPolaroid(el);
-        }
-      }
+  function onEnd() {
+    isDragging = false;
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
 
-      el.addEventListener('mousedown', onStart);
-      el.addEventListener('touchstart', onStart, { passive: false });
+    if (moveDistance < 5) {
+      toggleZoomPolaroid(el);
     }
+  }
+
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+}
 
     // 8. Logika Zoom / Unzoom Polaroid & Blur Background
     function toggleZoomPolaroid(el) {
@@ -960,14 +960,10 @@ async function randomizePolaroids() {
       activeZoomedEl = null;
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      for (let i = 1; i <= 7; i++) {
-    const el = document.getElementById(`polaroid${i}`);
-    if (el) makeElementDraggableAndZoomable(el);
-  }
-      randomizePolaroids();
-      loadNovel();
-    });
+window.addEventListener('DOMContentLoaded', () => {
+  randomizePolaroids();
+  loadNovel();
+});
 
     window.addEventListener('resize', () => {
       if (rawParagraphs.length > 0) {
