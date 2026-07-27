@@ -514,6 +514,7 @@ html, body {
   user-select: none;
   letter-spacing: 0.5px;
 }
+
 /* Penyesuaian ukuran Polaroid khusus layar ponsel (Mobile) */
 @media (max-width: 768px) {
   .polaroid {
@@ -857,81 +858,75 @@ async function randomizePolaroids() {
 
     el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
 
-    makeElementDraggableAndZoomable(el);
   });
 }
-    
-// 7. Drag & Drop + Click to Zoom Listener (Dengan Proteksi Duplicate Event Listener)
-function makeElementDraggableAndZoomable(el) {
-  let isDragging = false;
-  let startX, startY;
-  
-  let moveDistance = 0; // Untuk membedakan Klik biasa vs Dragging
 
-  function onStart(e) {
-    if (el.classList.contains('zoomed')) return; // Abaikan jika sedang mode zoom
+    // 7. Drag & Drop + Click to Zoom Listener
+    function makeElementDraggableAndZoomable(el) {
+      let isDragging = false;
+      let startX, startY;
+      let initialX = parseFloat(el.dataset.x) || 0;
+      let initialY = parseFloat(el.dataset.y) || 0;
+      let rotate = parseFloat(el.dataset.rotate) || 0;
+      
+      let moveDistance = 0; // Untuk membedakan Klik biasa vs Dragging
 
-    isDragging = true;
-    moveDistance = 0;
-    topZIndex++;
-    el.style.zIndex = topZIndex;
+      function onStart(e) {
+        if (el.classList.contains('zoomed')) return; // Abaikan jika sedang mode zoom
 
-    // Ambil koordinat awal dari dataset terbaru
-    let initialX = parseFloat(el.dataset.x) || 0;
-    let initialY = parseFloat(el.dataset.y) || 0;
+        isDragging = true;
+        moveDistance = 0;
+        topZIndex++;
+        el.style.zIndex = topZIndex;
 
-    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-    startX = clientX - initialX;
-    startY = clientY - initialY;
+        startX = clientX - initialX;
+        startY = clientY - initialY;
 
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onEnd);
-    document.addEventListener('touchmove', onMove, { passive: false });
-    document.addEventListener('touchend', onEnd);
-  }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd);
+      }
 
-  function onMove(e) {
-    if (!isDragging) return;
-    if (e.cancelable) e.preventDefault();
+      function onMove(e) {
+        if (!isDragging) return;
+        if (e.cancelable) e.preventDefault();
 
-    let rotate = parseFloat(el.dataset.rotate) || 0;
-    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-    const currentX = clientX - startX;
-    const currentY = clientY - startY;
+        const deltaX = clientX - startX - initialX;
+        const deltaY = clientY - startY - initialY;
+        moveDistance += Math.abs(deltaX) + Math.abs(deltaY);
 
-    moveDistance += Math.abs(currentX - (parseFloat(el.dataset.x) || 0)) + Math.abs(currentY - (parseFloat(el.dataset.y) || 0));
+        initialX = clientX - startX;
+        initialY = clientY - startY;
 
-    el.dataset.x = currentX;
-    el.dataset.y = currentY;
+        el.dataset.x = initialX;
+        el.dataset.y = initialY;
 
-    el.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
-  }
+        el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
+      }
 
-  function onEnd() {
-    isDragging = false;
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onEnd);
-    document.removeEventListener('touchmove', onMove);
-    document.removeEventListener('touchend', onEnd);
+      function onEnd() {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
 
-    // Jika tidak diseret (moveDistance kecil), anggap sebagai KLIK / TAP
-    if (moveDistance < 5) {
-      toggleZoomPolaroid(el);
+        // Jika tidak diseret (moveDistance kecil), anggap sebagai KLIK / TAP
+        if (moveDistance < 5) {
+          toggleZoomPolaroid(el);
+        }
+      }
+
+      el.addEventListener('mousedown', onStart);
+      el.addEventListener('touchstart', onStart, { passive: false });
     }
-  }
-
-  // PASSING DUA HAL PENTING DI SINI:
-  // 1. Cek apakah event listener sudah pernah dipasang sebelumnya
-  if (!el.dataset.listenerAttached) {
-    el.addEventListener('mousedown', onStart);
-    el.addEventListener('touchstart', onStart, { passive: false });
-    el.dataset.listenerAttached = 'true'; // Tandai bahwa listener sudah terpasang
-  }
-}
 
     // 8. Logika Zoom / Unzoom Polaroid & Blur Background
     function toggleZoomPolaroid(el) {
@@ -966,6 +961,10 @@ function makeElementDraggableAndZoomable(el) {
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById(`polaroid${i}`);
+    if (el) makeElementDraggableAndZoomable(el);
+  }
       randomizePolaroids();
       loadNovel();
     });
