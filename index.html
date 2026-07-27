@@ -459,6 +459,7 @@
     }
 
     // 6. Penataan Foto Polaroid
+        // 6. Penataan Foto Polaroid (Mendukung Otomatis Baca Folder di GitHub Pages & Localhost)
     async function randomizePolaroids() {
       const polaroidConfigs = [
         { id: 'polaroid1', baseArea: { x: [-300, -230], y: [-150, -60] } },
@@ -472,30 +473,55 @@
 
       let foundImages = [];
 
-      try {
-        const res = await fetch('images/');
-        if (res.ok) {
-          const htmlText = await res.text();
-          const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-          const links = Array.from(doc.querySelectorAll('a'));
-          
-          foundImages = links
-            .map(a => a.getAttribute('href'))
-            .filter(href => href && href.match(/\.(jpe?g)$/i))
-            .map(href => href.split('/').pop());
+      // --- TRIK GITHUB API: Ambil username & repository secara otomatis dari URL halaman ---
+      const host = window.location.hostname;
+      const pathSegments = window.location.pathname.split('/').filter(Boolean);
+
+      if (host.includes('github.io') && pathSegments.length > 0) {
+        const username = host.split('.')[0];
+        const repo = pathSegments[0];
+        const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/images`;
+
+        try {
+          const res = await fetch(apiUrl);
+          if (res.ok) {
+            const files = await res.json();
+            // Ambil semua file yang berakhiran .jpeg atau .jpg (case-insensitive)
+            foundImages = files
+              .map(file => file.name)
+              .filter(name => name.match(/\.(jpe?g)$/i));
+          }
+        } catch (e) {
+          console.log('Gagal memuat via GitHub API:', e);
         }
-      } catch (e) {
-        console.log('Auto-index server tidak aktif.');
       }
 
+      // --- FALLBACK UNTUK LOCALHOST (Membaca Directory Listing Lokal) ---
       if (foundImages.length === 0) {
-        foundImages = [
-          'foto1.jpeg', 'foto2.jpeg', 'foto3.jpeg', 'foto4.jpeg', 'foto5.jpeg', 'foto6.jpeg', 'foto7.jpeg',
-          'image1.jpeg', 'image2.jpeg', 'img1.jpeg', 'img2.jpeg', 'pic1.jpeg', 'pic2.jpeg',
-          '1.jpeg', '2.jpeg', '3.jpeg', '4.jpeg', '5.jpeg', '6.jpeg', '7.jpeg'
-        ];
+        try {
+          const res = await fetch('images/');
+          if (res.ok) {
+            const htmlText = await res.text();
+            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+            const links = Array.from(doc.querySelectorAll('a'));
+            
+            foundImages = links
+              .map(a => a.getAttribute('href'))
+              .filter(href => href && href.match(/\.(jpe?g)$/i))
+              .map(href => href.split('/').pop());
+          }
+        } catch (e) {
+          console.log('Auto-index server lokal tidak aktif.');
+        }
       }
 
+      // Jika masih tidak ketemu gambar sama sekali:
+      if (foundImages.length === 0) {
+        console.warn('Tidak ada gambar .jpeg yang ditemukan di folder images/');
+        return;
+      }
+
+      // Acak urutan gambar yang ditemukan
       let shuffled = [...foundImages].sort(() => 0.5 - Math.random());
 
       polaroidConfigs.forEach((config, index) => {
@@ -506,11 +532,6 @@
         const selectedImg = shuffled[index % shuffled.length];
         
         imgEl.src = `images/${selectedImg}`;
-
-        imgEl.onerror = function() {
-          this.onerror = null;
-          this.src = `images/${(index % 10) + 1}.jpeg`;
-        };
 
         const randomX = Math.floor(Math.random() * (config.baseArea.x[1] - config.baseArea.x[0])) + config.baseArea.x[0];
         const randomY = Math.floor(Math.random() * (config.baseArea.y[1] - config.baseArea.y[0])) + config.baseArea.y[0];
