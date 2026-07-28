@@ -4,19 +4,138 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BenivoN</title>
-<link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Style Tambahan Modals & Custom Admin UI */
+    .admin-upload-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .admin-upload-modal.active { display: flex; }
+    
+    .admin-card {
+      background: #fff8f0;
+      border: 2px solid #e2c0a8;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .admin-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2c0a8;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .admin-card-header h3 { margin: 0; color: #5a4234; }
+    
+    .admin-card-body {
+      overflow-y: auto;
+      padding-right: 5px;
+      flex: 1;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #5a4234;
+      margin-bottom: 4px;
+    }
+
+    .form-control-select {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      font-size: 0.9rem;
+    }
+
+    .photo-slot {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      background: #fff;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px dashed #d1b8a5;
+    }
+
+    .photo-slot span {
+      font-size: 0.8rem;
+      font-weight: bold;
+      min-width: 55px;
+      color: #725643;
+    }
+
+    .photo-slot input[type="file"] {
+      font-size: 0.8rem;
+      width: 100%;
+    }
+
+    .preview-thumb {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      display: none;
+    }
+
+    .admin-card-footer {
+      margin-top: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-submit-upload {
+      background: #d97736;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-submit-upload:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
 
   <div class="ivon-intro-overlay" id="ivonIntroOverlay">
     <div class="ivon-intro-card">
-      
-<div class="ivon-speech-bubble" id="introStep1">
-  <strong>Halo, traveler manis! ✨</strong><br><br>
-  Sebelum kita berpetualang di buku kenangan ini, Ivon boleh tahu nama kamu siapa? 💖
-  <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter') submitReaderName()">
-  <button class="ivon-intro-btn" style="position: relative; z-index: 10; cursor: pointer;" onclick="submitReaderName()">Lanjut ➔</button>
-</div>
+      <div class="ivon-speech-bubble" id="introStep1">
+        <strong>Halo, traveler manis! ✨</strong><br><br>
+        Sebelum kita berpetualang di buku kenangan ini, Ivon boleh tahu nama kamu siapa? 💖
+        <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter') submitReaderName()">
+        <button class="ivon-intro-btn" style="position: relative; z-index: 10; cursor: pointer;" onclick="submitReaderName()">Lanjut ➔</button>
+      </div>
 
       <div class="ivon-speech-bubble" id="introStep2" style="display: none;">
         <strong>Aww, pahlawanku <span id="displayReaderName"></span> udah datang! 💖</strong><br><br>
@@ -43,12 +162,12 @@
     <div class="polaroid" id="polaroid7"><img src="" alt="Foto 7"></div>
 
     <div class="book-page">
-<div class="book-tabs">
-  <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
-  <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
-  <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Sketch</button>
-  <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Photo</button>
-</div>
+      <div class="book-tabs">
+        <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
+        <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
+        <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Sketch</button>
+        <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Photo</button>
+      </div>
 
       <div class="book-content" id="bookContent">
         <div class="status-msg">Memuat daftar cerita...</div>
@@ -61,10 +180,10 @@
           </div>
         </div>
       </div>
+      
       <div class="book-content" id="polaroidAlbumContent" style="display: none;">
-  <div class="polaroid-grid-view" id="polaroidGridContainer">
-    </div>
-</div>
+        <div class="polaroid-grid-view" id="polaroidGridContainer"></div>
+      </div>
 
       <div class="book-footer">
         <div class="font-slider-container" id="sliderContainer">
@@ -86,6 +205,98 @@
     </div>
   </div>
 
+  <div class="fab-container">
+    <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">
+      🔄
+    </button>
+
+    <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">
+      🔇
+    </button>
+
+    <button class="fab-btn" onclick="openCommentModal()" title="Buku Tamu / Komentar">
+      💬
+    </button>
+
+    <button class="fab-btn" id="btnAdminUpload" style="display: none;" onclick="openAdminUploadModal()" title="Tambah Foto (Admin)">
+      📷
+    </button>
+  </div>
+
+  <div class="jukebox-container">
+    <div class="jukebox-menu" id="jukeboxMenu">
+      <div class="jukebox-header">🎵 JUKEBOX</div>
+    </div>
+
+    <button class="fab-btn jukebox-btn" id="btnJukebox" onclick="toggleJukeboxMenu()" title="Jukebox BGM">
+      📻
+    </button>
+  </div>
+
+  <div class="comment-modal-overlay" id="commentModalOverlay">
+    <div class="comment-modal">
+      <div class="modal-header">
+        <h3>Buku Tamu & Komentar</h3>
+        <button class="close-btn" onclick="closeCommentModal()">&times;</button>
+      </div>
+
+      <div class="comments-list" id="commentsList">
+        <div class="status-msg">Memuat komentar...</div>
+      </div>
+
+      <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
+        <div class="comment-user-badge" id="commentUserBadge"></div>
+
+        <textarea id="messageInput" class="comment-textarea" placeholder="Tulis komentar (maks. 160 karakter)..." maxlength="160" required oninput="updateCharCount()"></textarea>
+        
+        <div class="form-footer">
+          <span class="char-counter" id="charCounter">0 / 160</span>
+          <button type="submit" class="submit-btn" id="submitBtn">Kirim</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-upload-modal" id="adminUploadModal">
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h3>Tambah Foto (Admin)</h3>
+        <button class="close-btn" onclick="closeAdminUploadModal()">&times;</button>
+      </div>
+      <div class="admin-card-body">
+        <div class="form-group">
+          <label for="categorySelect">Kategori Target:</label>
+          <select id="categorySelect" class="form-control-select">
+            <option value="Beni & Ivon">Beni & Ivon</option>
+            <option value="Deni & Clara">Deni & Clara</option>
+            <option value="Zack & Rina">Zack & Rina</option>
+            <option value="Kenzo & Nina">Kenzo & Nina</option>
+            <option value="Nathan & Jennifer">Nathan & Jennifer</option>
+            <option value="Other">Other</option>
+            <option value="Illustration">Illustration</option>
+            <option value="Sticker">Sticker</option>
+            <option value="Etc">Etc</option>
+          </select>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <label style="font-size:0.85rem; font-weight:bold; color:#5a4234;">Pilih Foto (Maksimal 10):</label>
+          <div id="photoSlotsContainer" style="margin-top: 8px;">
+            </div>
+        </div>
+      </div>
+
+      <div class="admin-card-footer">
+        <button class="nav-btn" onclick="closeAdminUploadModal()">Batal</button>
+        <button class="btn-submit-upload" id="btnSubmitAdminUpload" onclick="uploadAdminPhotos()">Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bgmAudio" loop preload="auto">
+    <source src="bgm/Selesai Dengan Sunyi (Beni Theme - Lofi).mp3" type="audio/mpeg">
+  </audio>
+
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
 
@@ -103,6 +314,178 @@
     const fontSizes = ['0.82rem', '0.92rem', '1.0rem', '1.1rem', '1.22rem'];
     let topZIndex = 100;
     let activeZoomedEl = null;
+
+    // --- FITUR ADMIN AUTH & SHA-256 CHECK ---
+    const ADMIN_HASH = "374961f303553001f5b4e05537bc655b02795ed2501866a94241caf70239e20f";
+
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function checkAdminStatus() {
+      if (sessionStorage.getItem('benivon_admin_logged') === 'true') {
+        const btnAdmin = document.getElementById('btnAdminUpload');
+        if (btnAdmin) btnAdmin.style.display = 'inline-block';
+      }
+    }
+
+    // Listener Shortcut Key: ALT + A
+    document.addEventListener('keydown', async (e) => {
+      if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        const pwd = prompt("Masukkan Passcode Admin:");
+        if (pwd) {
+          const hashed = await sha256(pwd);
+          if (hashed === ADMIN_HASH) {
+            sessionStorage.setItem('benivon_admin_logged', 'true');
+            checkAdminStatus();
+            alert("Akses Admin Diterima ✨");
+          } else {
+            alert("Passcode Salah!");
+          }
+        }
+      }
+    });
+
+    // --- UPLOAD ADMIN & CROP FOTO ---
+    function initPhotoSlots() {
+      const container = document.getElementById('photoSlotsContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        container.innerHTML += `
+          <div class="photo-slot">
+            <span>Foto ${i}:</span>
+            <input type="file" id="photoInput${i}" accept="image/*" onchange="previewSlotImage(${i})">
+            <img id="slotPreview${i}" class="preview-thumb" alt="Preview">
+            <span id="slotSize${i}" class="size-badge"></span>
+          </div>
+        `;
+      }
+    }
+
+    function openAdminUploadModal() {
+      initPhotoSlots();
+      document.getElementById('adminUploadModal').classList.add('active');
+    }
+
+    function closeAdminUploadModal() {
+      document.getElementById('adminUploadModal').classList.remove('active');
+    }
+
+    async function previewSlotImage(index) {
+      const input = document.getElementById(`photoInput${index}`);
+      const preview = document.getElementById(`slotPreview${index}`);
+      const sizeBadge = document.getElementById(`slotSize${index}`);
+
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+
+        try {
+          // Kompresi gambar terlebih dahulu untuk preview
+          const base64Webp = await processImageToWebp60(file);
+
+          // Tampilkan preview gambar hasil kompresi
+          preview.src = base64Webp;
+          preview.style.display = 'block';
+
+          // Hitung estimasi ukuran Base64 WebP dalam KB
+          // (Ukuran Base64 byte = panjang string * 3/4)
+          const bytes = Math.round((base64Webp.length * 3) / 4);
+          const fileSizeKB = (bytes / 1024).toFixed(1);
+
+          if (sizeBadge) {
+            sizeBadge.innerText = `${fileSizeKB} KB`;
+            sizeBadge.style.display = 'inline-block';
+          }
+        } catch (err) {
+          console.error("Gagal memproses preview kompresi:", err);
+        }
+      } else {
+        preview.style.display = 'none';
+        if (sizeBadge) {
+          sizeBadge.innerText = '';
+          sizeBadge.style.display = 'none';
+        }
+      }
+    }
+
+    // Fungsi Crop Center 1:1, Resizing ke 640x640 & Export WebP Quality 60%
+    function processImageToWebp60(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 640;
+          canvas.height = 640;
+          const ctx = canvas.getContext('2d');
+
+          // Hitung Crop Center 1:1
+          const minDim = Math.min(img.width, img.height);
+          const sx = (img.width - minDim) / 2;
+          const sy = (img.height - minDim) / 2;
+
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 640, 640);
+          
+          // Format WebP dengan Kualitas 0.50
+          const base64Data = canvas.toDataURL('image/webp', 0.50);
+          URL.revokeObjectURL(img.src);
+          resolve(base64Data);
+        };
+        img.onerror = (err) => reject(err);
+      });
+    }
+
+    async function uploadAdminPhotos() {
+      const category = document.getElementById('categorySelect').value;
+      const btnSubmit = document.getElementById('btnSubmitAdminUpload');
+      const processedImages = [];
+
+      for (let i = 1; i <= 10; i++) {
+        const input = document.getElementById(`photoInput${i}`);
+        if (input.files && input.files[0]) {
+          try {
+            const base64Webp = await processImageToWebp60(input.files[0]);
+            processedImages.push(base64Webp);
+          } catch (e) {
+            console.error(`Gagal memproses foto ke-${i}:`, e);
+          }
+        }
+      }
+
+      if (processedImages.length === 0) {
+        alert("Silakan pilih setidaknya 1 foto untuk diunggah!");
+        return;
+      }
+
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = "Mengunggah...";
+
+      try {
+        const payload = JSON.stringify({
+          action: 'upload_foto',
+          kategori: category,
+          images: processedImages
+        });
+
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: payload
+        });
+
+        alert("Berhasil mengunggah foto ke Google Sheets! ✨");
+        closeAdminUploadModal();
+      } catch (err) {
+        alert("Gagal mengunggah foto. Silakan coba lagi.");
+        console.error(err);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "Upload";
+      }
+    }
 
     // --- MEMUAT ILUSTRASI ---
     async function loadIllustrations() {
@@ -145,47 +528,41 @@
       }
     }
 
-async function submitReaderName() {
-  const inputEl = document.getElementById('readerNameInput');
-  const nama = inputEl ? inputEl.value.trim() : '';
+    async function submitReaderName() {
+      const inputEl = document.getElementById('readerNameInput');
+      const nama = inputEl ? inputEl.value.trim() : '';
 
-  if (!nama) {
-    alert('Isi nama kamu dulu yaa!');
-    return;
-  }
+      if (!nama) {
+        alert('Isi nama kamu dulu yaa!');
+        return;
+      }
 
-  currentReaderName = nama;
-  localStorage.setItem('benivon_reader_name', nama);
+      currentReaderName = nama;
+      localStorage.setItem('benivon_reader_name', nama);
 
-  // Tampilkan nama di langkah 2 & pindah tampilan modal
-  const displayNameEl = document.getElementById('displayReaderName');
-  if (displayNameEl) displayNameEl.innerText = nama;
+      const displayNameEl = document.getElementById('displayReaderName');
+      if (displayNameEl) displayNameEl.innerText = nama;
 
-  document.getElementById('introStep1').style.display = 'none';
-  document.getElementById('introStep2').style.display = 'block';
+      document.getElementById('introStep1').style.display = 'none';
+      document.getElementById('introStep2').style.display = 'block';
 
-  // Pengiriman data ke Google Apps Script tanpa terhalang CORS
-  try {
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'text/plain'
-      },
-      body: JSON.stringify({ action: 'pembaca', nama: nama })
-    }).catch(err => console.log('Proses kirim pembaca berjalan di background'));
-  } catch (err) {
-    console.error('Gagal mencatat pembaca:', err);
-  }
-}
+      try {
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'pembaca', nama: nama })
+        }).catch(err => console.log('Proses kirim pembaca berjalan di background'));
+      } catch (err) {
+        console.error('Gagal mencatat pembaca:', err);
+      }
+    }
 
     function dismissIvonIntro() {
       const overlay = document.getElementById('ivonIntroOverlay');
       if (overlay) {
         overlay.classList.add('fade-out');
-        setTimeout(() => {
-          overlay.remove();
-        }, 400);
+        setTimeout(() => { overlay.remove(); }, 400);
       }
     }
 
@@ -213,92 +590,109 @@ async function submitReaderName() {
     let currentPolaroidPage = 0;
 
     function switchTab(tab) {
-  activeTab = tab;
-  const tabNovelBtn = document.getElementById('tabNovelBtn');
-  const tabSolBtn = document.getElementById('tabSolBtn');
-  const tabIllustBtn = document.getElementById('tabIllustBtn');
-  const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
-  
-  const bookContent = document.getElementById('bookContent');
-  const illustContent = document.getElementById('illustrationContent');
-  const polaroidContent = document.getElementById('polaroidAlbumContent');
-  const sliderContainer = document.getElementById('sliderContainer');
+      activeTab = tab;
+      const tabNovelBtn = document.getElementById('tabNovelBtn');
+      const tabSolBtn = document.getElementById('tabSolBtn');
+      const tabIllustBtn = document.getElementById('tabIllustBtn');
+      const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
+      
+      const bookContent = document.getElementById('bookContent');
+      const illustContent = document.getElementById('illustrationContent');
+      const polaroidContent = document.getElementById('polaroidAlbumContent');
+      const sliderContainer = document.getElementById('sliderContainer');
 
-  // Reset kelas active tab
-  tabNovelBtn.classList.remove('active');
-  tabSolBtn.classList.remove('active');
-  tabIllustBtn.classList.remove('active');
-  tabPolaroidBtn.classList.remove('active');
+      tabNovelBtn.classList.remove('active');
+      tabSolBtn.classList.remove('active');
+      tabIllustBtn.classList.remove('active');
+      tabPolaroidBtn.classList.remove('active');
 
-  bookContent.style.display = 'none';
-  illustContent.style.display = 'none';
-  polaroidContent.style.display = 'none';
-  sliderContainer.style.visibility = 'hidden';
+      bookContent.style.display = 'none';
+      illustContent.style.display = 'none';
+      polaroidContent.style.display = 'none';
+      sliderContainer.style.visibility = 'hidden';
 
-  // RESET STATUS BACA CERITA KETIKA BERPINDAH TAB CERITA
-  currentChapterIndex = -1;
-  pages = [];
-  currentPage = 0;
+      currentChapterIndex = -1;
+      pages = [];
+      currentPage = 0;
 
-  if (tab === 'novel') {
-    tabNovelBtn.classList.add('active');
-    bookContent.style.display = 'block';
-    
-    // Selalu tampilkan Daftar Isi Kanon saat berpindah tab
-    renderTableOfContents();
+      if (tab === 'novel') {
+        tabNovelBtn.classList.add('active');
+        bookContent.style.display = 'block';
+        renderTableOfContents();
+      } else if (tab === 'sol') {
+        tabSolBtn.classList.add('active');
+        bookContent.style.display = 'block';
 
-  } else if (tab === 'sol') {
-    tabSolBtn.classList.add('active');
-    bookContent.style.display = 'block';
+        if (allSolChapters.length === 0) {
+          loadSol();
+        } else {
+          renderTableOfContents();
+        }
+      } else if (tab === 'illustration') {
+        tabIllustBtn.classList.add('active');
+        illustContent.style.display = 'block';
 
-    // Jika data SoL belum pernah diambil dari Google Sheets, ambil data dulu
-    if (allSolChapters.length === 0) {
-      loadSol();
-    } else {
-      renderTableOfContents();
-    }
+        if (illustrations.length === 0) {
+          loadIllustrations();
+        } else {
+          renderIllustration();
+        }
+      } else if (tab === 'polaroid') {
+        tabPolaroidBtn.classList.add('active');
+        polaroidContent.style.display = 'block';
 
-  } else if (tab === 'illustration') {
-    tabIllustBtn.classList.add('active');
-    illustContent.style.display = 'block';
-
-    if (illustrations.length === 0) {
-      loadIllustrations();
-    } else {
-      renderIllustration();
-    }
-
-  } else if (tab === 'polaroid') {
-    tabPolaroidBtn.classList.add('active');
-    polaroidContent.style.display = 'block';
-
-    if (albumPolaroidList.length === 0) {
-      loadAlbumPolaroids();
-    } else {
-      renderPolaroidGrid();
-    }
-  }
-}
-
-    // Fungsi Fetch daftar gambar album
-    async function loadAlbumPolaroids() {
-      try {
-        const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("Gagal load images.json");
-        albumPolaroidList = await res.json();
-      } catch (err) {
-        console.warn("Menggunakan fallback gambar polaroid album:", err);
-        albumPolaroidList = [];
-        for (let i = 1; i <= 20; i++) {
-          albumPolaroidList.push(`${i}.jpeg`);
+        // Selalu muat foto terbaru atau muat jika list masih kosong
+        if (albumPolaroidList.length === 0) {
+          loadAlbumPolaroids();
+        } else {
+          renderPolaroidGrid();
         }
       }
+    }
+
+    // --- MENGAMBIL SEMUA FOTO DARI GOOGLE SHEETS (TAB FOTO) ---
+    async function loadAlbumPolaroids() {
+      const container = document.getElementById('polaroidGridContainer');
+      if (container) {
+        container.innerHTML = `<div class="status-msg">Memuat foto...</div>`;
+      }
+
+      try {
+        // Ambil semua foto dari Google Sheets
+        const res = await fetch(`${SCRIPT_URL}?action=get_all_foto`);
+        if (!res.ok) throw new Error("Gagal mengambil foto dari Google Sheets");
+        
+        const photos = await res.json();
+        
+        if (Array.isArray(photos) && photos.length > 0) {
+          albumPolaroidList = photos;
+        } else {
+          throw new Error("Foto di spreadsheet kosong");
+        }
+      } catch (err) {
+        console.warn("Gagal load foto Google Sheets, mencoba fallback images.json:", err);
+        
+        // Fallback jika Google Sheets gagal/kosong -> Coba images.json
+        try {
+          const resFallback = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
+          if (resFallback.ok) {
+            const localFiles = await resFallback.json();
+            albumPolaroidList = localFiles.map(f => `images/${f}`);
+          }
+        } catch (e) {
+          // Fallback terakhir jika lokal juga gagal
+          albumPolaroidList = [];
+          for (let i = 1; i <= 20; i++) {
+            albumPolaroidList.push(`images/${i}.jpeg`);
+          }
+        }
+      }
+
       currentPolaroidPage = 0;
       renderPolaroidGrid();
     }
 
-    // Fungsi Render 2x2 Grid + Random Tilt
-    function renderPolaroidGrid() {
+    async function renderPolaroidGrid() {
       const container = document.getElementById('polaroidGridContainer');
       if (!container) return;
 
@@ -313,28 +707,62 @@ async function submitReaderName() {
       const startIndex = currentPolaroidPage * itemsPerPage;
       const pageItems = albumPolaroidList.slice(startIndex, startIndex + itemsPerPage);
 
+      // Cek apakah user login sebagai admin
+      const isAdmin = sessionStorage.getItem('benivon_admin_logged') === 'true';
+
       let html = '';
-      pageItems.forEach((imgFile) => {
+      
+      pageItems.forEach((imgSrc, idx) => {
+        const globalIndex = startIndex + idx; // Indeks foto di array albumPolaroidList
         const randomRotate = (Math.random() * 12 - 6).toFixed(1);
-        const imgSrc = `images/${imgFile}`;
+        
+        const finalSrc = (imgSrc.startsWith('data:') || imgSrc.startsWith('http') || imgSrc.startsWith('images/')) 
+          ? imgSrc 
+          : `images/${imgSrc}`;
 
         html += `
-          <div class="album-polaroid-card" style="transform: rotate(${randomRotate}deg);" onclick="zoomAlbumPolaroid('${imgSrc}')">
+          <div class="album-polaroid-card" style="transform: rotate(${randomRotate}deg);" onclick="zoomAlbumPolaroid('${finalSrc}')">
+            ${isAdmin ? `
+              <button class="admin-delete-btn" title="Hapus Foto Ini" onclick="event.stopPropagation(); deletePolaroidPhoto(${globalIndex}, '${finalSrc}')">
+                🗑️
+              </button>
+            ` : ''}
+            
             <div class="album-polaroid-img-wrapper">
-              <img src="${imgSrc}" alt="Polaroid Memory">
+              <img src="${finalSrc}" alt="Polaroid Memory">
             </div>
+            
+            ${isAdmin ? `<div class="admin-size-badge" id="albumSizeBadge_${idx}">...</div>` : ''}
           </div>
         `;
       });
 
       container.innerHTML = html;
 
-      document.getElementById('pageIndicator').innerText = `Polaroid ${currentPolaroidPage + 1} / ${totalPages}`;
-      document.getElementById('prevBtn').disabled = currentPolaroidPage === 0;
-      document.getElementById('nextBtn').disabled = currentPolaroidPage >= totalPages - 1;
+      // Hitung ukuran KB untuk Admin
+      if (isAdmin) {
+        pageItems.forEach(async (imgSrc, idx) => {
+          const finalSrc = (imgSrc.startsWith('data:') || imgSrc.startsWith('http') || imgSrc.startsWith('images/')) 
+            ? imgSrc 
+            : `images/${imgSrc}`;
+          
+          const sizeKB = await getImageSizeKB(finalSrc);
+          const badgeEl = document.getElementById(`albumSizeBadge_${idx}`);
+          if (badgeEl) {
+            badgeEl.innerText = sizeKB ? `${sizeKB} KB` : 'N/A';
+          }
+        });
+      }
+
+      const pageIndicator = document.getElementById('pageIndicator');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      if (pageIndicator) pageIndicator.innerText = `Polaroid ${currentPolaroidPage + 1} / ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = currentPolaroidPage === 0;
+      if (nextBtn) nextBtn.disabled = currentPolaroidPage >= totalPages - 1;
     }
 
-    // Zoom / Lightbox khusus Polaroid Album
     function zoomAlbumPolaroid(imgSrc) {
       let tempPolaroid = document.createElement('div');
       tempPolaroid.className = 'polaroid zoomed';
@@ -356,10 +784,56 @@ async function submitReaderName() {
         document.getElementById('deskContainer').classList.remove('blurred');
         document.getElementById('lightboxOverlay').classList.remove('active');
         activeZoomedEl = null;
-      } else {
+      } else if (typeof originalCloseZoom === 'function') {
         originalCloseZoom();
       }
     };
+
+    async function deletePolaroidPhoto(index, photoUrl) {
+      if (!confirm("Apakah Anda yakin ingin menghapus foto ini dari Google Sheets?")) {
+        return;
+      }
+
+      // Tampilkan indikator loading sederhana atau pesan
+      const container = document.getElementById('polaroidGridContainer');
+      
+      try {
+        // Kirim request hapus ke Google Apps Script
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            'action': 'delete_foto',
+            'photoUrl': photoUrl,
+            'index': index
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.status === 'success' || data.result === 'success') {
+          alert("Foto berhasil dihapus!");
+          // Hapus dari array lokal dan render ulang grid
+          albumPolaroidList.splice(index, 1);
+          
+          // Sesuaikan halaman jika halaman saat ini jadi kosong
+          const totalPages = Math.ceil(albumPolaroidList.length / 4);
+          if (currentPolaroidPage >= totalPages && currentPolaroidPage > 0) {
+            currentPolaroidPage--;
+          }
+          
+          renderPolaroidGrid();
+        } else {
+          alert("Gagal menghapus foto: " + (data.message || "Terjadi kesalahan"));
+        }
+      } catch (err) {
+        console.error("Error deleting photo:", err);
+        // Fallback opsional jika backend belum mendukung request POST: hapus secara lokal
+        albumPolaroidList.splice(index, 1);
+        renderPolaroidGrid();
+        alert("Foto telah dihapus dari tampilan lokal.");
+      }
+    }
 
     function renderIllustration() {
       if (illustrations.length === 0) return;
@@ -467,23 +941,59 @@ async function submitReaderName() {
       document.getElementById('sliderContainer').style.visibility = 'hidden';
     }
 
-    function openChapter(index) {
-      const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
-      if (index < 0 || index >= activeData.length) return;
+function openChapter(index) {
+  const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
+  if (index < 0 || index >= activeData.length) return;
 
-      currentChapterIndex = index;
-      currentPage = 0;
-      const ch = activeData[index];
+  currentChapterIndex = index;
+  currentPage = 0;
+  const ch = activeData[index];
 
-      const fullText = ch.isi || '';
-      rawParagraphs = fullText.split(/\r?\n/).filter(p => p.trim() !== '');
+  // --- AMBIL FOTO DINAMIS UNTUK POLAROID (BERLAKU KANON & SOL) ---
+  if ((activeTab === 'novel' || activeTab === 'sol') && ch.subjek) {
+    loadPolaroidsBySubjek(ch.subjek);
+  }
 
-      rawParagraphs.unshift(`TITLE::${ch.judul}`);
+  const fullText = ch.isi || '';
+  rawParagraphs = fullText.split(/\r?\n/).filter(p => p.trim() !== '');
 
-      document.getElementById('sliderContainer').style.visibility = 'visible';
-      recalculatePagination();
+  rawParagraphs.unshift(`TITLE::${ch.judul}`);
+
+  document.getElementById('sliderContainer').style.visibility = 'visible';
+  recalculatePagination();
+}
+async function loadPolaroidsBySubjek(subjek) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=get_foto_by_subjek&subjek=${encodeURIComponent(subjek)}`);
+    if (!res.ok) return;
+    
+    let fetchedPhotos = await res.json();
+    
+    // Jika tidak ada foto di spreadsheet untuk subjek ini, batalkan/abaikan
+    if (!fetchedPhotos || fetchedPhotos.length === 0) return;
+
+    // Acak foto yang didapat
+    for (let i = fetchedPhotos.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [fetchedPhotos[i], fetchedPhotos[j]] = [fetchedPhotos[j], fetchedPhotos[i]];
     }
 
+    // Pasang ke 7 Polaroid
+    for (let i = 1; i <= 7; i++) {
+      const el = document.getElementById(`polaroid${i}`);
+      if (el) {
+        const imgEl = el.querySelector("img");
+        if (imgEl) {
+          // Mengambil foto acak berurutan dari daftar foto fetchedPhotos
+          const selectedPhoto = fetchedPhotos[(i - 1) % fetchedPhotos.length];
+          imgEl.src = selectedPhoto;
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Gagal mengambil foto subjek dari spreadsheet:", err);
+  }
+}
     function recalculatePagination() {
       if (rawParagraphs.length === 0 || currentChapterIndex === -1) return;
 
@@ -615,7 +1125,6 @@ async function submitReaderName() {
       nextBtn.disabled = currentPage === pages.length - 1;
     }
 
-    // Update handler Navigasi (Back/Next)
     function handlePrevNav() {
       if (activeTab === 'novel' || activeTab === 'sol') {
         if (currentChapterIndex !== -1) {
@@ -650,7 +1159,7 @@ async function submitReaderName() {
       recalculatePagination();
     }
 
-    // --- POLAROID RANDOMIZER ---
+    // --- POLAROID RANDOMIZER (MENGAMBIL SEMUA FOTO DARI GOOGLE SHEETS) ---
     async function randomizePolaroids() {
       const isMobile = window.innerWidth <= 768;
       const screenW = window.innerWidth;
@@ -687,37 +1196,64 @@ async function submitReaderName() {
       }
 
       let foundImages = [];
+      
+      // 1. Coba ambil semua foto dari Google Sheets
       try {
-        const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP Status: ${res.status}`);
-        const files = await res.json();
-        if (Array.isArray(files)) {
-          foundImages = files;
+        const res = await fetch(`${SCRIPT_URL}?action=get_all_foto`);
+        if (res.ok) {
+          const sheetsPhotos = await res.json();
+          if (Array.isArray(sheetsPhotos) && sheetsPhotos.length > 0) {
+            foundImages = sheetsPhotos;
+          }
         }
       } catch (err) {
-        console.error("Gagal membaca images.json, menggunakan fallback:", err);
+        console.warn("Gagal mengambil foto dari Google Sheets, mencoba fallback images.json:", err);
       }
 
+      // 2. Jika Google Sheets kosong/gagal, fallback ke images.json
       if (foundImages.length === 0) {
-        for (let i = 1; i <= 20; i++) {
-          foundImages.push(`${i}.jpeg`);
-          foundImages.push(`foto${i}.jpeg`);
+        try {
+          const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
+          if (res.ok) {
+            const files = await res.json();
+            if (Array.isArray(files)) {
+              foundImages = files.map(f => `images/${f}`);
+            }
+          }
+        } catch (err) {
+          console.error("Gagal membaca images.json:", err);
         }
       }
 
+      // 3. Jika masih kosong, gunakan nama file lokal fallback
+      if (foundImages.length === 0) {
+        for (let i = 1; i <= 20; i++) {
+          foundImages.push(`images/${i}.jpeg`);
+        }
+      }
+
+      // Acak urutan foto
       for (let i = foundImages.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [foundImages[i], foundImages[j]] = [foundImages[j], foundImages[i]];
       }
 
+      // Pasang gambar dan posisi ke 7 elemen polaroid
       polaroidConfigs.forEach((config, index) => {
         const el = document.getElementById(config.id);
         if (!el) return;
         const imgEl = el.querySelector("img");
+        
         const selectedImg = foundImages[index % foundImages.length];
-        imgEl.src = `images/${selectedImg}?v=${Date.now()}`;
+        
+        // Jika link berupa base64 atau URL luar dari Apps Script, gunakan langsung.
+        // Jika nama file relatif lokal, tambahkan cache buster jika perlu.
+        imgEl.src = selectedImg.startsWith('data:') || selectedImg.startsWith('http')
+          ? selectedImg 
+          : `${selectedImg}?v=${Date.now()}`;
+
         imgEl.onerror = () => {
-          console.warn("Gagal memuat gambar:", selectedImg);
+          console.warn("Gagal memuat gambar polaroid:", selectedImg);
         };
 
         const minX = config.area.x[0];
@@ -839,6 +1375,7 @@ async function submitReaderName() {
 
     window.addEventListener('DOMContentLoaded', () => {
       checkIntroStatus();
+      checkAdminStatus();
       randomizePolaroids();
       loadNovel();
       loadIllustrations();
@@ -1050,59 +1587,31 @@ async function submitReaderName() {
         menuContainer.innerHTML += '<div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
       }
     }
+        function getImageSizeKB(src) {
+      return new Promise((resolve) => {
+        if (!src) return resolve(null);
+
+        // Jika gambar berupa data Base64
+        if (src.startsWith('data:')) {
+          const base64Str = src.split(',')[1] || '';
+          const bytes = Math.round((base64Str.length * 3) / 4);
+          return resolve((bytes / 1024).toFixed(1));
+        }
+
+        // Jika gambar berupa URL biasa / path lokal
+        fetch(src, { method: 'HEAD' })
+          .then(res => {
+            const length = res.headers.get('content-length');
+            if (length) {
+              resolve((parseInt(length, 10) / 1024).toFixed(1));
+            } else {
+              resolve(null);
+            }
+          })
+          .catch(() => resolve(null));
+      });
+    }
+
   </script>
-
-  <audio id="bgmAudio" loop preload="auto">
-    <source src="bgm/Selesai Dengan Sunyi (Beni Theme - Lofi).mp3" type="audio/mpeg">
-  </audio>
-
-  <div class="fab-container">
-    <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">
-      🔄
-    </button>
-
-    <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">
-      🔇
-    </button>
-
-    <button class="fab-btn" onclick="openCommentModal()" title="Buku Tamu / Komentar">
-      💬
-    </button>
-  </div>
-
-  <div class="jukebox-container">
-    <div class="jukebox-menu" id="jukeboxMenu">
-      <div class="jukebox-header">🎵 JUKEBOX</div>
-    </div>
-
-    <button class="fab-btn jukebox-btn" id="btnJukebox" onclick="toggleJukeboxMenu()" title="Jukebox BGM">
-      📻
-    </button>
-  </div>
-
-  <div class="comment-modal-overlay" id="commentModalOverlay">
-    <div class="comment-modal">
-      <div class="modal-header">
-        <h3>Buku Tamu & Komentar</h3>
-        <button class="close-btn" onclick="closeCommentModal()">&times;</button>
-      </div>
-
-      <div class="comments-list" id="commentsList">
-        <div class="status-msg">Memuat komentar...</div>
-      </div>
-
-      <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
-        <div class="comment-user-badge" id="commentUserBadge"></div>
-
-        <textarea id="messageInput" class="comment-textarea" placeholder="Tulis komentar (maks. 160 karakter)..." maxlength="160" required oninput="updateCharCount()"></textarea>
-        
-        <div class="form-footer">
-          <span class="char-counter" id="charCounter">0 / 160</span>
-          <button type="submit" class="submit-btn" id="submitBtn">Kirim</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
 </body>
 </html>

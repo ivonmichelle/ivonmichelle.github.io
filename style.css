@@ -1039,3 +1039,71 @@
   color: #a89379;
   font-size: 0.7rem;
 }
+
+    .size-badge {
+      font-size: 0.75rem;
+      color: #d97736;
+      font-weight: bold;
+      white-space: nowrap;
+      background: #f0e6df;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: none;
+    }
+    /* Badge ukuran KB khusus Admin di Tab Photo */
+    .admin-size-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-family: sans-serif;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .album-polaroid-card {
+      position: relative; /* Memastikan badge berada di dalam kartu polaroid */
+    }
+.status-msg {
+  grid-column: 1 / -1; /* Memaksa elemen mengisi seluruh lebar kolom grid */
+  text-align: center;
+  width: 100%;
+  padding: 20px 0;
+  color: #8b6d51;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+/* Tombol Hapus khusus Admin pada Foto Polaroid */
+.admin-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(217, 83, 79, 0.9);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  z-index: 10;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.admin-delete-btn:hover {
+  background: #c9302c;
+  transform: scale(1.1);
+}
+
+.admin-delete-btn:active {
+  transform: scale(0.95);
+}
