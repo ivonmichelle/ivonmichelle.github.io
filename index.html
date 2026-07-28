@@ -996,7 +996,8 @@ async function randomizePolaroids() {
     const files = await res.json();
     if (Array.isArray(files)) {
       foundImages = files
-        .filter(file => file.type === "file" && /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name))
+       // .filter(file => file.type === "file" && /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name))
+        .filter(file => file.type === "file" && /\.(jpe?g)$/i.test(file.name))
         .map(file => file.name);
     }
   } catch (err) {
