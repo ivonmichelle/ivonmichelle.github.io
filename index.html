@@ -1465,11 +1465,41 @@
 
       randomizePolaroids();
     }
+    
+        // --- LOGIKA PEMUTAR MUSIK BGM ---
+    function toggleBgm() {
+      const audio = document.getElementById('bgmAudio');
+      const bgmBtn = document.getElementById('btnBgmToggle');
+
+      if (audio.paused) {
+        audio.play().then(() => {
+          bgmBtn.innerText = '🎵'; // Mengubah ikon jadi musik aktif
+          bgmBtn.setAttribute('title', 'Matikan Musik');
+        }).catch(err => {
+          console.error("Gagal memutar audio:", err);
+          alert("Gagal memutar audio. Pastikan file 'bgm/bgm.mp3' tersedia!");
+        });
+      } else {
+        audio.pause();
+        bgmBtn.innerText = '🔇'; // Mengubah ikon jadi mute/dicoret
+        bgmBtn.setAttribute('title', 'Putar Musik');
+      }
+    }
+
   </script>
+
+  <audio id="bgmAudio" loop preload="auto">
+    <source src="bgm/bgm.mp3" type="audio/mpeg">
+    Browser kamu tidak mendukung pemutar audio.
+  </audio>
 
   <div class="fab-container">
     <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">
       🔄
+    </button>
+
+    <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">
+      🔇
     </button>
 
     <button class="fab-btn" onclick="openCommentModal()" title="Buku Tamu / Komentar">
