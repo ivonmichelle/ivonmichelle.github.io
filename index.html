@@ -1047,6 +1047,8 @@ async function randomizePolaroids() {
 }
 
     function makeElementDraggableAndZoomable(el) {
+      if (el.dataset.initialized) return;
+      el.dataset.initialized = "1";
       let isDragging = false;
       let startX, startY;
       let initialX = parseFloat(el.dataset.x) || 0;
