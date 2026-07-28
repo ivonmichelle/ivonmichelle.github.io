@@ -982,29 +982,21 @@ async function randomizePolaroids() {
   }
 
   // =========================
-  // Ambil semua gambar dari GitHub
+  // Ambil daftar gambar dari images.json (Root)
   // =========================
   let foundImages = [];
   try {
-    const username = window.location.hostname.split(".")[0];
-    const pathParts = window.location.pathname.split("/").filter(Boolean);
-    const repo = pathParts.length ? pathParts[0] : `${username}.github.io`;
-    // Ditambahkan per_page=100 agar mengambil hingga 100 foto sekaligus
-    const api = `https://api.github.com/repos/${username}/${repo}/contents/images?per_page=100&nocache=${Date.now()}`;
-    const res = await fetch(api, { cache: "no-store" });
-    if (!res.ok) throw new Error(`GitHub API Status: ${res.status}`);
+    const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP Status: ${res.status}`);
     const files = await res.json();
     if (Array.isArray(files)) {
-      foundImages = files
-       // .filter(file => file.type === "file" && /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name))
-        .filter(file => file.type === "file" && /\.(jpe?g)$/i.test(file.name))
-        .map(file => file.name);
+      foundImages = files;
     }
   } catch (err) {
-    console.error("Gagal membaca folder images via GitHub API:", err);
+    console.error("Gagal membaca images.json, menggunakan fallback:", err);
   }
 
-  // Fallback sederhana jika API gagal / berjalan di local
+  // Fallback jika images.json gagal dimuat
   if (foundImages.length === 0) {
     for (let i = 1; i <= 20; i++) {
       foundImages.push(`${i}.jpeg`);
@@ -1047,10 +1039,11 @@ async function randomizePolaroids() {
   });
 }
 
+// --- FUNGSI DRAG & ZOOM (SUDAH DIPERBAIKI) ---
 function makeElementDraggableAndZoomable(el) {
   if (el.dataset.initialized) return;
   el.dataset.initialized = "1";
-  
+
   let isDragging = false;
   let startX = 0, startY = 0;
   let moveDistance = 0;
@@ -1066,11 +1059,9 @@ function makeElementDraggableAndZoomable(el) {
     const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
     const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-    // Ambil nilai posisi posisi saat ini secara fresh dari dataset
     const currentX = parseFloat(el.dataset.x) || 0;
     const currentY = parseFloat(el.dataset.y) || 0;
 
-    // Catat titik acuan klik terhadap posisi elemen saat ini
     startX = clientX - currentX;
     startY = clientY - currentY;
 
@@ -1087,17 +1078,14 @@ function makeElementDraggableAndZoomable(el) {
     const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
     const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-    // Hitung posisi baru
     const newX = clientX - startX;
     const newY = clientY - startY;
 
     const currentX = parseFloat(el.dataset.x) || 0;
     const currentY = parseFloat(el.dataset.y) || 0;
 
-    // Hitung akumulasi jarak pergerakan untuk mendeteksi Klik vs Drag
     moveDistance += Math.abs(newX - currentX) + Math.abs(newY - currentY);
 
-    // Simpan posisi baru ke dataset
     el.dataset.x = newX;
     el.dataset.y = newY;
 
