@@ -719,16 +719,6 @@
       pointer-events: none;
     }
 
-    .ivon-intro-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      max-width: 440px;
-      width: 88%;
-      animation: floatIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
     @keyframes floatIn {
       from { opacity: 0; transform: translateY(30px) scale(0.9); }
       to { opacity: 1; transform: translateY(0) scale(1); }
@@ -1106,4 +1096,47 @@
 
 .admin-delete-btn:active {
   transform: scale(0.95);
+}
+/* --- INTRO DIALOG STYLING --- */
+/* Container kartu intro */
+.ivon-intro-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-height: 90vh; /* Batasi tinggi maksimum kartu agar tidak melampaui layar */
+  width: 90%;
+  max-width: 480px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Bubble Teks / Dialog */
+.ivon-speech-bubble {
+  max-height: 60vh;        /* Batasi tinggi bubble maksimal 50% dari tinggi layar */
+  overflow-y: auto;        /* Aktifkan scroll jika teks lebih panjang dari bubble */
+  padding: 16px;
+  padding-right: 10px;     /* Ruang untuk scrollbar */
+  margin-bottom: 15px;     /* Jarak antara bubble dan avatar */
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch; /* Biar smooth scroll di HP */
+}
+
+/* Ukuran & Tampilan Avatar */
+.ivon-avatar-img {
+  width: 110px;            /* Sesuaikan ukuran avatar agar pas */
+  height: 110px;
+  object-fit: contain;
+  flex-shrink: 0;          /* Biar gambar avatar TIDAK tertekan/gepeng saat bubble panjang */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Scrollbar manis untuk speech bubble */
+.ivon-speech-bubble::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ivon-speech-bubble::-webkit-scrollbar-thumb {
+  background: #d1b8a5;
+  border-radius: 4px;
 }

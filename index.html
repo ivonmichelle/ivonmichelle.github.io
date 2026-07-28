@@ -130,11 +130,14 @@
 
   <div class="ivon-intro-overlay" id="ivonIntroOverlay">
     <div class="ivon-intro-card">
+      
       <div class="ivon-speech-bubble" id="introStep1">
-        <strong>Halo, traveler manis! ✨</strong><br><br>
-        Sebelum kita berpetualang di buku kenangan ini, Ivon boleh tahu nama kamu siapa? 💖
+		Hai, saya <strong>Didi Chung</strong>, penulis cerita ini. Saya mulai menulis cerita ini sekitar 2 tahun yang lalu. Jujur, saya tidak pandai menulis, tapi saya punya sebuah cerita yang ingin saya bagikan, jadi saya memberanikan diri menulis... 😁<br><br>
+        Cerita ini <em>non-linear</em>—kamu bebas mulai dari bagian mana saja, meskipun membacanya secara berurutan tentunya lebih baik. Di sini kamu bisa menikmati cerita <em>slice of life</em>, foto-foto, galeri, ilustrasi, hingga musik OST.<br><br>
+        Ini merupakan proyek <strong>WIP (Work in Progress)</strong> dan akan terus diperbarui bertahap. Silakan nikmati setiap sudut kisah ini dengan santai dan jangan lupa komentar di buku tamu... 🙏🏻<br><br>
+        Sebelum kita mulai, bolehkah saya tahu siapa namamu?
         <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter') submitReaderName()">
-        <button class="ivon-intro-btn" style="position: relative; z-index: 10; cursor: pointer;" onclick="submitReaderName()">Lanjut ➔</button>
+        <button class="ivon-intro-btn" style="position: relative; z-index: 10; cursor: pointer; margin-top: 12px;" onclick="submitReaderName()">Lanjut ➔</button>
       </div>
 
       <div class="ivon-speech-bubble" id="introStep2" style="display: none;">
@@ -146,9 +149,9 @@
         <button class="ivon-intro-btn" style="margin-top: 16px;" onclick="dismissIvonIntro()">Masuk ke Buku 📖</button>
       </div>
 
-      <img src="images/avatarivon.png" alt="Ivon Avatar" class="ivon-avatar-img">
+      <img src="images/didichung.png" id="introAvatarImg" alt="Avatar Intro" class="ivon-avatar-img">
     </div>
-  </div>
+  </div>  
 
   <div class="desk-container" id="deskContainer">
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
@@ -531,20 +534,24 @@
     async function submitReaderName() {
       const inputEl = document.getElementById('readerNameInput');
       const nama = inputEl ? inputEl.value.trim() : '';
-
       if (!nama) {
         alert('Isi nama kamu dulu yaa!');
         return;
       }
-
       currentReaderName = nama;
       localStorage.setItem('benivon_reader_name', nama);
-
       const displayNameEl = document.getElementById('displayReaderName');
       if (displayNameEl) displayNameEl.innerText = nama;
 
+      // Pindah dari Step 1 (Didi Chung) ke Step 2 (Ivon)
       document.getElementById('introStep1').style.display = 'none';
       document.getElementById('introStep2').style.display = 'block';
+
+      // Ganti gambar avatar ke Ivon untuk menyambut pembaca
+      const avatarImg = document.getElementById('introAvatarImg');
+      if (avatarImg) {
+        avatarImg.src = 'images/avatarivon.png';
+      }
 
       try {
         fetch(SCRIPT_URL, {
@@ -923,10 +930,18 @@
         html += `<div class="status-msg">Belum ada cerita.</div>`;
       } else {
         activeData.forEach((ch, index) => {
+          // Menyiapkan tampilan subjek (jika ada) dalam cetak miring
+          const subjekHtml = ch.subjek 
+            ? `<div class="toc-subjek" style="font-style: italic; font-size: 0.85em; opacity: 0.8; margin-top: 2px;">(${escapeHtml(ch.subjek)})</div>` 
+            : '';
+
           html += `
             <div class="toc-item" onclick="openChapter(${index})">
-              <span class="toc-bab">${escapeHtml(ch.bab)}</span>
-              <span class="toc-judul">${escapeHtml(ch.judul)}</span>
+              <div>
+                <span class="toc-bab">${escapeHtml(ch.bab)}</span> : 
+                <span class="toc-judul">${escapeHtml(ch.judul)}</span>
+              </div>
+              ${subjekHtml}
             </div>
           `;
         });
