@@ -205,72 +205,73 @@
     let currentPolaroidPage = 0;
 
     function switchTab(tab) {
-      activeTab = tab;
-      const tabNovelBtn = document.getElementById('tabNovelBtn');
-      const tabSolBtn = document.getElementById('tabSolBtn');
-      const tabIllustBtn = document.getElementById('tabIllustBtn');
-      const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
-      
-      const bookContent = document.getElementById('bookContent');
-      const illustContent = document.getElementById('illustrationContent');
-      const polaroidContent = document.getElementById('polaroidAlbumContent');
-      const sliderContainer = document.getElementById('sliderContainer');
+    function switchTab(tab) {
+  activeTab = tab;
+  const tabNovelBtn = document.getElementById('tabNovelBtn');
+  const tabSolBtn = document.getElementById('tabSolBtn');
+  const tabIllustBtn = document.getElementById('tabIllustBtn');
+  const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
+  
+  const bookContent = document.getElementById('bookContent');
+  const illustContent = document.getElementById('illustrationContent');
+  const polaroidContent = document.getElementById('polaroidAlbumContent');
+  const sliderContainer = document.getElementById('sliderContainer');
 
-      // Reset kelas active tab
-      tabNovelBtn.classList.remove('active');
-      tabSolBtn.classList.remove('active');
-      tabIllustBtn.classList.remove('active');
-      tabPolaroidBtn.classList.remove('active');
+  // Reset kelas active tab
+  tabNovelBtn.classList.remove('active');
+  tabSolBtn.classList.remove('active');
+  tabIllustBtn.classList.remove('active');
+  tabPolaroidBtn.classList.remove('active');
 
-      bookContent.style.display = 'none';
-      illustContent.style.display = 'none';
-      polaroidContent.style.display = 'none';
-      sliderContainer.style.visibility = 'hidden';
+  bookContent.style.display = 'none';
+  illustContent.style.display = 'none';
+  polaroidContent.style.display = 'none';
+  sliderContainer.style.visibility = 'hidden';
 
-      if (tab === 'novel') {
-        tabNovelBtn.classList.add('active');
-        bookContent.style.display = 'block';
-        
-        if (currentChapterIndex !== -1) {
-          sliderContainer.style.visibility = 'visible';
-          renderPage();
-        } else {
-          renderTableOfContents();
-        }
-      } else if (tab === 'sol') {
-        tabSolBtn.classList.add('active');
-        bookContent.style.display = 'block';
+  // RESET STATUS BACA CERITA KETIKA BERPINDAH TAB CERITA
+  currentChapterIndex = -1;
+  pages = [];
+  currentPage = 0;
 
-        if (currentChapterIndex !== -1) {
-          sliderContainer.style.visibility = 'visible';
-          renderPage();
-        } else {
-          if (allSolChapters.length === 0) {
-            loadSol();
-          } else {
-            renderTableOfContents();
-          }
-        }
-      } else if (tab === 'illustration') {
-        tabIllustBtn.classList.add('active');
-        illustContent.style.display = 'block';
+  if (tab === 'novel') {
+    tabNovelBtn.classList.add('active');
+    bookContent.style.display = 'block';
+    
+    // Selalu tampilkan Daftar Isi Kanon saat berpindah tab
+    renderTableOfContents();
 
-        if (illustrations.length === 0) {
-          loadIllustrations();
-        } else {
-          renderIllustration();
-        }
-      } else if (tab === 'polaroid') {
-        tabPolaroidBtn.classList.add('active');
-        polaroidContent.style.display = 'block';
+  } else if (tab === 'sol') {
+    tabSolBtn.classList.add('active');
+    bookContent.style.display = 'block';
 
-        if (albumPolaroidList.length === 0) {
-          loadAlbumPolaroids();
-        } else {
-          renderPolaroidGrid();
-        }
-      }
+    // Jika data SoL belum pernah diambil dari Google Sheets, ambil data dulu
+    if (allSolChapters.length === 0) {
+      loadSol();
+    } else {
+      renderTableOfContents();
     }
+
+  } else if (tab === 'illustration') {
+    tabIllustBtn.classList.add('active');
+    illustContent.style.display = 'block';
+
+    if (illustrations.length === 0) {
+      loadIllustrations();
+    } else {
+      renderIllustration();
+    }
+
+  } else if (tab === 'polaroid') {
+    tabPolaroidBtn.classList.add('active');
+    polaroidContent.style.display = 'block';
+
+    if (albumPolaroidList.length === 0) {
+      loadAlbumPolaroids();
+    } else {
+      renderPolaroidGrid();
+    }
+  }
+}
 
     // Fungsi Fetch daftar gambar album
     async function loadAlbumPolaroids() {
