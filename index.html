@@ -189,38 +189,33 @@
       justify-content: center;
       height: 100%;
       width: 100%;
-      gap: 10px;
-      text-align: center;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
     }
 
     .illustration-card {
       width: 100%;
-      height: 80%;
-      max-height: 380px;
-      background: #fff;
-      padding: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      border-radius: 4px;
-      border: 1px solid #e2d8c9;
+      height: 100%;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      box-shadow: none;
+      border: none;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
     }
 
     .illustration-card img {
       width: 100%;
-      height: 85%;
-      object-fit: contain;
-      border-radius: 2px;
-      background-color: #faf6f0;
-    }
-
-    .illustration-caption {
-      margin-top: 8px;
-      font-size: 0.85rem;
-      font-style: italic;
-      color: #5c3a21;
-      font-weight: bold;
+      height: 100%;
+      object-fit: contain; /* Ganti ke contain agar gambar tampil utuh tanpa terpotong */
+      border-radius: 0;
+      background-color: transparent;
+      border: none;
+      box-shadow: none;
+      display: block;
     }
 
     /* Footer & Pengaturan Kontrol */
@@ -793,7 +788,6 @@
         <div class="illustration-view">
           <div class="illustration-card">
             <img id="illustImage" src="" alt="Ilustrasi Karakter">
-            <div class="illustration-caption" id="illustCaption">Nama Karakter</div>
           </div>
         </div>
       </div>
@@ -821,14 +815,38 @@
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
 
-    // --- DAFTAR ILUSTRASI KARAKTER (Bisa kamu ganti/tambah sesuai keinginan) ---
-    const illustrations = [
-      { src: 'images/avatarivon.png', caption: 'Ivon — Cewek Ceria & Pahlawan Super ✨' },
-      { src: 'images/foto1.jpeg', caption: 'Beni & Ivon — Momen Manis Pertama 💕' },
-      { src: 'images/foto2.jpeg', caption: 'Kenangan Konyol Bersama 🌟' }
-    ];
+    // --- DAFTAR ILUSTRASI KARAKTER (Diisi otomatis via ilustrasi.json) ---
+    let illustrations = [];
     let currentIllustIndex = 0;
     let activeTab = 'novel'; // 'novel' atau 'illustration'
+
+    // --- FUNGSI MEMUAT ILUSTRASI DARI ILUSTRASI.JSON ---
+    async function loadIllustrations() {
+      try {
+        const response = await fetch(`ilustrasi.json?v=${Date.now()}`);
+        if (!response.ok) throw new Error('File ilustrasi.json tidak ditemukan');
+        
+        const data = await response.json();
+        
+        illustrations = data.map(item => ({
+          src: `ilustrasi/${item.file}`,
+          caption: item.caption || item.file
+        }));
+
+        if (illustrations.length > 0) {
+          renderIllustration();
+        } else {
+          document.getElementById('illustrationContent').innerHTML = `
+            <div class="status-msg">Belum ada gambar di folder ilustrasi.</div>
+          `;
+        }
+      } catch (err) {
+        console.warn('Gagal memuat ilustrasi.json:', err);
+        document.getElementById('illustrationContent').innerHTML = `
+          <div class="status-msg" style="color: #a33;">Gagal memuat gambar ilustrasi.</div>
+        `;
+      }
+    }
 
     // --- LOGIKA INTRO & NAMA PEMBACA ---
     let currentReaderName = localStorage.getItem('benivon_reader_name') || '';
@@ -920,15 +938,32 @@
         bookContent.style.display = 'none';
         illustContent.style.display = 'block';
         sliderContainer.style.visibility = 'hidden';
-        renderIllustration();
+
+        // Panggil loadIllustrations jika data belum ada
+        if (illustrations.length === 0) {
+          loadIllustrations();
+        } else {
+          renderIllustration();
+        }
       }
     }
 
     function renderIllustration() {
       if (illustrations.length === 0) return;
+
+      const container = document.getElementById('illustrationContent');
+      if (!document.getElementById('illustImage')) {
+        container.innerHTML = `
+          <div class="illustration-view">
+            <div class="illustration-card">
+              <img id="illustImage" src="" alt="Ilustrasi Karakter">
+            </div>
+          </div>
+        `;
+      }
+
       const item = illustrations[currentIllustIndex];
       document.getElementById('illustImage').src = item.src;
-      document.getElementById('illustCaption').innerText = item.caption;
 
       document.getElementById('pageIndicator').innerText = `Ilustrasi ${currentIllustIndex + 1} / ${illustrations.length}`;
       document.getElementById('prevBtn').disabled = currentIllustIndex === 0;
@@ -1308,6 +1343,7 @@
       checkIntroStatus();
       randomizePolaroids();
       loadNovel();
+      loadIllustrations(); // <-- Memanggil muatan ilustrasi saat awal dimuat
     });
 
     window.addEventListener('resize', () => {
@@ -1425,33 +1461,6 @@
 
       randomizePolaroids();
     }
-    async function loadIllustrations() {
-  try {
-    const response = await fetch(`ilustrasi.json?v=${Date.now()}`);
-    if (!response.ok) throw new Error('File ilustrasi.json tidak ditemukan');
-    
-    const data = await response.json();
-    
-    illustrations = data.map(item => ({
-      src: `ilustrasi/${item.file}`,
-      caption: item.caption || item.file
-    }));
-
-    if (illustrations.length > 0) {
-      renderIllustration();
-    } else {
-      document.getElementById('illustrationContent').innerHTML = `
-        <div class="status-msg">Belum ada gambar di folder ilustrasi.</div>
-      `;
-    }
-  } catch (err) {
-    console.warn('Gagal memuat ilustrasi.json:', err);
-    document.getElementById('illustrationContent').innerHTML = `
-      <div class="status-msg" style="color: #a33;">Gagal memuat gambar ilustrasi.</div>
-    `;
-  }
-}
-
   </script>
 
   <div class="fab-container">
