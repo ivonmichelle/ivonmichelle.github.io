@@ -946,119 +946,127 @@
     }
 
     // --- POLAROID RANDOMIZER ---
-    async function randomizePolaroids() {
-      const isMobile = window.innerWidth <= 768;
-      const screenW = window.innerWidth;
-      const screenH = window.innerHeight;
-      
-      const polaroidW = isMobile ? 80 : 110;
-      const polaroidH = isMobile ? 90 : 120;
-      
-      const maxX = (screenW / 2) - (polaroidW / 2) - 10;
-      const maxY = (screenH / 2) - (polaroidH / 2) - 10;
+async function randomizePolaroids() {
+  const isMobile = window.innerWidth <= 768;
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+  
+  const polaroidW = isMobile ? 80 : 110;
+  const polaroidH = isMobile ? 90 : 120;
+  
+  const maxX = (screenW / 2) - (polaroidW / 2) - 10;
+  const maxY = (screenH / 2) - (polaroidH / 2) - 10;
 
-      let polaroidConfigs = [];
+  let polaroidConfigs = [];
 
-      if (isMobile) {
-        polaroidConfigs = [
-          { id: 'polaroid1', area: { x: [-maxX, -maxX * 0.4], y: [-maxY, -maxY * 0.5] } },
-          { id: 'polaroid2', area: { x: [maxX * 0.4, maxX], y: [-maxY, -maxY * 0.5] } },
-          { id: 'polaroid3', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY, -maxY * 0.75] } },
-          { id: 'polaroid4', area: { x: [-maxX, -maxX * 0.5], y: [-maxY * 0.2, maxY * 0.2] } },
-          { id: 'polaroid5', area: { x: [maxX * 0.5, maxX], y: [-maxY * 0.2, maxY * 0.2] } },
-          { id: 'polaroid6', area: { x: [-maxX, -maxX * 0.3], y: [maxY * 0.5, maxY] } },
-          { id: 'polaroid7', area: { x: [maxX * 0.3, maxX], y: [maxY * 0.5, maxY] } }
-        ];
-      } else {
-        polaroidConfigs = [
-          { id: 'polaroid1', area: { x: [-maxX * 0.9, -maxX * 0.6], y: [-maxY * 0.8, -maxY * 0.3] } },
-          { id: 'polaroid2', area: { x: [-maxX * 0.95, -maxX * 0.65], y: [-maxY * 0.2, maxY * 0.2] } },
-          { id: 'polaroid3', area: { x: [-maxX * 0.85, -maxX * 0.55], y: [maxY * 0.3, maxY * 0.8] } },
-          { id: 'polaroid4', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY * 0.9, -maxY * 0.7] } },
-          { id: 'polaroid5', area: { x: [maxX * 0.55, maxX * 0.85], y: [-maxY * 0.8, -maxY * 0.3] } },
-          { id: 'polaroid6', area: { x: [maxX * 0.65, maxX * 0.95], y: [-maxY * 0.2, maxY * 0.2] } },
-          { id: 'polaroid7', area: { x: [maxX * 0.55, maxX * 0.85], y: [maxY * 0.3, maxY * 0.8] } }
-        ];
-      }
+  if (isMobile) {
+    polaroidConfigs = [
+      { id: 'polaroid1', area: { x: [-maxX, -maxX * 0.4], y: [-maxY, -maxY * 0.5] } },
+      { id: 'polaroid2', area: { x: [maxX * 0.4, maxX], y: [-maxY, -maxY * 0.5] } },
+      { id: 'polaroid3', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY, -maxY * 0.75] } },
+      { id: 'polaroid4', area: { x: [-maxX, -maxX * 0.5], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid5', area: { x: [maxX * 0.5, maxX], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid6', area: { x: [-maxX, -maxX * 0.3], y: [maxY * 0.5, maxY] } },
+      { id: 'polaroid7', area: { x: [maxX * 0.3, maxX], y: [maxY * 0.5, maxY] } }
+    ];
+  } else {
+    polaroidConfigs = [
+      { id: 'polaroid1', area: { x: [-maxX * 0.9, -maxX * 0.6], y: [-maxY * 0.8, -maxY * 0.3] } },
+      { id: 'polaroid2', area: { x: [-maxX * 0.95, -maxX * 0.65], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid3', area: { x: [-maxX * 0.85, -maxX * 0.55], y: [maxY * 0.3, maxY * 0.8] } },
+      { id: 'polaroid4', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY * 0.9, -maxY * 0.7] } },
+      { id: 'polaroid5', area: { x: [maxX * 0.55, maxX * 0.85], y: [-maxY * 0.8, -maxY * 0.3] } },
+      { id: 'polaroid6', area: { x: [maxX * 0.65, maxX * 0.95], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid7', area: { x: [maxX * 0.55, maxX * 0.85], y: [maxY * 0.3, maxY * 0.8] } }
+    ];
+  }
 
-      let foundImages = [];
+  let foundImages = [];
 
-      if (window.location.hostname.includes('github.io')) {
-        const username = window.location.hostname.split('.')[0];
-        const pathSegments = window.location.pathname.split('/').filter(Boolean);
-        const repo = pathSegments.length > 0 ? pathSegments[0] : `${username}.github.io`;
-        const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/images`;
+  // --- SOLUSI UTAMA FOTO GITHUB PAGES ---
+  if (window.location.hostname.includes('github.io')) {
+    const username = window.location.hostname.split('.')[0];
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    const repo = pathSegments.length > 0 ? pathSegments[0] : `${username}.github.io`;
+    
+    // Meminta 100 item sekaligus & membypass cache browser dengan Timestamp (?t=)
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/images?per_page=100&t=${Date.now()}`;
 
-        try {
-          const res = await fetch(apiUrl);
-          if (res.ok) {
-            const files = await res.json();
-            foundImages = files
-              .map(file => file.name)
-              .filter(name => name.match(/\.(jpe?g)$/i));
-          }
-        } catch (e) {
-          console.error('Gagal mengambil gambar:', e);
+    try {
+      const res = await fetch(apiUrl);
+      if (res.ok) {
+        const files = await res.json();
+        if (Array.isArray(files)) {
+          foundImages = files
+            .map(file => file.name)
+            // Mengecek murni ekstensi .jpeg tanpa peduli nama filenya (case-insensitive)
+            .filter(name => name.toLowerCase().endsWith('.jpeg'));
         }
       }
-
-      if (foundImages.length === 0) {
-        try {
-          const res = await fetch('images/');
-          if (res.ok) {
-            const htmlText = await res.text();
-            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-            const links = Array.from(doc.querySelectorAll('a'));
-            foundImages = links
-              .map(a => a.getAttribute('href'))
-              .filter(href => href && href.match(/\.(jpe?g)$/i))
-              .map(href => href.split('/').pop());
-          }
-        } catch (e) {
-          console.log('Local directory listing tidak tersedia.');
-        }
-      }
-
-      if (foundImages.length === 0) {
-        for (let i = 1; i <= 20; i++) {
-          foundImages.push(`${i}.jpeg`);
-          foundImages.push(`foto${i}.jpeg`);
-          foundImages.push(`image${i}.jpeg`);
-        }
-      }
-
-      let shuffled = [...foundImages].sort(() => 0.5 - Math.random());
-
-      polaroidConfigs.forEach((config, index) => {
-        const el = document.getElementById(config.id);
-        if (!el) return;
-
-        const imgEl = el.querySelector('img');
-        const selectedImg = shuffled[index % shuffled.length];
-        imgEl.src = `images/${selectedImg}`;
-
-        imgEl.onerror = function() {
-          this.onerror = null;
-        };
-
-        const minX = config.area.x[0];
-        const maxXRange = config.area.x[1];
-        const minY = config.area.y[0];
-        const maxYRange = config.area.y[1];
-
-        const randomX = Math.floor(Math.random() * (maxXRange - minX)) + minX;
-        const randomY = Math.floor(Math.random() * (maxYRange - minY)) + minY;
-        const randomRotate = Math.floor(Math.random() * 40) - 20;
-
-        el.dataset.x = randomX;
-        el.dataset.y = randomY;
-        el.dataset.rotate = randomRotate;
-
-        el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
-
-        makeElementDraggableAndZoomable(el);
-      });
+    } catch (e) {
+      console.error('Gagal mengambil daftar gambar dari GitHub:', e);
     }
+  }
+
+  // Backup jika dijalankan secara lokal di web server yang mendukung directory listing
+  if (foundImages.length === 0) {
+    try {
+      const res = await fetch('images/');
+      if (res.ok) {
+        const htmlText = await res.text();
+        const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+        const links = Array.from(doc.querySelectorAll('a'));
+        foundImages = links
+          .map(a => a.getAttribute('href'))
+          .filter(href => href && href.toLowerCase().endsWith('.jpeg'))
+          .map(href => href.split('/').pop());
+      }
+    } catch (e) {
+      console.log('Local directory listing tidak tersedia.');
+    }
+  }
+
+  // Jika tetap tidak ketemu sama sekali, gunakan fallback tebakan angka
+  if (foundImages.length === 0) {
+    for (let i = 1; i <= 30; i++) {
+      foundImages.push(`${i}.jpeg`);
+      foundImages.push(`foto${i}.jpeg`);
+    }
+  }
+
+  // Acak susunan foto
+  let shuffled = [...foundImages].sort(() => 0.5 - Math.random());
+
+  polaroidConfigs.forEach((config, index) => {
+    const el = document.getElementById(config.id);
+    if (!el) return;
+
+    const imgEl = el.querySelector('img');
+    const selectedImg = shuffled[index % shuffled.length];
+    imgEl.src = `images/${selectedImg}`;
+
+    imgEl.onerror = function() {
+      this.onerror = null;
+    };
+
+    const minX = config.area.x[0];
+    const maxXRange = config.area.x[1];
+    const minY = config.area.y[0];
+    const maxYRange = config.area.y[1];
+
+    const randomX = Math.floor(Math.random() * (maxXRange - minX)) + minX;
+    const randomY = Math.floor(Math.random() * (maxYRange - minY)) + minY;
+    const randomRotate = Math.floor(Math.random() * 40) - 20;
+
+    el.dataset.x = randomX;
+    el.dataset.y = randomY;
+    el.dataset.rotate = randomRotate;
+
+    el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
+
+    makeElementDraggableAndZoomable(el);
+  });
+}
 
     function makeElementDraggableAndZoomable(el) {
       let isDragging = false;
