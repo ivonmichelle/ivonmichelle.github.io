@@ -987,55 +987,74 @@ async function randomizePolaroids() {
   // Ambil daftar gambar
   // ==========================
 
-  let foundImages = [];
+// =========================
+// Ambil semua gambar dari GitHub
+// =========================
 
-  try {
+let foundImages = [];
 
-    const res = await fetch(`images/images.json?t=${Date.now()}`);
+try {
+
+    const username = window.location.hostname.split(".")[0];
+
+    const pathParts = window.location.pathname
+        .split("/")
+        .filter(Boolean);
+
+    const repo = pathParts.length
+        ? pathParts[0]
+        : `${username}.github.io`;
+
+    const api =
+        `https://api.github.com/repos/${username}/${repo}/contents/images?nocache=${Date.now()}`;
+
+    const res = await fetch(api, {
+        cache: "no-store"
+    });
 
     if (!res.ok) {
-      throw new Error("images.json tidak ditemukan");
+        throw new Error(`GitHub API ${res.status}`);
     }
 
-    foundImages = await res.json();
+    const files = await res.json();
 
-  } catch (err) {
+    foundImages = files
+        .filter(file =>
+            file.type === "file" &&
+            /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name)
+        )
+        .map(file => file.name);
+
+}
+catch(err){
 
     console.error(err);
 
-    alert("images/images.json tidak ditemukan!");
+    alert("Tidak bisa membaca folder images dari GitHub.");
 
     return;
 
-  }
+}
 
-  // Hanya file gambar
+console.log("Jumlah gambar:", foundImages.length);
 
-  foundImages = foundImages.filter(file =>
-    /\.(jpg|jpeg|png|webp|gif)$/i.test(file)
-  );
+if(foundImages.length===0){
 
-  if (foundImages.length === 0) {
-
-    console.warn("Tidak ada gambar.");
+    alert("Folder images kosong.");
 
     return;
 
-  }
+}
 
-  // ==========================
-  // Fisher-Yates Shuffle
-  // ==========================
+// Fisher-Yates Shuffle
 
-  const shuffled = [...foundImages];
+for(let i=foundImages.length-1;i>0;i--){
 
-  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j=Math.floor(Math.random()*(i+1));
 
-    const j = Math.floor(Math.random() * (i + 1));
+    [foundImages[i],foundImages[j]]=[foundImages[j],foundImages[i]];
 
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-
-  }
+}
 
   // ==========================
   // Isi Polaroid
@@ -1049,9 +1068,9 @@ async function randomizePolaroids() {
 
     const imgEl = el.querySelector("img");
 
-    const selectedImg = shuffled[index % shuffled.length];
+    const selectedImg = foundImages[index];
 
-    imgEl.src = `images/${selectedImg}?t=${Date.now()}`;
+    imgEl.src = `images/${selectedImg}?v=${Date.now()}`;
 
     imgEl.onerror = () => {
       console.warn("Gagal memuat:", selectedImg);
