@@ -1,0 +1,33 @@
+name: Generate Images JSON
+
+on:
+  push:
+    paths:
+      - 'images/**'
+  workflow_dispatch: # Supaya bisa dijalankan manual dari tab Actions di GitHub
+
+jobs:
+  build-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Generate images.json
+        run: |
+          cd images || exit 1
+          # Cari semua file gambar, format menjadi array JSON
+          python3 -c "
+          import os, json
+          valid_exts = ('.jpg', '.jpeg', '.png', '.webp', '.gif')
+          files = [f for f in os.listdir('.') if f.lower().endswith(valid_exts)]
+          with open('../images.json', 'w') as out:
+              json.dump(files, out, indent=2)
+          "
+
+      - name: Commit and Push images.json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add images.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update images.json" && git push)
