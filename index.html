@@ -1047,71 +1047,79 @@ async function randomizePolaroids() {
   });
 }
 
-    function makeElementDraggableAndZoomable(el) {
-      if (el.dataset.initialized) return;
-      el.dataset.initialized = "1";
-      let isDragging = false;
-      let startX, startY;
-      let initialX = parseFloat(el.dataset.x) || 0;
-      let initialY = parseFloat(el.dataset.y) || 0;
-      let rotate = parseFloat(el.dataset.rotate) || 0;
-      let moveDistance = 0;
+function makeElementDraggableAndZoomable(el) {
+  if (el.dataset.initialized) return;
+  el.dataset.initialized = "1";
+  
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let moveDistance = 0;
 
-      function onStart(e) {
-        if (el.classList.contains('zoomed')) return;
+  function onStart(e) {
+    if (el.classList.contains('zoomed')) return;
 
-        isDragging = true;
-        moveDistance = 0;
-        topZIndex++;
-        el.style.zIndex = topZIndex;
+    isDragging = true;
+    moveDistance = 0;
+    topZIndex++;
+    el.style.zIndex = topZIndex;
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        startX = clientX - initialX;
-        startY = clientY - initialY;
+    // Ambil nilai posisi posisi saat ini secara fresh dari dataset
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
 
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onEnd);
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', onEnd);
-      }
+    // Catat titik acuan klik terhadap posisi elemen saat ini
+    startX = clientX - currentX;
+    startY = clientY - currentY;
 
-      function onMove(e) {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault();
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+  function onMove(e) {
+    if (!isDragging) return;
+    if (e.cancelable) e.preventDefault();
 
-        const deltaX = clientX - startX - initialX;
-        const deltaY = clientY - startY - initialY;
-        moveDistance += Math.abs(deltaX) + Math.abs(deltaY);
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        initialX = clientX - startX;
-        initialY = clientY - startY;
+    // Hitung posisi baru
+    const newX = clientX - startX;
+    const newY = clientY - startY;
 
-        el.dataset.x = initialX;
-        el.dataset.y = initialY;
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
 
-        el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
-      }
+    // Hitung akumulasi jarak pergerakan untuk mendeteksi Klik vs Drag
+    moveDistance += Math.abs(newX - currentX) + Math.abs(newY - currentY);
 
-      function onEnd() {
-        isDragging = false;
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onEnd);
-        document.removeEventListener('touchmove', onMove);
-        document.removeEventListener('touchend', onEnd);
+    // Simpan posisi baru ke dataset
+    el.dataset.x = newX;
+    el.dataset.y = newY;
 
-        if (moveDistance < 5) {
-          toggleZoomPolaroid(el);
-        }
-      }
+    const rotate = parseFloat(el.dataset.rotate) || 0;
+    el.style.transform = `translate(${newX}px, ${newY}px) rotate(${rotate}deg)`;
+  }
 
-      el.addEventListener('mousedown', onStart);
-      el.addEventListener('touchstart', onStart, { passive: false });
+  function onEnd() {
+    isDragging = false;
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+
+    if (moveDistance < 5) {
+      toggleZoomPolaroid(el);
     }
+  }
+
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+}
 
     function toggleZoomPolaroid(el) {
       if (el.classList.contains('zoomed')) {
