@@ -2,7 +2,6 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <!-- Mencegah Pinch Zoom di Mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BenivoN</title>
   <style>
@@ -13,26 +12,22 @@
       padding: 0;
     }
 
-    /* FIX UTAMA: Kunci total html & body agar scrollbar TIDAK PERNAH muncul walau 1 milidetik */
     html, body {
       width: 100%;
       height: 100%;
-      height: 100dvh; /* Menggunakan Dynamic Viewport Height untuk tablet/mobile */
+      min-height: -webkit-fill-available;
       overflow: hidden !important; 
-      position: fixed; /* Mencegah layar membal/scroll di WebKit/iOS */
+      position: fixed; 
       touch-action: pan-x pan-y;
     }
 
     body {
       font-family: 'Georgia', 'Palatino', 'Times New Roman', serif;
-      
-      /* Background Tekstur Kayu / Earth Tone */
       background-color: #2b1d0c;
       background-image: 
         radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%),
         repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px),
         linear-gradient(90deg, #3a2612, #4a3219 25%, #2d1e0f 50%, #4a3219 75%, #3a2612);
-      
       display: flex;
       justify-content: center;
       align-items: center;
@@ -77,7 +72,6 @@
       pointer-events: auto;
     }
 
-    /* Format Buku Novel (ABSOLUTE STRICT CENTER) */
     .book-page {
       position: absolute;
       top: 50%;
@@ -85,14 +79,14 @@
       transform: translate(-50%, -50%);
       
       width: 420px;
-      max-width: 85vw;
+      max-width: 90vw;
       
-      height: 95dvh;
-      max-height: 580px;
+      height: 88vh;
+      max-height: 560px;
       
       background-color: #fbf7ef;
       border-radius: 4px 12px 12px 4px;
-      padding: 18px 30px 12px 35px;
+      padding: 14px 20px 10px 25px;
       box-shadow: 
         -10px 0 20px rgba(0,0,0,0.4),
         0 15px 35px rgba(0,0,0,0.6),
@@ -110,18 +104,24 @@
       flex-shrink: 0;
       transition: filter 0.4s ease;
     }
-/* Efek Drop Cap untuk Paragraf Pertama di Setiap Halaman */
-.first-page-paragraph::first-letter {
-  font-size: 3.2em;
-  float: left;
-  line-height: 0.8;
-  margin-right: 0.15em;
-  margin-top: 0.05em;
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-weight: bold;
-  color: #3d2716; /* Warna disesuaikan dengan tema buku */
-  text-transform: uppercase; 
-}
+
+    /* Efek Drop Cap untuk Paragraf Pertama di Setiap Halaman */
+    .first-page-paragraph {
+      text-indent: 0 !important;
+    }
+
+    .first-page-paragraph::first-letter {
+      font-size: 3.2em;
+      float: left;
+      line-height: 0.8;
+      margin-right: 0.12em;
+      margin-top: 0.05em;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-weight: bold;
+      color: #3d2716;
+      text-transform: uppercase; 
+    }
+
     /* Konten Teks Dalam Buku */
     .book-content {
       flex: 1;
@@ -194,7 +194,7 @@
       box-shadow: none;
     }
 
-    /* Slider Pengaturan Ukuran Font (5 Tingkat) */
+    /* Slider Pengaturan Ukuran Font */
     .font-slider-container {
       display: flex;
       align-items: center;
@@ -228,7 +228,7 @@
       transform: scale(1.2);
     }
 
-    /* Styling 7 Foto Polaroid */
+    /* Styling Polaroid */
     .polaroid {
       position: absolute;
       top: 50%;
@@ -249,7 +249,6 @@
       cursor: grabbing;
     }
 
-    /* Mode Zoomed Polaroid */
     .polaroid.zoomed {
       z-index: 10000 !important;
       cursor: pointer;
@@ -272,204 +271,417 @@
       color: #6b5344;
       margin-top: 40%;
     }
-    /* Floating Action Button (FAB) */
-.fab-comment {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  background-color: #5c3a21;
-  color: #f3ece1;
-  border: 2px solid #8b5a2b;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  z-index: 9999;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
 
-.fab-comment:hover {
-  transform: scale(1.1);
-  background-color: #7a4f2d;
-}
+    /* Modal Window Komentar */
+    .comment-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 10001;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
 
-/* Modal Window Komentar */
-.comment-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 10001;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
+    .comment-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-.comment-modal-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
+    .comment-modal {
+      width: 90%;
+      max-width: 420px;
+      max-height: 85dvh;
+      background-color: #fbf7ef;
+      border-radius: 8px;
+      border: 2px solid #3d2716;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-family: inherit;
+      color: #2c221e;
+    }
 
-.comment-modal {
-  width: 90%;
-  max-width: 420px;
-  max-height: 85dvh;
-  background-color: #fbf7ef;
-  border-radius: 8px;
-  border: 2px solid #3d2716;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  font-family: inherit;
-  color: #2c221e;
-}
+    .modal-header {
+      padding: 12px 16px;
+      background-color: #3d2716;
+      color: #f3ece1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.modal-header {
-  padding: 12px 16px;
-  background-color: #3d2716;
-  color: #f3ece1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    .modal-header h3 {
+      font-size: 1.05rem;
+      font-weight: normal;
+    }
 
-.modal-header h3 {
-  font-size: 1.05rem;
-  font-weight: normal;
-}
+    .close-btn {
+      background: none;
+      border: none;
+      color: #f3ece1;
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+    }
 
-.close-btn {
-  background: none;
-  border: none;
-  color: #f3ece1;
-  font-size: 1.4rem;
-  cursor: pointer;
-  line-height: 1;
-}
+    .comments-list {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: #f7f2e7;
+    }
 
-/* Container Komentar Scrollable */
-.comments-list {
-  flex: 1;
-  padding: 14px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background-color: #f7f2e7;
-}
+    .comment-item {
+      background: #ffffff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border-left: 4px solid #5c3a21;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 0.88rem;
+    }
 
-.comment-item {
-  background: #ffffff;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border-left: 4px solid #5c3a21;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  font-size: 0.88rem;
-}
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 0.78rem;
+      color: #7a6352;
+    }
 
-.comment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-  font-size: 0.78rem;
-  color: #7a6352;
-}
+    .comment-author {
+      font-weight: bold;
+      color: #3d2716;
+    }
 
-.comment-author {
-  font-weight: bold;
-  color: #3d2716;
-}
+    .comment-body {
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      color: #2c221e;
+      line-height: 1.35;
+    }
 
-.comment-body {
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  color: #2c221e;
-  line-height: 1.35;
-}
+    .comment-form {
+      padding: 12px;
+      background-color: #fbf7ef;
+      border-top: 1px solid rgba(139, 90, 43, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-/* Form Input Komentar */
-.comment-form {
-  padding: 12px;
-  background-color: #fbf7ef;
-  border-top: 1px solid rgba(139, 90, 43, 0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+    .comment-user-badge {
+      font-size: 0.8rem;
+      color: #5c3a21;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.comment-input, .comment-textarea {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #cfc5b8;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 0.85rem;
-  background-color: #fff;
-  color: #2c221e;
-  outline: none;
-}
+    .change-name-btn {
+      font-size: 0.72rem;
+      color: #8c7360;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: normal;
+    }
 
-.comment-input:focus, .comment-textarea:focus {
-  border-color: #5c3a21;
-}
+    .comment-textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cfc5b8;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      background-color: #fff;
+      color: #2c221e;
+      outline: none;
+      resize: none;
+      height: 60px;
+    }
 
-.comment-textarea {
-  resize: none;
-  height: 60px;
-}
+    .comment-textarea:focus {
+      border-color: #5c3a21;
+    }
 
-.form-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.char-counter {
-  font-size: 0.75rem;
-  color: #7a6352;
-}
+    .char-counter {
+      font-size: 0.75rem;
+      color: #7a6352;
+    }
 
-.submit-btn {
-  background: #5c3a21;
-  color: #f3ece1;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: background 0.2s ease;
-}
+    .submit-btn {
+      background: #5c3a21;
+      color: #f3ece1;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s ease;
+    }
 
-.submit-btn:hover:not(:disabled) {
-  background: #7a4f2d;
-}
+    .submit-btn:hover:not(:disabled) {
+      background: #7a4f2d;
+    }
 
-.submit-btn:disabled {
-  background: #cfc5b8;
-  cursor: not-allowed;
-}
+    .submit-btn:disabled {
+      background: #cfc5b8;
+      cursor: not-allowed;
+    }
 
+    .fab-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      z-index: 9999;
+    }
+
+    .fab-btn {
+      width: 50px;
+      height: 50px;
+      background-color: #5c3a21;
+      color: #f3ece1;
+      border: 2px solid #8b5a2b;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      user-select: none;
+      outline: none;
+    }
+
+    .fab-btn:hover {
+      transform: scale(1.1);
+      background-color: #7a4f2d;
+    }
+
+    .fab-btn:active {
+      transform: scale(0.95);
+    }
+
+    .spin-icon {
+      animation: spin 0.5s ease-in-out;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .copyright-text {
+      text-align: center;
+      font-size: 0.72rem;
+      color: #8c7360;
+      font-family: inherit;
+      margin-top: 2px;
+      user-select: none;
+      letter-spacing: 0.5px;
+    }
+
+    /* --- INTRO AVATAR IVON & BUBBLE TEXT --- */
+    .ivon-intro-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      z-index: 20000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 1;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .ivon-intro-overlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .ivon-intro-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 440px;
+      width: 88%;
+      animation: floatIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .ivon-speech-bubble {
+      position: relative;
+      background: #fbf7ef;
+      border: 3px solid #3d2716;
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      color: #2c221e;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      text-align: left;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    .ivon-speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 14px 12px 0 12px;
+      border-style: solid;
+      border-color: #3d2716 transparent transparent transparent;
+      display: block;
+      width: 0;
+    }
+
+    .ivon-speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 11px 9px 0 9px;
+      border-style: solid;
+      border-color: #fbf7ef transparent transparent transparent;
+      display: block;
+      width: 0;
+      z-index: 1;
+    }
+
+    .ivon-intro-input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 12px;
+      border: 2px solid #5c3a21;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      background-color: #fff;
+    }
+
+    .ivon-intro-btn {
+      margin-top: 12px;
+      width: 100%;
+      background: #5c3a21;
+      color: #f3ece1;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: bold;
+      transition: background 0.2s ease;
+    }
+
+    .ivon-intro-btn:hover {
+      background: #7a4f2d;
+    }
+
+    .ivon-avatar-img {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 4px solid #fbf7ef;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      object-fit: cover;
+      background-color: #3d2716;
+      animation: gentleBounce 2s infinite ease-in-out;
+    }
+
+    @keyframes gentleBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @media (max-width: 768px) {
+      .polaroid {
+        width: 80px !important;
+        padding: 5px 5px 10px 5px !important;
+      }
+      .polaroid img {
+        height: 70px !important;
+      }
+      .ivon-intro-card {
+        width: 90%;
+      }
+      .ivon-speech-bubble {
+        font-size: 0.82rem;
+        padding: 14px 16px;
+      }
+      .ivon-avatar-img {
+        width: 90px;
+        height: 90px;
+      }
+    }
   </style>
 </head>
 <body>
 
+  <div class="ivon-intro-overlay" id="ivonIntroOverlay">
+    <div class="ivon-intro-card">
+      
+      <div class="ivon-speech-bubble" id="introStep1">
+        <strong>Halo, traveler manis! ✨</strong><br><br>
+        Sebelum kita berpetualang di buku kenangan ini, Ivon boleh tahu nama kamu siapa? 💖
+        <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off">
+        <button class="ivon-intro-btn" onclick="submitReaderName()">Lanjut ➔</button>
+      </div>
+
+      <div class="ivon-speech-bubble" id="introStep2" style="display: none;">
+        <strong>Aww, pahlawanku <span id="displayReaderName"></span> udah datang! 💖</strong><br><br>
+        Halo, Halo! Selamat datang di website tempat kisah kita tersimpan!<br><br>
+        Buat yang belum tahu, kenalin... aku Ivon! Cewek paling ceria, paling penyayang, dan pastinya pahlawan super yang bakal selalu ada buat bikin hari-harimu jadi lebih warna-warni! Ya... walau kadang aku agak manja, gampang ngambek (dikit doang!), dan suka bikin pusing... tapi itu kan yang bikin aku makin gemesin? Hehehe.<br><br>
+        Di sini, kamu bisa ngeliat semua perjalanan kisah manis, konyol, dan penuh cinta antara aku dan Beni. Jadi, siapin mental buat kena sugar rush, ya! Yuk, langsung masuk dan kepoin cerita kita! ✨
+        
+        <button class="ivon-intro-btn" style="margin-top: 16px;" onclick="dismissIvonIntro()">Masuk ke Buku 📖</button>
+      </div>
+
+      <img src="images/avatarivon.png" alt="Ivon Avatar" class="ivon-avatar-img">
+    </div>
+  </div>
+
   <div class="desk-container" id="deskContainer">
-    <!-- Overlay Gelap untuk Efek Zoom Bokeh -->
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
 
-    <!-- 7 Foto Polaroid -->
     <div class="polaroid" id="polaroid1"><img src="" alt="Foto 1"></div>
     <div class="polaroid" id="polaroid2"><img src="" alt="Foto 2"></div>
     <div class="polaroid" id="polaroid3"><img src="" alt="Foto 3"></div>
@@ -478,53 +690,122 @@
     <div class="polaroid" id="polaroid6"><img src="" alt="Foto 6"></div>
     <div class="polaroid" id="polaroid7"><img src="" alt="Foto 7"></div>
 
-    <!-- Halaman Utama Buku -->
     <div class="book-page">
       <div class="book-content" id="bookContent">
         <div class="status-msg">Memuat cerita benivon1.txt...</div>
       </div>
       
       <div class="book-footer">
-        <!-- Slider Font: Default di set ke value 2 -->
         <div class="font-slider-container">
           <span>A-</span>
           <input type="range" id="fontSizeSlider" min="1" max="5" value="2" step="1" onchange="changeFontSize(this.value)">
           <span>A+</span>
         </div>
 
-        <!-- Navigasi -->
         <div class="nav-row">
           <button class="nav-btn" id="prevBtn" onclick="changePage(-1)">← Back</button>
           <span class="page-number" id="pageIndicator">Hal. 0 / 0</span>
           <button class="nav-btn" id="nextBtn" onclick="changePage(1)">Next →</button>
+        </div>
+        
+        <div class="copyright-text">
+          &copy; 2026 Didi Chung
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
+
+    // --- LOGIKA INTRO & NAMA PEMBACA ---
+    let currentReaderName = localStorage.getItem('benivon_reader_name') || '';
+
+    function checkIntroStatus() {
+      const overlay = document.getElementById('ivonIntroOverlay');
+      if (currentReaderName) {
+        overlay.style.display = 'none';
+      } else {
+        document.getElementById('introStep1').style.display = 'block';
+        document.getElementById('introStep2').style.display = 'none';
+      }
+    }
+
+    async function submitReaderName() {
+      const inputEl = document.getElementById('readerNameInput');
+      const nama = inputEl.value.trim();
+
+      if (!nama) {
+        alert('Isi nama kamu dulu yaa!');
+        return;
+      }
+
+      currentReaderName = nama;
+      localStorage.setItem('benivon_reader_name', nama);
+
+      document.getElementById('displayReaderName').innerText = nama;
+      document.getElementById('introStep1').style.display = 'none';
+      document.getElementById('introStep2').style.display = 'block';
+
+      try {
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'pembaca', nama: nama })
+        });
+      } catch (err) {
+        console.error('Gagal mencatat pembaca:', err);
+      }
+    }
+
+    function dismissIvonIntro() {
+      const overlay = document.getElementById('ivonIntroOverlay');
+      if (overlay) {
+        overlay.classList.add('fade-out');
+        setTimeout(() => {
+          overlay.remove();
+        }, 400);
+      }
+    }
+
+    function changeReaderName() {
+      const newName = prompt('Ubah nama kamu:', currentReaderName);
+      if (newName && newName.trim() !== '') {
+        currentReaderName = newName.trim();
+        localStorage.setItem('benivon_reader_name', currentReaderName);
+        updateCommentUserBadge();
+      }
+    }
+
+    function updateCommentUserBadge() {
+      const badge = document.getElementById('commentUserBadge');
+      if (badge) {
+        badge.innerHTML = `
+          <span>Komentar sebagai: <strong>${escapeHtml(currentReaderName)}</strong></span>
+          <span class="change-name-btn" onclick="changeReaderName()">Ganti</span>
+        `;
+      }
+    }
+
+    // --- LOGIKA BUKU NOVEL ---
     const FILE_URL = 'benivon1.txt';
     let rawParagraphs = [];
     let pages = [];
     let currentPage = 0;
 
-    // 5 Tingkat Ukuran Font
     const fontSizes = ['0.82rem', '0.92rem', '1.0rem', '1.1rem', '1.22rem'];
     let topZIndex = 100;
     let activeZoomedEl = null;
 
-    // --- PROTEKSI PINCH-TO-ZOOM VIA JAVASCRIPT ---
     document.addEventListener('touchmove', function (event) {
       if (event.touches.length > 1) {
-        event.preventDefault(); // Blokir zoom 2 jari
+        event.preventDefault();
       }
     }, { passive: false });
 
     document.addEventListener('gesturestart', function (event) {
-      event.preventDefault(); // Blokir gestur pinch iOS Safari
+      event.preventDefault();
     });
 
-    // 1. Memuat File TXT
     async function loadNovel() {
       try {
         const response = await fetch(FILE_URL);
@@ -540,7 +821,6 @@
       }
     }
 
-    // 2. Kalkulasi Pagination
     function recalculatePagination() {
       if (rawParagraphs.length === 0) return;
 
@@ -552,7 +832,6 @@
       contentContainer.innerHTML = '';
       pages = [];
 
-      // Pengukur Dummy Element
       const tempDiv = document.createElement('div');
       tempDiv.className = 'book-content';
       tempDiv.style.visibility = 'hidden';
@@ -629,34 +908,32 @@
       renderPage();
     }        
 
-    // 3. Render Halaman
-// 3. Render Halaman
-function renderPage() {
-  const contentDiv = document.getElementById('bookContent');
-  const pageIndicator = document.getElementById('pageIndicator');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
+    function renderPage() {
+      const contentDiv = document.getElementById('bookContent');
+      const pageIndicator = document.getElementById('pageIndicator');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
 
-  if (pages.length === 0) return;
+      if (pages.length === 0) return;
 
-  // Masukkan konten HTML halaman aktif
-  contentDiv.innerHTML = pages[currentPage];
+      contentDiv.innerHTML = pages[currentPage];
 
-  // Cari paragraf pertama di halaman saat ini dan tambahkan kelas Drop Cap
-  const firstP = contentDiv.querySelector('p');
-  
-  if (firstP) {
-    firstP.classList.add('first-page-paragraph');
-  }  
+      // Cari paragraf pertama di halaman yang BUKAN sambungan kalimat (.continuation)
+      let firstP = contentDiv.querySelector('p:not(.continuation)');
+      if (!firstP) {
+        firstP = contentDiv.querySelector('p');
+      }
 
-  pageIndicator.innerText = `Hal. ${currentPage + 1} / ${pages.length}`;
+      if (firstP) {
+        firstP.classList.add('first-page-paragraph');
+      }  
 
-  prevBtn.disabled = currentPage === 0;
-  nextBtn.disabled = currentPage === pages.length - 1;
-  
-}
+      pageIndicator.innerText = `Hal. ${currentPage + 1} / ${pages.length}`;
 
-    // 4. Navigasi Halaman
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = currentPage === pages.length - 1;
+    }
+
     function changePage(direction) {
       if (currentPage + direction >= 0 && currentPage + direction < pages.length) {
         currentPage += direction;
@@ -664,181 +941,174 @@ function renderPage() {
       }
     }
 
-    // 5. Perubahan Slider Font Size
     function changeFontSize(val) {
       recalculatePagination();
     }
 
-    // 6. Penataan Foto Polaroid (Fix Akurat untuk GitHub Pages User/Project Site & Localhost)
-    async function randomizePolaroids() {
-      const polaroidConfigs = [
-        { id: 'polaroid1', baseArea: { x: [-300, -230], y: [-150, -60] } },
-        { id: 'polaroid2', baseArea: { x: [-310, -240], y: [-20, 50] } },
-        { id: 'polaroid3', baseArea: { x: [-290, -220], y: [90, 150] } },
-        { id: 'polaroid4', baseArea: { x: [-60, 60], y: [-160, -120] } },
-        { id: 'polaroid5', baseArea: { x: [230, 300], y: [-150, -60] } },
-        { id: 'polaroid6', baseArea: { x: [240, 310], y: [-20, 50] } },
-        { id: 'polaroid7', baseArea: { x: [220, 290], y: [90, 150] } }
-      ];
+// --- POLAROID RANDOMIZER ---
+async function randomizePolaroids() {
+  const isMobile = window.innerWidth <= 768;
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
 
-      let foundImages = [];
+  const polaroidW = isMobile ? 80 : 110;
+  const polaroidH = isMobile ? 90 : 120;
 
-      // A. JIKA DIBUKA DI GITHUB PAGES (Dinamis mendeteksi User Site maupun Project Site)
-      if (window.location.hostname.includes('github.io')) {
-        const username = window.location.hostname.split('.')[0];
-        const pathSegments = window.location.pathname.split('/').filter(Boolean);
-        
-        // Jika URL berupa username.github.io/namarepo -> repo = namarepo
-        // Jika URL berupa username.github.io -> repo = username.github.io
-        const repo = pathSegments.length > 0 ? pathSegments[0] : `${username}.github.io`;
-        const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/images`;
+  const maxX = (screenW / 2) - (polaroidW / 2) - 10;
+  const maxY = (screenH / 2) - (polaroidH / 2) - 10;
 
-        try {
-          const res = await fetch(apiUrl);
-          if (res.ok) {
-            const files = await res.json();
-            foundImages = files
-              .map(file => file.name)
-              .filter(name => name.match(/\.(jpe?g)$/i));
-          } else {
-            console.warn('GitHub API Response status:', res.status);
-          }
-        } catch (e) {
-          console.error('Gagal mengambil daftar gambar dari GitHub API:', e);
-        }
-      }
+  let polaroidConfigs = [];
 
-      // B. JIKA DIBUKA DI LOCALHOST (Directory Listing)
-      if (foundImages.length === 0) {
-        try {
-          const res = await fetch('images/');
-          if (res.ok) {
-            const htmlText = await res.text();
-            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-            const links = Array.from(doc.querySelectorAll('a'));
-            
-            foundImages = links
-              .map(a => a.getAttribute('href'))
-              .filter(href => href && href.match(/\.(jpe?g)$/i))
-              .map(href => href.split('/').pop());
-          }
-        } catch (e) {
-          console.log('Local directory listing tidak tersedia.');
-        }
-      }
+  if (isMobile) {
+    polaroidConfigs = [
+      { id: 'polaroid1', area: { x: [-maxX, -maxX * 0.4], y: [-maxY, -maxY * 0.5] } },
+      { id: 'polaroid2', area: { x: [maxX * 0.4, maxX], y: [-maxY, -maxY * 0.5] } },
+      { id: 'polaroid3', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY, -maxY * 0.75] } },
+      { id: 'polaroid4', area: { x: [-maxX, -maxX * 0.5], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid5', area: { x: [maxX * 0.5, maxX], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid6', area: { x: [-maxX, -maxX * 0.3], y: [maxY * 0.5, maxY] } },
+      { id: 'polaroid7', area: { x: [maxX * 0.3, maxX], y: [maxY * 0.5, maxY] } }
+    ];
+  } else {
+    polaroidConfigs = [
+      { id: 'polaroid1', area: { x: [-maxX * 0.9, -maxX * 0.6], y: [-maxY * 0.8, -maxY * 0.3] } },
+      { id: 'polaroid2', area: { x: [-maxX * 0.95, -maxX * 0.65], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid3', area: { x: [-maxX * 0.85, -maxX * 0.55], y: [maxY * 0.3, maxY * 0.8] } },
+      { id: 'polaroid4', area: { x: [-maxX * 0.3, maxX * 0.3], y: [-maxY * 0.9, -maxY * 0.7] } },
+      { id: 'polaroid5', area: { x: [maxX * 0.55, maxX * 0.85], y: [-maxY * 0.8, -maxY * 0.3] } },
+      { id: 'polaroid6', area: { x: [maxX * 0.65, maxX * 0.95], y: [-maxY * 0.2, maxY * 0.2] } },
+      { id: 'polaroid7', area: { x: [maxX * 0.55, maxX * 0.85], y: [maxY * 0.3, maxY * 0.8] } }
+    ];
+  }
 
-      // C. JIKA SEMUA CARA OTOMATIS DI ATAS GAGAL (Atau jika API terkena Rate Limit)
-      if (foundImages.length === 0) {
-        console.warn('Menggunakan fallback image finder...');
-        // Opsi darurat untuk memastikan foto tetap dicoba muat
-        for (let i = 1; i <= 20; i++) {
-          foundImages.push(`${i}.jpeg`);
-          foundImages.push(`foto${i}.jpeg`);
-          foundImages.push(`image${i}.jpeg`);
-        }
-      }
-
-      // Acak urutan gambar
-      let shuffled = [...foundImages].sort(() => 0.5 - Math.random());
-
-      polaroidConfigs.forEach((config, index) => {
-        const el = document.getElementById(config.id);
-        if (!el) return;
-
-        const imgEl = el.querySelector('img');
-        const selectedImg = shuffled[index % shuffled.length];
-        
-        imgEl.src = `images/${selectedImg}`;
-
-        // Jika foto gagal muat (misal karena nama tebakan fallback tidak ada), sembunyikan atau biarkan onerror menangani
-        imgEl.onerror = function() {
-          // Mencegah gambar pecah/error berulang
-          this.onerror = null;
-        };
-
-        const randomX = Math.floor(Math.random() * (config.baseArea.x[1] - config.baseArea.x[0])) + config.baseArea.x[0];
-        const randomY = Math.floor(Math.random() * (config.baseArea.y[1] - config.baseArea.y[0])) + config.baseArea.y[0];
-        const randomRotate = Math.floor(Math.random() * 50) - 25;
-
-        el.dataset.x = randomX;
-        el.dataset.y = randomY;
-        el.dataset.rotate = randomRotate;
-
-        el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
-
-        makeElementDraggableAndZoomable(el);
-      });
+  // =========================
+  // Ambil daftar gambar dari images.json (Root)
+  // =========================
+  let foundImages = [];
+  try {
+    const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP Status: ${res.status}`);
+    const files = await res.json();
+    if (Array.isArray(files)) {
+      foundImages = files;
     }
+  } catch (err) {
+    console.error("Gagal membaca images.json, menggunakan fallback:", err);
+  }
 
-
-    // 7. Drag & Drop + Click to Zoom Listener
-    function makeElementDraggableAndZoomable(el) {
-      let isDragging = false;
-      let startX, startY;
-      let initialX = parseFloat(el.dataset.x) || 0;
-      let initialY = parseFloat(el.dataset.y) || 0;
-      let rotate = parseFloat(el.dataset.rotate) || 0;
-      
-      let moveDistance = 0; // Untuk membedakan Klik biasa vs Dragging
-
-      function onStart(e) {
-        if (el.classList.contains('zoomed')) return; // Abaikan jika sedang mode zoom
-
-        isDragging = true;
-        moveDistance = 0;
-        topZIndex++;
-        el.style.zIndex = topZIndex;
-
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-
-        startX = clientX - initialX;
-        startY = clientY - initialY;
-
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onEnd);
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', onEnd);
-      }
-
-      function onMove(e) {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault();
-
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-
-        const deltaX = clientX - startX - initialX;
-        const deltaY = clientY - startY - initialY;
-        moveDistance += Math.abs(deltaX) + Math.abs(deltaY);
-
-        initialX = clientX - startX;
-        initialY = clientY - startY;
-
-        el.dataset.x = initialX;
-        el.dataset.y = initialY;
-
-        el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
-      }
-
-      function onEnd() {
-        isDragging = false;
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onEnd);
-        document.removeEventListener('touchmove', onMove);
-        document.removeEventListener('touchend', onEnd);
-
-        // Jika tidak diseret (moveDistance kecil), anggap sebagai KLIK / TAP
-        if (moveDistance < 5) {
-          toggleZoomPolaroid(el);
-        }
-      }
-
-      el.addEventListener('mousedown', onStart);
-      el.addEventListener('touchstart', onStart, { passive: false });
+  // Fallback jika images.json gagal dimuat
+  if (foundImages.length === 0) {
+    for (let i = 1; i <= 20; i++) {
+      foundImages.push(`${i}.jpeg`);
+      foundImages.push(`foto${i}.jpeg`);
     }
+  }
 
-    // 8. Logika Zoom / Unzoom Polaroid & Blur Background
+  // Fisher-Yates Shuffle
+  for (let i = foundImages.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [foundImages[i], foundImages[j]] = [foundImages[j], foundImages[i]];
+  }
+
+  // ==========================
+  // Isi Polaroid
+  // ==========================
+  polaroidConfigs.forEach((config, index) => {
+    const el = document.getElementById(config.id);
+    if (!el) return;
+    const imgEl = el.querySelector("img");
+    const selectedImg = foundImages[index % foundImages.length];
+    imgEl.src = `images/${selectedImg}?v=${Date.now()}`;
+    imgEl.onerror = () => {
+      console.warn("Gagal memuat gambar:", selectedImg);
+    };
+
+    const minX = config.area.x[0];
+    const maxXRange = config.area.x[1];
+    const minY = config.area.y[0];
+    const maxYRange = config.area.y[1];
+    const randomX = Math.floor(Math.random() * (maxXRange - minX)) + minX;
+    const randomY = Math.floor(Math.random() * (maxYRange - minY)) + minY;
+    const randomRotate = Math.floor(Math.random() * 40) - 20;
+
+    el.dataset.x = randomX;
+    el.dataset.y = randomY;
+    el.dataset.rotate = randomRotate;
+    el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
+    makeElementDraggableAndZoomable(el);
+  });
+}
+
+// --- FUNGSI DRAG & ZOOM (SUDAH DIPERBAIKI) ---
+function makeElementDraggableAndZoomable(el) {
+  if (el.dataset.initialized) return;
+  el.dataset.initialized = "1";
+
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let moveDistance = 0;
+
+  function onStart(e) {
+    if (el.classList.contains('zoomed')) return;
+
+    isDragging = true;
+    moveDistance = 0;
+    topZIndex++;
+    el.style.zIndex = topZIndex;
+
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
+
+    startX = clientX - currentX;
+    startY = clientY - currentY;
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
+
+  function onMove(e) {
+    if (!isDragging) return;
+    if (e.cancelable) e.preventDefault();
+
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+    const newX = clientX - startX;
+    const newY = clientY - startY;
+
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
+
+    moveDistance += Math.abs(newX - currentX) + Math.abs(newY - currentY);
+
+    el.dataset.x = newX;
+    el.dataset.y = newY;
+
+    const rotate = parseFloat(el.dataset.rotate) || 0;
+    el.style.transform = `translate(${newX}px, ${newY}px) rotate(${rotate}deg)`;
+  }
+
+  function onEnd() {
+    isDragging = false;
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+
+    if (moveDistance < 5) {
+      toggleZoomPolaroid(el);
+    }
+  }
+
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+}
+
     function toggleZoomPolaroid(el) {
       if (el.classList.contains('zoomed')) {
         closeZoomedPolaroid();
@@ -871,6 +1141,7 @@ function renderPage() {
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      checkIntroStatus();
       randomizePolaroids();
       loadNovel();
     });
@@ -880,124 +1151,151 @@ function renderPage() {
         recalculatePagination();
       }
     });
-    
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
 
-function openCommentModal() {
-  document.getElementById('commentModalOverlay').classList.add('active');
-  fetchComments();
-}
+    // --- MODAL KOMENTAR ---
+    function openCommentModal() {
+      if (!currentReaderName) {
+        const nameInput = prompt('Masukkan nama kamu dulu sebelum berkomentar:');
+        if (nameInput && nameInput.trim() !== '') {
+          currentReaderName = nameInput.trim();
+          localStorage.setItem('benivon_reader_name', currentReaderName);
+        } else {
+          return;
+        }
+      }
 
-function closeCommentModal() {
-  document.getElementById('commentModalOverlay').classList.remove('active');
-}
-
-function updateCharCount() {
-  const textarea = document.getElementById('messageInput');
-  const counter = document.getElementById('charCounter');
-  counter.innerText = `${textarea.value.length} / 160`;
-}
-
-// Fetch data dari Google Sheets
-async function fetchComments() {
-  const listEl = document.getElementById('commentsList');
-  try {
-    const res = await fetch(SCRIPT_URL);
-    const data = await res.json();
-    
-    if (data.length === 0) {
-      listEl.innerHTML = '<div class="status-msg">Belum ada komentar. Jadi yang pertama!</div>';
-      return;
+      updateCommentUserBadge();
+      document.getElementById('commentModalOverlay').classList.add('active');
+      fetchComments();
     }
 
-    listEl.innerHTML = data.reverse().map(item => `
-      <div class="comment-item">
-        <div class="comment-header">
-          <span class="comment-author">${escapeHtml(item.nama)}</span>
-          <span>${escapeHtml(item.timestamp)}</span>
-        </div>
-        <div class="comment-body">${escapeHtml(item.pesan)}</div>
-      </div>
-    `).join('');
-  } catch (err) {
-    listEl.innerHTML = '<div class="status-msg" style="color:#a33;">Gagal memuat komentar.</div>';
-  }
-}
+    function closeCommentModal() {
+      document.getElementById('commentModalOverlay').classList.remove('active');
+    }
 
-// Kirim data ke Google Sheets
-async function submitComment(e) {
-  e.preventDefault();
-  
-  const submitBtn = document.getElementById('submitBtn');
-  const nama = document.getElementById('authorInput').value.trim();
-  const pesan = document.getElementById('messageInput').value.trim();
+    function updateCharCount() {
+      const textarea = document.getElementById('messageInput');
+      const counter = document.getElementById('charCounter');
+      counter.innerText = `${textarea.value.length} / 160`;
+    }
 
-  if (!nama || !pesan) return;
+    async function fetchComments() {
+      const listEl = document.getElementById('commentsList');
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+        
+        if (data.length === 0) {
+          listEl.innerHTML = '<div class="status-msg">Belum ada komentar. Jadi yang pertama!</div>';
+          return;
+        }
 
-  submitBtn.disabled = true;
-  submitBtn.innerText = 'Mengirim...';
+        listEl.innerHTML = data.reverse().map(item => `
+          <div class="comment-item">
+            <div class="comment-header">
+              <span class="comment-author">${escapeHtml(item.nama)}</span>
+              <span>${escapeHtml(item.timestamp)}</span>
+            </div>
+            <div class="comment-body">${escapeHtml(item.pesan)}</div>
+          </div>
+        `).join('');
+      } catch (err) {
+        listEl.innerHTML = '<div class="status-msg" style="color:#a33;">Gagal memuat komentar.</div>';
+      }
+    }
 
-  try {
-    const payload = JSON.stringify({ nama, pesan });
-    
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: payload
-    });
+    async function submitComment(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const pesan = document.getElementById('messageInput').value.trim();
 
-    document.getElementById('commentForm').reset();
-    updateCharCount();
-    await fetchComments(); // Refresh list komentar
-  } catch (err) {
-    alert('Gagal mengirim komentar. Silakan coba lagi.');
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerText = 'Kirim';
-  }
-}
+      if (!pesan || !currentReaderName) return;
 
-// Utility Sanitasi HTML (Mencegah XSS)
-function escapeHtml(text) {
-  return String(text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Mengirim...';
 
+      try {
+        const payload = JSON.stringify({
+          action: 'komentar',
+          nama: currentReaderName,
+          pesan: pesan
+        });
+        
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: payload
+        });
+
+        document.getElementById('messageInput').value = '';
+        updateCharCount();
+        await fetchComments();
+      } catch (err) {
+        alert('Gagal mengirim komentar. Silakan coba lagi.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Kirim';
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function refreshPolaroidsOnly() {
+      const refreshBtn = document.getElementById('btnRefreshPhotos');
+      
+      refreshBtn.classList.add('spin-icon');
+      setTimeout(() => {
+        refreshBtn.classList.remove('spin-icon');
+      }, 500);
+
+      if (typeof closeZoomedPolaroid === 'function') {
+        closeZoomedPolaroid();
+      }
+
+      randomizePolaroids();
+    }
   </script>
-  <!-- Floating Button Komentar -->
-<div class="fab-comment" onclick="openCommentModal()" title="Buku Tamu / Komentar">
-  💬
-</div>
 
-<!-- Modal Window Komentar -->
-<div class="comment-modal-overlay" id="commentModalOverlay">
-  <div class="comment-modal">
-    <div class="modal-header">
-      <h3>Buku Tamu & Komentar</h3>
-      <button class="close-btn" onclick="closeCommentModal()">&times;</button>
-    </div>
+  <div class="fab-container">
+    <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">
+      🔄
+    </button>
 
-    <!-- Area Komentar Scrollable -->
-    <div class="comments-list" id="commentsList">
-      <div class="status-msg">Memuat komentar...</div>
-    </div>
-
-    <!-- Form Input Komentar -->
-    <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
-      <input type="text" id="authorInput" class="comment-input" placeholder="Nama Anda" maxlength="30" required>
-      
-      <textarea id="messageInput" class="comment-textarea" placeholder="Tulis komentar (maks. 160 karakter)..." maxlength="160" required oninput="updateCharCount()"></textarea>
-      
-      <div class="form-footer">
-        <span class="char-counter" id="charCounter">0 / 160</span>
-        <button type="submit" class="submit-btn" id="submitBtn">Kirim</button>
-      </div>
-    </form>
+    <button class="fab-btn" onclick="openCommentModal()" title="Buku Tamu / Komentar">
+      💬
+    </button>
   </div>
-</div>
+
+  <div class="comment-modal-overlay" id="commentModalOverlay">
+    <div class="comment-modal">
+      <div class="modal-header">
+        <h3>Buku Tamu & Komentar</h3>
+        <button class="close-btn" onclick="closeCommentModal()">&times;</button>
+      </div>
+
+      <div class="comments-list" id="commentsList">
+        <div class="status-msg">Memuat komentar...</div>
+      </div>
+
+      <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
+        <div class="comment-user-badge" id="commentUserBadge"></div>
+
+        <textarea id="messageInput" class="comment-textarea" placeholder="Tulis komentar (maks. 160 karakter)..." maxlength="160" required oninput="updateCharCount()"></textarea>
+        
+        <div class="form-footer">
+          <span class="char-counter" id="charCounter">0 / 160</span>
+          <button type="submit" class="submit-btn" id="submitBtn">Kirim</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 </body>
 </html>
