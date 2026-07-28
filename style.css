@@ -65,53 +65,54 @@
       pointer-events: auto;
     }
 
-    /* --- BUKU REALISTIS (CONTAINER UTAMA) --- */
-    .book-page {
-      position: absolute;
-      top: 52%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      
-      width: 420px;
-      max-width: 90vw;
-      
-      height: 84vh;
-      max-height: 560px;
-      
-      background-color: #fbf7ef;
-      border-radius: 4px 10px 10px 4px;
-      padding: 18px 20px 10px 36px; /* Margin kiri diperbesar agar teks tidak menutupi lubang kertas */
-      
-      /* LUBANG KERTAS (Hole Punch) di Sisi Kiri */
-      /* Berjarak 14px dari kiri, diulang setiap 32px secara vertikal */
-      background-image: 
-        radial-gradient(circle at 14px 26px, #1c130a 0px, #2b1d0c 6px, rgba(0,0,0,0.15) 6px, transparent 6.5px);
-      background-size: 100% 32px;
-      background-repeat: repeat-y;
-      
-      /* Bayangan dasar kertas */
-      box-shadow: 
-        -5px 10px 25px rgba(0, 0, 0, 0.5),
-        inset 18px 0 20px -8px rgba(0,0,0,0.06);
-      
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      z-index: 10;
-      color: #2c221e;
-      line-height: 1.4;
-      box-sizing: border-box;
-      flex-shrink: 0;
-      transition: filter 0.4s ease;
-      
-      overflow: visible !important;
-    }
+/* --- BUKU REALISTIS (CONTAINER UTAMA) --- */
+.book-page {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  width: 420px;
+  max-width: 90vw;
+  
+  height: 84vh;
+  max-height: 560px;
+  
+  background-color: #fbf7ef;
+  border-radius: 4px 10px 10px 4px;
+  padding: 18px 20px 10px 40px; /* Padding kiri dinaikkan ke 40px agar teks tidak terhalang lubang yang lebih besar */
+  
+  /* LUBANG KERTAS (Hole Punch) di Sisi Kiri */
+  /* Titik pusat berada di 14px (X) & 16px (Y) - persis di tengah kawat & pola 32px */
+  background-image: 
+    radial-gradient(circle at 14px 24px, #1c130a 0px, #2b1d0c 8px, rgba(0,0,0,0.18) 8px, transparent 8.5px);
+  background-size: 100% 32px;
+  background-repeat: repeat-y;
+  
+  /* Bayangan dasar kertas */
+  box-shadow: 
+    -5px 10px 25px rgba(0, 0, 0, 0.5),
+    inset 18px 0 20px -8px rgba(0,0,0,0.06);
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 10;
+  color: #2c221e;
+  line-height: 1.4;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: filter 0.4s ease;
+  
+  overflow: visible !important;
+}
+
 
     /* --- RING SPIRAL KAWAT LOGAM (LENGKUNG & ROUNDED) --- */
     .book-page::before {
       content: '';
       position: absolute;
-      top: 10px;
+      top: 8px;
       bottom: 10px;
       left: -16px; /* Menggantung keluar dari pinggir kertas */
       width: 38px;
