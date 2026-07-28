@@ -945,10 +945,8 @@
       recalculatePagination();
     }
 
-    // --- POLAROID RANDOMIZER ---
 // --- POLAROID RANDOMIZER ---
 async function randomizePolaroids() {
-
   const isMobile = window.innerWidth <= 768;
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
@@ -983,105 +981,59 @@ async function randomizePolaroids() {
     ];
   }
 
-  // ==========================
-  // Ambil daftar gambar
-  // ==========================
-
-// =========================
-// Ambil semua gambar dari GitHub
-// =========================
-
-let foundImages = [];
-
-try {
-
+  // =========================
+  // Ambil semua gambar dari GitHub
+  // =========================
+  let foundImages = [];
+  try {
     const username = window.location.hostname.split(".")[0];
-
-    const pathParts = window.location.pathname
-        .split("/")
-        .filter(Boolean);
-
-    const repo = pathParts.length
-        ? pathParts[0]
-        : `${username}.github.io`;
-
-    const api =
-        `https://api.github.com/repos/${username}/${repo}/contents/images?nocache=${Date.now()}`;
-
-    const res = await fetch(api, {
-        cache: "no-store"
-    });
-
-    if (!res.ok) {
-        throw new Error(`GitHub API ${res.status}`);
-    }
-
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+    const repo = pathParts.length ? pathParts[0] : `${username}.github.io`;
+    // Ditambahkan per_page=100 agar mengambil hingga 100 foto sekaligus
+    const api = `https://api.github.com/repos/${username}/${repo}/contents/images?per_page=100&nocache=${Date.now()}`;
+    const res = await fetch(api, { cache: "no-store" });
+    if (!res.ok) throw new Error(`GitHub API Status: ${res.status}`);
     const files = await res.json();
-
-    foundImages = files
-        .filter(file =>
-            file.type === "file" &&
-            /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name)
-        )
+    if (Array.isArray(files)) {
+      foundImages = files
+        .filter(file => file.type === "file" && /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name))
         .map(file => file.name);
+    }
+  } catch (err) {
+    console.error("Gagal membaca folder images via GitHub API:", err);
+  }
 
-}
-catch(err){
+  // Fallback sederhana jika API gagal / berjalan di local
+  if (foundImages.length === 0) {
+    for (let i = 1; i <= 20; i++) {
+      foundImages.push(`${i}.jpeg`);
+      foundImages.push(`foto${i}.jpeg`);
+    }
+  }
 
-    console.error(err);
-
-    alert("Tidak bisa membaca folder images dari GitHub.");
-
-    return;
-
-}
-
-console.log("Jumlah gambar:", foundImages.length);
-
-if(foundImages.length===0){
-
-    alert("Folder images kosong.");
-
-    return;
-
-}
-
-// Fisher-Yates Shuffle
-
-for(let i=foundImages.length-1;i>0;i--){
-
-    const j=Math.floor(Math.random()*(i+1));
-
-    [foundImages[i],foundImages[j]]=[foundImages[j],foundImages[i]];
-
-}
+  // Fisher-Yates Shuffle
+  for (let i = foundImages.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [foundImages[i], foundImages[j]] = [foundImages[j], foundImages[i]];
+  }
 
   // ==========================
   // Isi Polaroid
   // ==========================
-
   polaroidConfigs.forEach((config, index) => {
-
     const el = document.getElementById(config.id);
-
     if (!el) return;
-
     const imgEl = el.querySelector("img");
-
-    const selectedImg = foundImages[index];
-
+    const selectedImg = foundImages[index % foundImages.length];
     imgEl.src = `images/${selectedImg}?v=${Date.now()}`;
-
     imgEl.onerror = () => {
-      console.warn("Gagal memuat:", selectedImg);
+      console.warn("Gagal memuat gambar:", selectedImg);
     };
 
     const minX = config.area.x[0];
     const maxXRange = config.area.x[1];
-
     const minY = config.area.y[0];
     const maxYRange = config.area.y[1];
-
     const randomX = Math.floor(Math.random() * (maxXRange - minX)) + minX;
     const randomY = Math.floor(Math.random() * (maxYRange - minY)) + minY;
     const randomRotate = Math.floor(Math.random() * 40) - 20;
@@ -1089,14 +1041,9 @@ for(let i=foundImages.length-1;i>0;i--){
     el.dataset.x = randomX;
     el.dataset.y = randomY;
     el.dataset.rotate = randomRotate;
-
-    el.style.transform =
-      `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
-
+    el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
     makeElementDraggableAndZoomable(el);
-
   });
-
 }
 
     function makeElementDraggableAndZoomable(el) {
