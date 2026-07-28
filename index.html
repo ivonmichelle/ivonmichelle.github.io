@@ -856,6 +856,141 @@
   display: block;
   filter: sepia(0.12) contrast(1.05);
 }
+/* --- JUKEBOX CONTAINER (UJUNG KIRI LAYAR) --- */
+.jukebox-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.jukebox-btn {
+  background: rgba(43, 29, 12, 0.85) !important;
+  border: 1px solid #8b5a2b !important;
+  font-size: 1.3rem !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Popover Jukebox (Muncul ke atas) */
+.jukebox-menu {
+  display: none;
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  width: 230px;
+  background: rgba(25, 17, 9, 0.95);
+  border: 1px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jukebox-menu.show {
+  display: flex;
+  animation: jukeboxSlideUp 0.25s ease-out;
+}
+
+@keyframes jukeboxSlideUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.jukebox-header {
+  color: #e2c08d;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  text-align: center;
+  border-bottom: 1px solid rgba(139, 90, 43, 0.4);
+  padding-bottom: 6px;
+  margin-bottom: 2px;
+}
+
+/* Card Item Piringan Hitam */
+.vinyl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.vinyl-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(226, 192, 141, 0.3);
+}
+
+.vinyl-item.active {
+  background: rgba(139, 90, 43, 0.35);
+  border-color: #e2c08d;
+}
+
+/* Gambar Visual Piringan Hitam / Vinyl Disc */
+.vinyl-disc {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #333 18%, #111 20%, #111 40%, #222 41%, #111 43%, #111 70%, #000 100%);
+  border: 1px solid #444;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* Stiker Tengah Piringan Hitam */
+.vinyl-disc::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #c0392b; /* Warna stiker piringan */
+  border: 1.5px solid #000;
+}
+
+/* Animasi berputar jika lagu aktif */
+.vinyl-item.active .vinyl-disc {
+  animation: spinVinyl 3s linear infinite;
+}
+
+@keyframes spinVinyl {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Teks Judul Lagu */
+.vinyl-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Memastikan judul tepat di tengah vertikal */
+  overflow: hidden;
+}
+
+.vinyl-title {
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: bold;
+  white-space: normal;      /* Mengizinkan teks turun ke baris baru */
+  word-break: break-word;   /* Memutus kata yang panjang agar rapi */
+  line-height: 1.25;        /* Memberi spasi antar baris yang nyaman dibaca */
+}
+
+/* Hilangkan atau biarkan kosong style .vinyl-sub ini */
+
+.vinyl-sub {
+  color: #a89379;
+  font-size: 0.7rem;
+}
   </style>
 </head>
 <body>
@@ -1642,6 +1777,7 @@ function handleNextNav() {
       randomizePolaroids();
       loadNovel();
       loadIllustrations();
+      loadJukeboxTracks();
     });
 
     window.addEventListener('resize', () => {
@@ -1771,7 +1907,7 @@ function handleNextNav() {
           bgmBtn.setAttribute('title', 'Matikan Musik');
         }).catch(err => {
           console.error("Gagal memutar audio:", err);
-          alert("Gagal memutar audio. Pastikan file 'bgm/bgm.mp3' tersedia!");
+          alert("Gagal memutar audio. Pastikan file 'bgm/Selesai Dengan Sunyi (Beni Theme - Lofi).mp3' tersedia!");
         });
       } else {
         audio.pause();
@@ -1779,10 +1915,87 @@ function handleNextNav() {
         bgmBtn.setAttribute('title', 'Putar Musik');
       }
     }
+    
+    // Toggle Buka/Tutup Menu Jukebox
+function toggleJukeboxMenu() {
+  const menu = document.getElementById('jukeboxMenu');
+  menu.classList.toggle('show');
+}
+
+// Tutup Jukebox jika mengklik area luar
+document.addEventListener('click', function(e) {
+  const jukeboxContainer = document.querySelector('.jukebox-container');
+  if (jukeboxContainer && !jukeboxContainer.contains(e.target)) {
+    document.getElementById('jukeboxMenu')?.classList.remove('show');
+  }
+});
+
+// Pilih & Mainkan Lagu dari Jukebox
+function playJukeboxTrack(srcPath, title, element) {
+  const audio = document.getElementById('bgmAudio');
+  const btnToggle = document.getElementById('btnBgmToggle');
+
+  // Update indikator UI active pada piringan hitam
+  document.querySelectorAll('.vinyl-item').forEach(item => item.classList.remove('active'));
+  if (element) element.classList.add('active');
+
+  // Set sumber lagu baru
+  audio.src = srcPath;
+  audio.load();
+
+  // Otomatis putar & ubah tombol mute/unmute asli di kanan menjadi ON (🎵)
+  audio.play().then(() => {
+    if (btnToggle) btnToggle.innerText = '🎵';
+  }).catch(err => {
+    console.log("Autoplay ditahan browser:", err);
+  });
+}
+async function loadJukeboxTracks() {
+  const menuContainer = document.getElementById('jukeboxMenu');
+  if (!menuContainer) return;
+
+  try {
+    const response = await fetch(`bgm.json?v=${Date.now()}`);
+    if (!response.ok) throw new Error('Gagal memuat bgm.json');
+
+    const tracks = await response.json();
+
+    // Reset isi menu dan pertahankan header
+    menuContainer.innerHTML = '<div class="jukebox-header">🎵 JUKEBOX</div>';
+
+    if (tracks.length === 0) {
+      menuContainer.innerHTML += '<div style="color:#a89379; font-size:0.75rem; text-align:center; padding:8px;">Tidak ada lagu.</div>';
+      return;
+    }
+
+    tracks.forEach((track, index) => {
+      const vinylItem = document.createElement('div');
+      vinylItem.className = `vinyl-item ${index === 0 ? 'active' : ''}`;
+      
+      // Jalankan playJukeboxTrack saat diklik
+      vinylItem.onclick = function () {
+        playJukeboxTrack(`bgm/${track.file}`, track.title, this);
+      };
+
+      vinylItem.innerHTML = `
+        <div class="vinyl-disc"></div>
+        <div class="vinyl-info">
+          <span class="vinyl-title">${escapeHtml(track.title || 'Unknown Track')}</span>
+        </div>
+      `;
+
+      menuContainer.appendChild(vinylItem);
+    });
+
+  } catch (err) {
+    console.warn('Gagal memuat bgm.json:', err);
+    menuContainer.innerHTML += '<div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
+  }
+}
   </script>
 
   <audio id="bgmAudio" loop preload="auto">
-    <source src="bgm/bgm.mp3" type="audio/mpeg">
+    <source src="bgm/Selesai Dengan Sunyi (Beni Theme - Lofi).mp3" type="audio/mpeg">
   </audio>
 
   <div class="fab-container">
@@ -1798,6 +2011,15 @@ function handleNextNav() {
       💬
     </button>
   </div>
+<div class="jukebox-container">
+  <div class="jukebox-menu" id="jukeboxMenu">
+    <div class="jukebox-header">🎵 JUKEBOX</div>
+    </div>
+
+  <button class="fab-btn jukebox-btn" id="btnJukebox" onclick="toggleJukeboxMenu()" title="Jukebox BGM">
+    📻
+  </button>
+</div>
 
   <div class="comment-modal-overlay" id="commentModalOverlay">
     <div class="comment-modal">
