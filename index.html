@@ -45,6 +45,7 @@
     <div class="book-page">
 <div class="book-tabs">
   <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
+  <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
   <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Sketch</button>
   <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Photo</button>
 </div>
@@ -93,6 +94,7 @@
     let activeTab = 'novel';
 
     let allChapters = [];          
+    let allSolChapters = [];       
     let currentChapterIndex = -1;  
     let rawParagraphs = [];
     let pages = [];
@@ -199,146 +201,157 @@
     }
 
     // --- TAB SWITCHING ---
-    // Variabel Album Polaroid
-let albumPolaroidList = [];
-let currentPolaroidPage = 0;
+    let albumPolaroidList = [];
+    let currentPolaroidPage = 0;
 
-// Update fungsi switchTab
-function switchTab(tab) {
-  activeTab = tab;
-  const tabNovelBtn = document.getElementById('tabNovelBtn');
-  const tabIllustBtn = document.getElementById('tabIllustBtn');
-  const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
-  
-  const bookContent = document.getElementById('bookContent');
-  const illustContent = document.getElementById('illustrationContent');
-  const polaroidContent = document.getElementById('polaroidAlbumContent');
-  const sliderContainer = document.getElementById('sliderContainer');
+    function switchTab(tab) {
+      activeTab = tab;
+      const tabNovelBtn = document.getElementById('tabNovelBtn');
+      const tabSolBtn = document.getElementById('tabSolBtn');
+      const tabIllustBtn = document.getElementById('tabIllustBtn');
+      const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
+      
+      const bookContent = document.getElementById('bookContent');
+      const illustContent = document.getElementById('illustrationContent');
+      const polaroidContent = document.getElementById('polaroidAlbumContent');
+      const sliderContainer = document.getElementById('sliderContainer');
 
-  // Reset kelas active tab
-  tabNovelBtn.classList.remove('active');
-  tabIllustBtn.classList.remove('active');
-  tabPolaroidBtn.classList.remove('active');
+      // Reset kelas active tab
+      tabNovelBtn.classList.remove('active');
+      tabSolBtn.classList.remove('active');
+      tabIllustBtn.classList.remove('active');
+      tabPolaroidBtn.classList.remove('active');
 
-  bookContent.style.display = 'none';
-  illustContent.style.display = 'none';
-  polaroidContent.style.display = 'none';
-  sliderContainer.style.visibility = 'hidden';
+      bookContent.style.display = 'none';
+      illustContent.style.display = 'none';
+      polaroidContent.style.display = 'none';
+      sliderContainer.style.visibility = 'hidden';
 
-  if (tab === 'novel') {
-    tabNovelBtn.classList.add('active');
-    bookContent.style.display = 'block';
-    
-    if (currentChapterIndex !== -1) {
-      sliderContainer.style.visibility = 'visible';
-      renderPage();
-    } else {
-      renderTableOfContents();
+      if (tab === 'novel') {
+        tabNovelBtn.classList.add('active');
+        bookContent.style.display = 'block';
+        
+        if (currentChapterIndex !== -1) {
+          sliderContainer.style.visibility = 'visible';
+          renderPage();
+        } else {
+          renderTableOfContents();
+        }
+      } else if (tab === 'sol') {
+        tabSolBtn.classList.add('active');
+        bookContent.style.display = 'block';
+
+        if (currentChapterIndex !== -1) {
+          sliderContainer.style.visibility = 'visible';
+          renderPage();
+        } else {
+          if (allSolChapters.length === 0) {
+            loadSol();
+          } else {
+            renderTableOfContents();
+          }
+        }
+      } else if (tab === 'illustration') {
+        tabIllustBtn.classList.add('active');
+        illustContent.style.display = 'block';
+
+        if (illustrations.length === 0) {
+          loadIllustrations();
+        } else {
+          renderIllustration();
+        }
+      } else if (tab === 'polaroid') {
+        tabPolaroidBtn.classList.add('active');
+        polaroidContent.style.display = 'block';
+
+        if (albumPolaroidList.length === 0) {
+          loadAlbumPolaroids();
+        } else {
+          renderPolaroidGrid();
+        }
+      }
     }
-  } else if (tab === 'illustration') {
-    tabIllustBtn.classList.add('active');
-    illustContent.style.display = 'block';
 
-    if (illustrations.length === 0) {
-      loadIllustrations();
-    } else {
-      renderIllustration();
-    }
-  } else if (tab === 'polaroid') {
-    tabPolaroidBtn.classList.add('active');
-    polaroidContent.style.display = 'block';
-
-    if (albumPolaroidList.length === 0) {
-      loadAlbumPolaroids();
-    } else {
+    // Fungsi Fetch daftar gambar album
+    async function loadAlbumPolaroids() {
+      try {
+        const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Gagal load images.json");
+        albumPolaroidList = await res.json();
+      } catch (err) {
+        console.warn("Menggunakan fallback gambar polaroid album:", err);
+        albumPolaroidList = [];
+        for (let i = 1; i <= 20; i++) {
+          albumPolaroidList.push(`${i}.jpeg`);
+        }
+      }
+      currentPolaroidPage = 0;
       renderPolaroidGrid();
     }
-  }
-}
 
-// Fungsi Fetch daftar gambar album
-async function loadAlbumPolaroids() {
-  try {
-    const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
-    if (!res.ok) throw new Error("Gagal load images.json");
-    albumPolaroidList = await res.json();
-  } catch (err) {
-    console.warn("Menggunakan fallback gambar polaroid album:", err);
-    albumPolaroidList = [];
-    for (let i = 1; i <= 20; i++) {
-      albumPolaroidList.push(`${i}.jpeg`);
+    // Fungsi Render 2x2 Grid + Random Tilt
+    function renderPolaroidGrid() {
+      const container = document.getElementById('polaroidGridContainer');
+      if (!container) return;
+
+      const totalItems = albumPolaroidList.length;
+      if (totalItems === 0) {
+        container.innerHTML = `<div class="status-msg">Tidak ada foto polaroid.</div>`;
+        return;
+      }
+
+      const itemsPerPage = 4;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      const startIndex = currentPolaroidPage * itemsPerPage;
+      const pageItems = albumPolaroidList.slice(startIndex, startIndex + itemsPerPage);
+
+      let html = '';
+      pageItems.forEach((imgFile) => {
+        const randomRotate = (Math.random() * 12 - 6).toFixed(1);
+        const imgSrc = `images/${imgFile}`;
+
+        html += `
+          <div class="album-polaroid-card" style="transform: rotate(${randomRotate}deg);" onclick="zoomAlbumPolaroid('${imgSrc}')">
+            <div class="album-polaroid-img-wrapper">
+              <img src="${imgSrc}" alt="Polaroid Memory">
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+
+      document.getElementById('pageIndicator').innerText = `Polaroid ${currentPolaroidPage + 1} / ${totalPages}`;
+      document.getElementById('prevBtn').disabled = currentPolaroidPage === 0;
+      document.getElementById('nextBtn').disabled = currentPolaroidPage >= totalPages - 1;
     }
-  }
-  currentPolaroidPage = 0;
-  renderPolaroidGrid();
-}
 
-// Fungsi Render 2x2 Grid + Random Tilt
-function renderPolaroidGrid() {
-  const container = document.getElementById('polaroidGridContainer');
-  if (!container) return;
+    // Zoom / Lightbox khusus Polaroid Album
+    function zoomAlbumPolaroid(imgSrc) {
+      let tempPolaroid = document.createElement('div');
+      tempPolaroid.className = 'polaroid zoomed';
+      tempPolaroid.id = 'tempAlbumZoomed';
+      tempPolaroid.innerHTML = `<img src="${imgSrc}" alt="Zoomed Polaroid">`;
 
-  const totalItems = albumPolaroidList.length;
-  if (totalItems === 0) {
-    container.innerHTML = `<div class="status-msg">Tidak ada foto polaroid.</div>`;
-    return;
-  }
+      document.getElementById('deskContainer').appendChild(tempPolaroid);
+      document.getElementById('deskContainer').classList.add('blurred');
+      document.getElementById('lightboxOverlay').classList.add('active');
 
-  const itemsPerPage = 4;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = currentPolaroidPage * itemsPerPage;
-  const pageItems = albumPolaroidList.slice(startIndex, startIndex + itemsPerPage);
+      activeZoomedEl = tempPolaroid;
+    }
 
-  let html = '';
-  pageItems.forEach((imgFile) => {
-    // Rotasi acak acak ringan (-6 sampai +6 derajat)
-    const randomRotate = (Math.random() * 12 - 6).toFixed(1);
-    const imgSrc = `images/${imgFile}`;
-
-    html += `
-      <div class="album-polaroid-card" style="transform: rotate(${randomRotate}deg);" onclick="zoomAlbumPolaroid('${imgSrc}')">
-        <div class="album-polaroid-img-wrapper">
-          <img src="${imgSrc}" alt="Polaroid Memory">
-        </div>
-      </div>
-    `;
-  });
-
-  container.innerHTML = html;
-
-  // Update Navigasi Footer
-  document.getElementById('pageIndicator').innerText = `Polaroid ${currentPolaroidPage + 1} / ${totalPages}`;
-  document.getElementById('prevBtn').disabled = currentPolaroidPage === 0;
-  document.getElementById('nextBtn').disabled = currentPolaroidPage >= totalPages - 1;
-}
-
-// Zoom / Lightbox khusus Polaroid Album
-function zoomAlbumPolaroid(imgSrc) {
-  let tempPolaroid = document.createElement('div');
-  tempPolaroid.className = 'polaroid zoomed';
-  tempPolaroid.id = 'tempAlbumZoomed';
-  tempPolaroid.innerHTML = `<img src="${imgSrc}" alt="Zoomed Polaroid">`;
-
-  document.getElementById('deskContainer').appendChild(tempPolaroid);
-  document.getElementById('deskContainer').classList.add('blurred');
-  document.getElementById('lightboxOverlay').classList.add('active');
-
-  activeZoomedEl = tempPolaroid;
-}
-
-// Sesuaikan fungsi closeZoomedPolaroid agar bisa membersihkan zoom polaroid temp
-const originalCloseZoom = closeZoomedPolaroid;
-closeZoomedPolaroid = function() {
-  const tempEl = document.getElementById('tempAlbumZoomed');
-  if (tempEl) {
-    tempEl.remove();
-    document.getElementById('deskContainer').classList.remove('blurred');
-    document.getElementById('lightboxOverlay').classList.remove('active');
-    activeZoomedEl = null;
-  } else {
-    originalCloseZoom();
-  }
-};
+    const originalCloseZoom = closeZoomedPolaroid;
+    closeZoomedPolaroid = function() {
+      const tempEl = document.getElementById('tempAlbumZoomed');
+      if (tempEl) {
+        tempEl.remove();
+        document.getElementById('deskContainer').classList.remove('blurred');
+        document.getElementById('lightboxOverlay').classList.remove('active');
+        activeZoomedEl = null;
+      } else {
+        originalCloseZoom();
+      }
+    };
 
     function renderIllustration() {
       if (illustrations.length === 0) return;
@@ -362,7 +375,7 @@ closeZoomedPolaroid = function() {
       document.getElementById('nextBtn').disabled = currentIllustIndex === illustrations.length - 1;
     }
 
-    // --- LOGIKA NOVEL GOOGLE SHEETS ("kanon") ---
+    // --- LOGIKA NOVEL GOOGLE SHEETS ("kanon" & "sol") ---
     async function loadNovel() {
       const contentDiv = document.getElementById('bookContent');
       contentDiv.innerHTML = '<div class="status-msg">Memuat daftar cerita...</div>';
@@ -378,9 +391,34 @@ closeZoomedPolaroid = function() {
           return;
         }
 
-        renderTableOfContents();
+        if (activeTab === 'novel') {
+          renderTableOfContents();
+        }
       } catch (err) {
         contentDiv.innerHTML = `<div class="status-msg" style="color: #a33;">Gagal memuat cerita.<br><sup>${err.message}</sup></div>`;
+      }
+    }
+
+    async function loadSol() {
+      const contentDiv = document.getElementById('bookContent');
+      contentDiv.innerHTML = '<div class="status-msg">Memuat cerita Slice of Life...</div>';
+
+      try {
+        const response = await fetch(`${SCRIPT_URL}?action=get_sol`);
+        if (!response.ok) throw new Error('Gagal terhubung ke server');
+        
+        allSolChapters = await response.json();
+
+        if (allSolChapters.length === 0) {
+          contentDiv.innerHTML = '<div class="status-msg">Belum ada cerita di tab Slice of Life.</div>';
+          return;
+        }
+
+        if (activeTab === 'sol') {
+          renderTableOfContents();
+        }
+      } catch (err) {
+        contentDiv.innerHTML = `<div class="status-msg" style="color: #a33;">Gagal memuat cerita Slice of Life.<br><sup>${err.message}</sup></div>`;
       }
     }
 
@@ -390,40 +428,48 @@ closeZoomedPolaroid = function() {
       currentPage = 0;
 
       const contentDiv = document.getElementById('bookContent');
+      const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
+      const titleIcon = (activeTab === 'sol') ? '🌱' : '📖';
+      const titleText = (activeTab === 'sol') ? 'Slice of Life' : 'Daftar Isi';
+
       let html = `
         <div class="toc-container">
-          <div class="toc-title">📖 Daftar Isi</div>
+          <div class="toc-title">${titleIcon} ${titleText}</div>
       `;
 
-      allChapters.forEach((ch, index) => {
-        html += `
-          <div class="toc-item" onclick="openChapter(${index})">
-            <span class="toc-bab">${escapeHtml(ch.bab)}</span>
-            <span class="toc-judul">${escapeHtml(ch.judul)}</span>
-          </div>
-        `;
-      });
+      if (activeData.length === 0) {
+        html += `<div class="status-msg">Belum ada cerita.</div>`;
+      } else {
+        activeData.forEach((ch, index) => {
+          html += `
+            <div class="toc-item" onclick="openChapter(${index})">
+              <span class="toc-bab">${escapeHtml(ch.bab)}</span>
+              <span class="toc-judul">${escapeHtml(ch.judul)}</span>
+            </div>
+          `;
+        });
+      }
 
       html += `</div>`;
       contentDiv.innerHTML = html;
 
-      document.getElementById('pageIndicator').innerText = `Daftar Isi`;
+      document.getElementById('pageIndicator').innerText = titleText;
       document.getElementById('prevBtn').disabled = true;
       document.getElementById('nextBtn').disabled = true;
       document.getElementById('sliderContainer').style.visibility = 'hidden';
     }
 
     function openChapter(index) {
-      if (index < 0 || index >= allChapters.length) return;
+      const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
+      if (index < 0 || index >= activeData.length) return;
 
       currentChapterIndex = index;
       currentPage = 0;
-      const ch = allChapters[index];
+      const ch = activeData[index];
 
       const fullText = ch.isi || '';
       rawParagraphs = fullText.split(/\r?\n/).filter(p => p.trim() !== '');
 
-      // FIX 2: Tandai judul dengan penanda khusus 'TITLE::'
       rawParagraphs.unshift(`TITLE::${ch.judul}`);
 
       document.getElementById('sliderContainer').style.visibility = 'visible';
@@ -461,7 +507,6 @@ closeZoomedPolaroid = function() {
       for (let pIndex = 0; pIndex < rawParagraphs.length; pIndex++) {
         const fullText = rawParagraphs[pIndex];
 
-        // FIX 2: Penanganan khusus untuk judul
         if (fullText.startsWith('TITLE::')) {
           const titleText = fullText.replace('TITLE::', '');
           let titleElem = document.createElement('p');
@@ -525,7 +570,7 @@ closeZoomedPolaroid = function() {
         currentPage = Math.max(0, pages.length - 1);
       }
 
-      if (activeTab === 'novel') {
+      if (activeTab === 'novel' || activeTab === 'sol') {
         renderPage();
       }
     }        
@@ -545,7 +590,6 @@ closeZoomedPolaroid = function() {
 
       contentDiv.innerHTML = pages[currentPage];
 
-      // FIX 1: Terapkan Dropcap hanya di halaman pertama (halaman yang berisi judul bab)
       if (currentPage === 0) {
         let firstP = contentDiv.querySelector('p:not(.chapter-title):not(.continuation)');
         if (!firstP) {
@@ -563,36 +607,36 @@ closeZoomedPolaroid = function() {
       nextBtn.disabled = currentPage === pages.length - 1;
     }
 
-// Update handler Navigasi (Back/Next)
-function handlePrevNav() {
-  if (activeTab === 'novel') {
-    if (currentChapterIndex !== -1) {
-      if (currentPage > 0) { currentPage--; renderPage(); }
-      else { renderTableOfContents(); }
+    // Update handler Navigasi (Back/Next)
+    function handlePrevNav() {
+      if (activeTab === 'novel' || activeTab === 'sol') {
+        if (currentChapterIndex !== -1) {
+          if (currentPage > 0) { currentPage--; renderPage(); }
+          else { renderTableOfContents(); }
+        }
+      } else if (activeTab === 'illustration') {
+        if (currentIllustIndex > 0) { currentIllustIndex--; renderIllustration(); }
+      } else if (activeTab === 'polaroid') {
+        if (currentPolaroidPage > 0) { currentPolaroidPage--; renderPolaroidGrid(); }
+      }
     }
-  } else if (activeTab === 'illustration') {
-    if (currentIllustIndex > 0) { currentIllustIndex--; renderIllustration(); }
-  } else if (activeTab === 'polaroid') {
-    if (currentPolaroidPage > 0) { currentPolaroidPage--; renderPolaroidGrid(); }
-  }
-}
 
-function handleNextNav() {
-  if (activeTab === 'novel') {
-    if (currentChapterIndex !== -1 && currentPage < pages.length - 1) {
-      currentPage++; renderPage();
+    function handleNextNav() {
+      if (activeTab === 'novel' || activeTab === 'sol') {
+        if (currentChapterIndex !== -1 && currentPage < pages.length - 1) {
+          currentPage++; renderPage();
+        }
+      } else if (activeTab === 'illustration') {
+        if (currentIllustIndex < illustrations.length - 1) {
+          currentIllustIndex++; renderIllustration();
+        }
+      } else if (activeTab === 'polaroid') {
+        const totalPages = Math.ceil(albumPolaroidList.length / 4);
+        if (currentPolaroidPage < totalPages - 1) {
+          currentPolaroidPage++; renderPolaroidGrid();
+        }
+      }
     }
-  } else if (activeTab === 'illustration') {
-    if (currentIllustIndex < illustrations.length - 1) {
-      currentIllustIndex++; renderIllustration();
-    }
-  } else if (activeTab === 'polaroid') {
-    const totalPages = Math.ceil(albumPolaroidList.length / 4);
-    if (currentPolaroidPage < totalPages - 1) {
-      currentPolaroidPage++; renderPolaroidGrid();
-    }
-  }
-}
 
     function changeFontSize(val) {
       recalculatePagination();
@@ -928,83 +972,76 @@ function handleNextNav() {
         bgmBtn.setAttribute('title', 'Putar Musik');
       }
     }
-    
-    // Toggle Buka/Tutup Menu Jukebox
-function toggleJukeboxMenu() {
-  const menu = document.getElementById('jukeboxMenu');
-  menu.classList.toggle('show');
-}
 
-// Tutup Jukebox jika mengklik area luar
-document.addEventListener('click', function(e) {
-  const jukeboxContainer = document.querySelector('.jukebox-container');
-  if (jukeboxContainer && !jukeboxContainer.contains(e.target)) {
-    document.getElementById('jukeboxMenu')?.classList.remove('show');
-  }
-});
-
-// Pilih & Mainkan Lagu dari Jukebox
-function playJukeboxTrack(srcPath, title, element) {
-  const audio = document.getElementById('bgmAudio');
-  const btnToggle = document.getElementById('btnBgmToggle');
-
-  // Update indikator UI active pada piringan hitam
-  document.querySelectorAll('.vinyl-item').forEach(item => item.classList.remove('active'));
-  if (element) element.classList.add('active');
-
-  // Set sumber lagu baru
-  audio.src = srcPath;
-  audio.load();
-
-  // Otomatis putar & ubah tombol mute/unmute asli di kanan menjadi ON (🎵)
-  audio.play().then(() => {
-    if (btnToggle) btnToggle.innerText = '🎵';
-  }).catch(err => {
-    console.log("Autoplay ditahan browser:", err);
-  });
-}
-async function loadJukeboxTracks() {
-  const menuContainer = document.getElementById('jukeboxMenu');
-  if (!menuContainer) return;
-
-  try {
-    const response = await fetch(`bgm.json?v=${Date.now()}`);
-    if (!response.ok) throw new Error('Gagal memuat bgm.json');
-
-    const tracks = await response.json();
-
-    // Reset isi menu dan pertahankan header
-    menuContainer.innerHTML = '<div class="jukebox-header">🎵 JUKEBOX</div>';
-
-    if (tracks.length === 0) {
-      menuContainer.innerHTML += '<div style="color:#a89379; font-size:0.75rem; text-align:center; padding:8px;">Tidak ada lagu.</div>';
-      return;
+    function toggleJukeboxMenu() {
+      const menu = document.getElementById('jukeboxMenu');
+      menu.classList.toggle('show');
     }
 
-    tracks.forEach((track, index) => {
-      const vinylItem = document.createElement('div');
-      vinylItem.className = `vinyl-item ${index === 0 ? 'active' : ''}`;
-      
-      // Jalankan playJukeboxTrack saat diklik
-      vinylItem.onclick = function () {
-        playJukeboxTrack(`bgm/${track.file}`, track.title, this);
-      };
-
-      vinylItem.innerHTML = `
-        <div class="vinyl-disc"></div>
-        <div class="vinyl-info">
-          <span class="vinyl-title">${escapeHtml(track.title || 'Unknown Track')}</span>
-        </div>
-      `;
-
-      menuContainer.appendChild(vinylItem);
+    document.addEventListener('click', function(e) {
+      const jukeboxContainer = document.querySelector('.jukebox-container');
+      if (jukeboxContainer && !jukeboxContainer.contains(e.target)) {
+        document.getElementById('jukeboxMenu')?.classList.remove('show');
+      }
     });
 
-  } catch (err) {
-    console.warn('Gagal memuat bgm.json:', err);
-    menuContainer.innerHTML += '<div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
-  }
-}
+    function playJukeboxTrack(srcPath, title, element) {
+      const audio = document.getElementById('bgmAudio');
+      const btnToggle = document.getElementById('btnBgmToggle');
+
+      document.querySelectorAll('.vinyl-item').forEach(item => item.classList.remove('active'));
+      if (element) element.classList.add('active');
+
+      audio.src = srcPath;
+      audio.load();
+
+      audio.play().then(() => {
+        if (btnToggle) btnToggle.innerText = '🎵';
+      }).catch(err => {
+        console.log("Autoplay ditahan browser:", err);
+      });
+    }
+
+    async function loadJukeboxTracks() {
+      const menuContainer = document.getElementById('jukeboxMenu');
+      if (!menuContainer) return;
+
+      try {
+        const response = await fetch(`bgm.json?v=${Date.now()}`);
+        if (!response.ok) throw new Error('Gagal memuat bgm.json');
+
+        const tracks = await response.json();
+
+        menuContainer.innerHTML = '<div class="jukebox-header">🎵 JUKEBOX</div>';
+
+        if (tracks.length === 0) {
+          menuContainer.innerHTML += '<div style="color:#a89379; font-size:0.75rem; text-align:center; padding:8px;">Tidak ada lagu.</div>';
+          return;
+        }
+
+        tracks.forEach((track, index) => {
+          const vinylItem = document.createElement('div');
+          vinylItem.className = `vinyl-item ${index === 0 ? 'active' : ''}`;
+          
+          vinylItem.onclick = function () {
+            playJukeboxTrack(`bgm/${track.file}`, track.title, this);
+          };
+
+          vinylItem.innerHTML = `
+            <div class="vinyl-disc"></div>
+            <div class="vinyl-info">
+              <span class="vinyl-title">${escapeHtml(track.title || 'Unknown Track')}</span>
+            </div>
+          `;
+
+          menuContainer.appendChild(vinylItem);
+        });
+
+      } catch (err) {
+        console.warn('Gagal memuat bgm.json:', err);
+        menuContainer.innerHTML += '<div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
+      }
+    }
   </script>
 
   <audio id="bgmAudio" loop preload="auto">
@@ -1024,15 +1061,16 @@ async function loadJukeboxTracks() {
       💬
     </button>
   </div>
-<div class="jukebox-container">
-  <div class="jukebox-menu" id="jukeboxMenu">
-    <div class="jukebox-header">🎵 JUKEBOX</div>
+
+  <div class="jukebox-container">
+    <div class="jukebox-menu" id="jukeboxMenu">
+      <div class="jukebox-header">🎵 JUKEBOX</div>
     </div>
 
-  <button class="fab-btn jukebox-btn" id="btnJukebox" onclick="toggleJukeboxMenu()" title="Jukebox BGM">
-    📻
-  </button>
-</div>
+    <button class="fab-btn jukebox-btn" id="btnJukebox" onclick="toggleJukeboxMenu()" title="Jukebox BGM">
+      📻
+    </button>
+  </div>
 
   <div class="comment-modal-overlay" id="commentModalOverlay">
     <div class="comment-modal">
