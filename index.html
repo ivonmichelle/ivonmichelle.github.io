@@ -11,12 +11,12 @@
   <div class="ivon-intro-overlay" id="ivonIntroOverlay">
     <div class="ivon-intro-card">
       
-      <div class="ivon-speech-bubble" id="introStep1">
-        <strong>Halo, traveler manis! ✨</strong><br><br>
-        Sebelum kita berpetualang di buku kenangan ini, Ivon boleh tahu nama kamu siapa? 💖
-        <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off">
-        <button class="ivon-intro-btn" onclick="submitReaderName()">Lanjut ➔</button>
-      </div>
+<div class="ivon-speech-bubble" id="introStep1">
+  <strong>Halo, traveler manis! ✨</strong><br><br>
+  Sebelum kita berpetualang di buku kenangan ini, Ivon boleh tahu nama kamu siapa? 💖
+  <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter') submitReaderName()">
+  <button class="ivon-intro-btn" style="position: relative; z-index: 10; cursor: pointer;" onclick="submitReaderName()">Lanjut ➔</button>
+</div>
 
       <div class="ivon-speech-bubble" id="introStep2" style="display: none;">
         <strong>Aww, pahlawanku <span id="displayReaderName"></span> udah datang! 💖</strong><br><br>
@@ -145,31 +145,39 @@
       }
     }
 
-    async function submitReaderName() {
-      const inputEl = document.getElementById('readerNameInput');
-      const nama = inputEl.value.trim();
+async function submitReaderName() {
+  const inputEl = document.getElementById('readerNameInput');
+  const nama = inputEl ? inputEl.value.trim() : '';
 
-      if (!nama) {
-        alert('Isi nama kamu dulu yaa!');
-        return;
-      }
+  if (!nama) {
+    alert('Isi nama kamu dulu yaa!');
+    return;
+  }
 
-      currentReaderName = nama;
-      localStorage.setItem('benivon_reader_name', nama);
+  currentReaderName = nama;
+  localStorage.setItem('benivon_reader_name', nama);
 
-      document.getElementById('displayReaderName').innerText = nama;
-      document.getElementById('introStep1').style.display = 'none';
-      document.getElementById('introStep2').style.display = 'block';
+  // Tampilkan nama di langkah 2 & pindah tampilan modal
+  const displayNameEl = document.getElementById('displayReaderName');
+  if (displayNameEl) displayNameEl.innerText = nama;
 
-      try {
-        fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'pembaca', nama: nama })
-        });
-      } catch (err) {
-        console.error('Gagal mencatat pembaca:', err);
-      }
-    }
+  document.getElementById('introStep1').style.display = 'none';
+  document.getElementById('introStep2').style.display = 'block';
+
+  // Pengiriman data ke Google Apps Script tanpa terhalang CORS
+  try {
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'text/plain'
+      },
+      body: JSON.stringify({ action: 'pembaca', nama: nama })
+    }).catch(err => console.log('Proses kirim pembaca berjalan di background'));
+  } catch (err) {
+    console.error('Gagal mencatat pembaca:', err);
+  }
+}
 
     function dismissIvonIntro() {
       const overlay = document.getElementById('ivonIntroOverlay');
