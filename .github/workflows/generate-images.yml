@@ -1,10 +1,11 @@
-name: Generate Images & Ilustrasi JSON
+Name: Generate Images, Ilustrasi & BGM JSON
 
 on:
   push:
     paths:
       - 'images/**'
       - 'ilustrasi/**'
+      - 'bgm/**'
   workflow_dispatch: # Supaya bisa dijalankan manual dari tab Actions di GitHub
 
 jobs:
@@ -21,7 +22,7 @@ jobs:
             python3 -c "
           import os, json
           valid_exts = ('.jpg', '.jpeg', '.png', '.webp', '.gif')
-          files = [f for f in os.listdir('.') if f.lower().endswith(valid_exts)]
+          files = sorted([f for f in os.listdir('.') if f.lower().endswith(valid_exts)])
           with open('../images.json', 'w') as out:
               json.dump(files, out, indent=2)
           "
@@ -35,10 +36,33 @@ jobs:
             python3 -c "
           import os, json
           valid_exts = ('.jpg', '.jpeg', '.png', '.webp', '.gif')
-          files = [f for f in os.listdir('.') if f.lower().endswith(valid_exts)]
-          # Format array objek agar kompatibel dengan pembacaan ilustrasi di index.html
+          files = sorted([f for f in os.listdir('.') if f.lower().endswith(valid_exts)])
           data = [{'file': f, 'caption': f} for f in files]
           with open('../ilustrasi.json', 'w') as out:
+              json.dump(data, out, indent=2)
+          "
+            cd ..
+          fi
+
+      - name: Generate bgm.json
+        run: |
+          if [ -d "bgm" ]; then
+            cd bgm
+            python3 -c "
+          import os, json
+          valid_exts = ('.mp3', '.wav', '.ogg', '.m4a')
+          files = sorted([f for f in os.listdir('.') if f.lower().endswith(valid_exts)])
+          
+          # Membuat array of object dengan judul dari nama file (tanpa ekstensi)
+          data = []
+          for f in files:
+              title = os.path.splitext(f)[0]
+              data.append({
+                  'file': f,
+                  'title': title
+              })
+          
+          with open('../bgm.json', 'w') as out:
               json.dump(data, out, indent=2)
           "
             cd ..
@@ -48,5 +72,5 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add images.json ilustrasi.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update images.json & ilustrasi.json" && git push)
+          git add images.json ilustrasi.json bgm.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update images.json, ilustrasi.json & bgm.json" && git push)
