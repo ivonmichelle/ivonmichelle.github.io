@@ -1424,7 +1424,7 @@
 .sticker-item-card:hover .sticker-png-img {
   filter: drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.35));
 }
-/* --- FIX TAB RESPONSIVE UNTUK PONSEL --- */
+
 /* --- LAYOUT TAB 2 BARIS UNTUK PONSEL --- */
 @media screen and (max-width: 600px) {
   .book-tabs {
@@ -1450,4 +1450,51 @@
     border-radius: 6px 6px 0 0;
     box-sizing: border-box;
   }
+}
+/* Styling Polaroid saat Zoomed */
+.polaroid.zoomed {
+  --rx: 0deg;
+  --ry: 0deg;
+  --bx: 0px;
+  --by: 20px;
+  --glare-x: 50%;
+  --glare-y: 50%;
+  --glare-opacity: 0;
+
+  /* Jarak perspektif diperdekat (600px) agar efek kedalaman 3D makin tajam & nyata */
+  perspective: 600px !important;
+  
+  /* Ukuran jumbo scale(3.5) gabung dengan 3D tilt */
+  transform: translate(-50%, -50%) scale(3.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
+
+  /* Dynamic 3D Box Shadow: Bayangan ikut jatuh ke arah berlawanan dari tilting */
+  box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
+
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out !important;
+  z-index: 10001 !important;
+  cursor: pointer;
+  overflow: hidden; /* Biar glare tidak meluber keluar bingkai */
+}
+
+/* Efek Kilatan Cahaya Dinamis (Dynamic Glare/Shine) */
+.polaroid.zoomed::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  /* Radial gradient yang titik apinya bergerak ngikutin kursor */
+  background: radial-gradient(
+    circle at var(--glare-x) var(--glare-y),
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(0, 0, 0, 0.15) 90%
+  );
+  pointer-events: none;
+  opacity: var(--glare-opacity);
+  transition: opacity 0.15s ease;
+  mix-blend-mode: overlay; /* Bikin kilatan menyatu alami dengan warna foto */
+}
+.polaroid.zoomed {
+  /* Mencegah browser mengambil alih gerakan sentuhan jari */
+  touch-action: none !important;
 }

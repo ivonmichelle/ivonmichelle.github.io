@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BenivoN</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body>
 
@@ -203,6 +205,17 @@
   <audio id="bgmAudio" loop preload="auto">
     <source src="bgm/Selesai Dengan Sunyi (Beni Theme - Lofi).mp3" type="audio/mpeg">
   </audio>
+  
+<div id="cropModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; text-align:center; padding: 20px;">
+  <div style="max-width: 400px; height: 350px; margin: 20px auto; background: #000; position: relative;">
+    <img id="cropImage" src="" style="max-width: 100%; display: block;">
+  </div>
+  
+  <div style="margin-top: 15px;">
+    <button onclick="applyCropAndUpload()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Potong & Simpan</button>
+    <button onclick="closeCropModal()" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Batal</button>
+  </div>
+</div>
 
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
@@ -808,31 +821,112 @@ function switchTab(tab) {
       if (nextBtn) nextBtn.disabled = currentPolaroidPage >= totalPages - 1;
     }
 
-    function zoomAlbumPolaroid(imgSrc) {
-      let tempPolaroid = document.createElement('div');
-      tempPolaroid.className = 'polaroid zoomed';
-      tempPolaroid.id = 'tempAlbumZoomed';
-      tempPolaroid.innerHTML = `<img src="${imgSrc}" alt="Zoomed Polaroid">`;
+function zoomAlbumPolaroid(imgSrc) {
+  let tempPolaroid = document.createElement('div');
+  tempPolaroid.className = 'polaroid zoomed';
+  tempPolaroid.id = 'tempAlbumZoomed';
+  tempPolaroid.innerHTML = `<img src="${imgSrc}" alt="Zoomed Polaroid">`;
 
-      document.getElementById('deskContainer').appendChild(tempPolaroid);
-      document.getElementById('deskContainer').classList.add('blurred');
-      document.getElementById('lightboxOverlay').classList.add('active');
+  document.getElementById('deskContainer').appendChild(tempPolaroid);
+  document.getElementById('deskContainer').classList.add('blurred');
+  document.getElementById('lightboxOverlay').classList.add('active');
 
-      activeZoomedEl = tempPolaroid;
+  activeZoomedEl = tempPolaroid;
+
+  // --- PASANG EFEK 3D TILT & GLARE (MOUSE & TOUCH) ---
+  let ticking = false;
+
+  const update3DEffect = function(clientX, clientY) {
+    const rect = tempPolaroid.getBoundingClientRect();
+    
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const percentX = Math.min(Math.max((x / rect.width) * 100, 0), 100);
+    const percentY = Math.min(Math.max((y / rect.height) * 100, 0), 100);
+    
+    const rotateX = ((y - centerY) / centerY) * -16; 
+    const rotateY = ((x - centerX) / centerX) * 16;
+
+    const shadowX = rotateY * -1.5; 
+    const shadowY = (rotateX * 1.5) + 20;
+
+    tempPolaroid.style.setProperty('--rx', `${rotateX}deg`);
+    tempPolaroid.style.setProperty('--ry', `${rotateY}deg`);
+    tempPolaroid.style.setProperty('--bx', `${shadowX}px`);
+    tempPolaroid.style.setProperty('--by', `${shadowY}px`);
+    tempPolaroid.style.setProperty('--glare-x', `${percentX}%`);
+    tempPolaroid.style.setProperty('--glare-y', `${percentY}%`);
+    tempPolaroid.style.setProperty('--glare-opacity', `1`);
+  };
+
+  const reset3DEffect = function() {
+    tempPolaroid.style.setProperty('--rx', `0deg`);
+    tempPolaroid.style.setProperty('--ry', `0deg`);
+    tempPolaroid.style.setProperty('--bx', `0px`);
+    tempPolaroid.style.setProperty('--by', `20px`);
+    tempPolaroid.style.setProperty('--glare-opacity', `0`);
+  };
+
+  // Event Handlers
+  activeMouseMoveHandler = function(e) {
+    update3DEffect(e.clientX, e.clientY);
+  };
+  activeMouseLeaveHandler = reset3DEffect;
+
+  activeTouchMoveHandler = function(e) {
+    if (e.cancelable) e.preventDefault();
+    if (e.touches && e.touches.length > 0) {
+      const touch = e.touches[0];
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          update3DEffect(touch.clientX, touch.clientY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+  };
+  activeTouchEndHandler = reset3DEffect;
+
+  // Pasang Listener ke elemen tempPolaroid
+  tempPolaroid.addEventListener('mousemove', activeMouseMoveHandler);
+  tempPolaroid.addEventListener('mouseleave', activeMouseLeaveHandler);
+  tempPolaroid.addEventListener('touchmove', activeTouchMoveHandler, { passive: false });
+  tempPolaroid.addEventListener('touchend', activeTouchEndHandler);
+  tempPolaroid.addEventListener('touchcancel', activeTouchEndHandler);
+}
+
+const originalCloseZoom = closeZoomedPolaroid;
+closeZoomedPolaroid = function() {
+  const tempEl = document.getElementById('tempAlbumZoomed');
+  
+  if (tempEl) {
+    // Bersihkan listener event jika ada
+    if (activeMouseMoveHandler) {
+      tempEl.removeEventListener('mousemove', activeMouseMoveHandler);
+      tempEl.removeEventListener('mouseleave', activeMouseLeaveHandler);
+      tempEl.removeEventListener('touchmove', activeTouchMoveHandler);
+      tempEl.removeEventListener('touchend', activeTouchEndHandler);
+      tempEl.removeEventListener('touchcancel', activeTouchEndHandler);
+      
+      activeMouseMoveHandler = null;
+      activeMouseLeaveHandler = null;
+      activeTouchMoveHandler = null;
+      activeTouchEndHandler = null;
     }
 
-    const originalCloseZoom = closeZoomedPolaroid;
-    closeZoomedPolaroid = function() {
-      const tempEl = document.getElementById('tempAlbumZoomed');
-      if (tempEl) {
-        tempEl.remove();
-        document.getElementById('deskContainer').classList.remove('blurred');
-        document.getElementById('lightboxOverlay').classList.remove('active');
-        activeZoomedEl = null;
-      } else if (typeof originalCloseZoom === 'function') {
-        originalCloseZoom();
-      }
-    };
+    tempEl.remove();
+    document.getElementById('deskContainer').classList.remove('blurred');
+    document.getElementById('lightboxOverlay').classList.remove('active');
+    activeZoomedEl = null;
+  } else if (typeof originalCloseZoom === 'function') {
+    originalCloseZoom();
+  }
+};
 
     async function deletePolaroidPhoto(index, photoUrl) {
       if (!confirm("Apakah Anda yakin ingin menghapus foto ini dari Google Sheets?")) {
@@ -1401,36 +1495,141 @@ function handleNextNav() {
       el.addEventListener('touchstart', onStart, { passive: false });
     }
 
-    function toggleZoomPolaroid(el) {
-      if (el.classList.contains('zoomed')) {
-        closeZoomedPolaroid();
-      } else {
-        if (activeZoomedEl) closeZoomedPolaroid();
+let activeMouseMoveHandler = null;
+let activeMouseLeaveHandler = null;
+let activeTouchMoveHandler = null;
+let activeTouchEndHandler = null;
 
-        activeZoomedEl = el;
-        el.classList.add('zoomed');
+function toggleZoomPolaroid(el) {
+  if (el.classList.contains('zoomed')) {
+    closeZoomedPolaroid();
+  } else {
+    if (activeZoomedEl) closeZoomedPolaroid();
 
-        document.getElementById('deskContainer').classList.add('blurred');
-        document.getElementById('lightboxOverlay').classList.add('active');
+    activeZoomedEl = el;
+    el.classList.add('zoomed');
+
+    document.getElementById('deskContainer').classList.add('blurred');
+    document.getElementById('lightboxOverlay').classList.add('active');
+
+    let ticking = false;
+
+    // --- Core Logic Perhitungan 3D Tilt & Glare ---
+    const update3DEffect = function(clientX, clientY) {
+      const rect = el.getBoundingClientRect();
+      
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const percentX = Math.min(Math.max((x / rect.width) * 100, 0), 100);
+      const percentY = Math.min(Math.max((y / rect.height) * 100, 0), 100);
+      
+      const rotateX = ((y - centerY) / centerY) * -16; 
+      const rotateY = ((x - centerX) / centerX) * 16;
+
+      const shadowX = rotateY * -1.5; 
+      const shadowY = (rotateX * 1.5) + 20;
+
+      el.style.setProperty('--rx', `${rotateX}deg`);
+      el.style.setProperty('--ry', `${rotateY}deg`);
+      el.style.setProperty('--bx', `${shadowX}px`);
+      el.style.setProperty('--by', `${shadowY}px`);
+      el.style.setProperty('--glare-x', `${percentX}%`);
+      el.style.setProperty('--glare-y', `${percentY}%`);
+      el.style.setProperty('--glare-opacity', `1`);
+    };
+
+    const reset3DEffect = function() {
+      el.style.setProperty('--rx', `0deg`);
+      el.style.setProperty('--ry', `0deg`);
+      el.style.setProperty('--bx', `0px`);
+      el.style.setProperty('--by', `20px`);
+      el.style.setProperty('--glare-opacity', `0`);
+    };
+
+    // 1. MOUSE (Laptop / PC)
+    activeMouseMoveHandler = function(e) {
+      update3DEffect(e.clientX, e.clientY);
+    };
+    activeMouseLeaveHandler = reset3DEffect;
+
+    // 2. TOUCH (HP / Tablet)
+    activeTouchMoveHandler = function(e) {
+      // CEGAH BROWSER SCROLL agar event touch terus berjalan
+      if (e.cancelable) e.preventDefault(); 
+
+      if (e.touches && e.touches.length > 0) {
+        const touch = e.touches[0];
+        
+        // Optimasi frame rate layar HP
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            update3DEffect(touch.clientX, touch.clientY);
+            ticking = false;
+          });
+          ticking = true;
+        }
       }
-    }
+    };
 
-    function closeZoomedPolaroid() {
-      if (!activeZoomedEl) return;
+    activeTouchEndHandler = function(e) {
+      reset3DEffect();
+    };
 
-      const el = activeZoomedEl;
-      const initialX = parseFloat(el.dataset.x) || 0;
-      const initialY = parseFloat(el.dataset.y) || 0;
-      const rotate = parseFloat(el.dataset.rotate) || 0;
+    // Pasang Listener Mouse
+    el.addEventListener('mousemove', activeMouseMoveHandler);
+    el.addEventListener('mouseleave', activeMouseLeaveHandler);
 
-      el.classList.remove('zoomed');
-      el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
+    // Pasang Listener Touch (Penting: passive HARUS false agar e.preventDefault() jalan)
+    el.addEventListener('touchmove', activeTouchMoveHandler, { passive: false });
+    el.addEventListener('touchend', activeTouchEndHandler);
+    el.addEventListener('touchcancel', activeTouchEndHandler);
+  }
+}
 
-      document.getElementById('deskContainer').classList.remove('blurred');
-      document.getElementById('lightboxOverlay').classList.remove('active');
+function closeZoomedPolaroid() {
+  if (!activeZoomedEl) return;
 
-      activeZoomedEl = null;
-    }
+  const el = activeZoomedEl;
+  const initialX = parseFloat(el.dataset.x) || 0;
+  const initialY = parseFloat(el.dataset.y) || 0;
+  const rotate = parseFloat(el.dataset.rotate) || 0;
+
+  // Bersihkan semua event listener
+  if (activeMouseMoveHandler) {
+    el.removeEventListener('mousemove', activeMouseMoveHandler);
+    el.removeEventListener('mouseleave', activeMouseLeaveHandler);
+    el.removeEventListener('touchmove', activeTouchMoveHandler);
+    el.removeEventListener('touchend', activeTouchEndHandler);
+    el.removeEventListener('touchcancel', activeTouchEndHandler);
+    
+    activeMouseMoveHandler = null;
+    activeMouseLeaveHandler = null;
+    activeTouchMoveHandler = null;
+    activeTouchEndHandler = null;
+  }
+
+  // Reset CSS Variables
+  el.style.removeProperty('--rx');
+  el.style.removeProperty('--ry');
+  el.style.removeProperty('--bx');
+  el.style.removeProperty('--by');
+  el.style.removeProperty('--glare-x');
+  el.style.removeProperty('--glare-y');
+  el.style.removeProperty('--glare-opacity');
+  
+  el.classList.remove('zoomed');
+  
+  el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
+
+  document.getElementById('deskContainer').classList.remove('blurred');
+  document.getElementById('lightboxOverlay').classList.remove('active');
+
+  activeZoomedEl = null;
+}
 
     window.addEventListener('DOMContentLoaded', () => {
       checkIntroStatus();
@@ -1783,78 +1982,124 @@ function updateWikiBadgeSize(src) {
   }
 }
 
-// Handler Pilihan Foto: Crop 400x400 Center, WebP Quality 60%, Update Badge & Upload
+// Variable Global untuk Manajemen Crop
+let cropState = {
+  imgElement: null,
+  scale: 1,
+  posX: 0,
+  posY: 0,
+  isDragging: false,
+  startX: 0,
+  startY: 0
+};
+
+let cropperInstance = null;
+
+// 1. Saat file dipilih, inisialisasi Cropper.js
 function handleWikiPhotoSelect(event) {
   const file = event.target.files[0];
   if (!file || !selectedWikiChar) return;
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    const img = new Image();
-    img.onload = async function() {
-      // 1. Resize & Kompres Gambar
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const targetSize = 400; // Size 400x400px
+    const cropImg = document.getElementById('cropImage');
+    cropImg.src = e.target.result;
+    
+    // Tampilkan modal
+    document.getElementById('cropModal').style.display = 'block';
 
-      canvas.width = targetSize;
-      canvas.height = targetSize;
+    // Hancurkan instance lama jika ada
+    if (cropperInstance) {
+      cropperInstance.destroy();
+    }
 
-      // Ambil bagian tengah gambar (crop 1:1)
-      const minDim = Math.min(img.width, img.height);
-      const sx = (img.width - minDim) / 2;
-      const sy = (img.height - minDim) / 2;
-
-      ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, targetSize, targetSize);
-
-      // Ubah ke WebP kualitas 0.6 (sangat ringkas)
-      const compressedBase64 = canvas.toDataURL('image/webp', 0.6);
-
-      // 2. Tampilkan pratinjau langsung di UI
-      const avatarImg = document.getElementById('wikiAvatarImg');
-      if (avatarImg) avatarImg.src = compressedBase64;
-
-      // 3. Konfirmasi pengguna
-      const confirmUpload = confirm(`Simpan foto baru untuk ${selectedWikiChar.nama}?`);
-      if (!confirmUpload) return;
-
-      // 4. Kirim Data ke Google Apps Script tanpa bentrok CORS
-      try {
-        const payloadData = JSON.stringify({
-          action: 'update_wiki_foto',
-          nama: selectedWikiChar.nama,
-          foto: compressedBase64
-        });
-
-        // Menggunakan application/x-www-form-urlencoded untuk menghindari preflight CORS
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: new URLSearchParams({ postData: payloadData })
-        });
-
-        const resData = await response.json();
-
-        if (resData.status === 'success') {
-          alert('Foto karakter berhasil diperbarui!');
-          selectedWikiChar.foto = compressedBase64; // Update cache lokal
-          updateWikiBadgeSize(compressedBase64); // Update badge KB
-        } else {
-          alert('Gagal memperbarui foto: ' + (resData.message || 'Error tidak diketahui'));
-        }
-      } catch (err) {
-        console.error("Upload Error:", err);
-        alert('Terjadi kesalahan saat mengunggah foto.');
-      }
-    };
-
-    img.src = e.target.result;
+    // Inisialisasi Cropper.js dengan fitur Pan & Pinch Zoom aktif secara default
+    cropperInstance = new Cropper(cropImg, {
+      aspectRatio: 1,            // Rasio 1:1 (Persegi)
+      viewMode: 1,               // Gambar tidak keluar dari batas frame
+      dragMode: 'move',          // Memungkinkan geser/pan gambar
+      autoCropArea: 1,           // Area potong maksimal
+      restore: false,
+      guides: true,
+      center: true,
+      highlight: false,
+      cropBoxMovable: false,     // Frame potong tetap diam di tengah
+      cropBoxResizable: false,   // Frame potong tidak diubah ukurannya
+      toggleDragModeOnDblclick: false,
+      zoomable: true,            // Bisa Zoom via scroll / pinch touch
+      scalable: true
+    });
   };
-
+  
   reader.readAsDataURL(file);
+  event.target.value = ''; // Reset file input
 }
+
+function closeCropModal() {
+  document.getElementById('cropModal').style.display = 'none';
+  if (cropperInstance) {
+    cropperInstance.destroy();
+    cropperInstance = null;
+  }
+}
+
+// 2. Ambil hasil potong presisi & kirim ke Google Apps Script
+async function applyCropAndUpload() {
+  if (!cropperInstance) return;
+
+  // Mendapatkan Canvas hasil crop presisi ukuran 400x400 px
+  const canvas = cropperInstance.getCroppedCanvas({
+    width: 400,
+    height: 400,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high'
+  });
+
+  // Konversi Canvas ke Base64 format WebP kualitas 60%
+  const compressedBase64 = canvas.toDataURL('image/webp', 0.6);
+
+  // Tutup Modal
+  closeCropModal();
+
+  // Tampilkan pratinjau di UI
+  const avatarImg = document.getElementById('wikiAvatarImg');
+  if (avatarImg) avatarImg.src = compressedBase64;
+
+  // Konfirmasi Pengguna
+  const confirmUpload = confirm(`Simpan foto baru untuk ${selectedWikiChar.nama}?`);
+  if (!confirmUpload) return;
+
+  // Kirim data ke Google Apps Script
+  try {
+    const payloadData = JSON.stringify({
+      action: 'update_wiki_foto',
+      nama: selectedWikiChar.nama,
+      foto: compressedBase64
+    });
+
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({ postData: payloadData })
+    });
+
+    const resData = await response.json();
+
+    if (resData.status === 'success') {
+      alert('Foto karakter berhasil diperbarui!');
+      selectedWikiChar.foto = compressedBase64;
+      updateWikiBadgeSize(compressedBase64);
+    } else {
+      alert('Gagal memperbarui foto: ' + (resData.message || 'Error tidak diketahui'));
+    }
+  } catch (err) {
+    console.error("Upload Error:", err);
+    alert('Terjadi kesalahan saat mengunggah foto.');
+  }
+}
+
 
 // Buka file picker saat foto diklik oleh Admin
 function triggerWikiPhotoUpload() {
