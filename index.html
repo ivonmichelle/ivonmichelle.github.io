@@ -87,9 +87,9 @@
           <button class="nav-btn" id="nextBtn" onclick="handleNextNav()">Next →</button>
         </div>
         
-        <div class="copyright-text">
-          &copy; 2026 Didi Chung
-        </div>
+<div class="copyright-text" id="adminTrigger" style="cursor: pointer;">
+  &copy; 2026 Didi Chung
+</div>
       </div>
     </div>
   </div>
@@ -281,40 +281,44 @@ function checkAdminStatus() {
       }
     });
 
-    // Listener Ketuk / Klik 5x Di Mana Saja
+    // Listener Ketuk / Klik 5x khusus pada tulisan "2026 Didi Chung"
     let tapCount = 0;
     let tapTimer = null;
 
-    document.addEventListener('pointerdown', (e) => {
-      // Abaikan jika sedang klik input, textarea, atau tombol FAB
-      if (e.target.closest('input, textarea, .fab-btn')) return;
+    document.addEventListener('DOMContentLoaded', () => {
+      const adminTriggerEl = document.getElementById('adminTrigger');
+      
+      if (adminTriggerEl) {
+        adminTriggerEl.addEventListener('pointerdown', (e) => {
+          e.stopPropagation(); // Mencegah event merambat ke elemen lain
 
-      tapCount++;
-      clearTimeout(tapTimer);
+          tapCount++;
+          clearTimeout(tapTimer);
 
-      if (tapCount === 5) {
-        tapCount = 0;
+          if (tapCount === 5) {
+            tapCount = 0;
 
-        setTimeout(async () => {
-          const pwd = prompt("Masukkan Passcode Admin:");
-          if (pwd) {
-            const hashed = await sha256(pwd);
-            if (hashed === ADMIN_HASH) {
-              sessionStorage.setItem('benivon_admin_logged', 'true');
-              checkAdminStatus();
-              alert("Akses Admin Diterima ✨");
-            } else {
-              alert("Passcode Salah!");
-            }
+            setTimeout(async () => {
+              const pwd = prompt("Masukkan Passcode Admin:");
+              if (pwd) {
+                const hashed = await sha256(pwd);
+                if (hashed === ADMIN_HASH) {
+                  sessionStorage.setItem('benivon_admin_logged', 'true');
+                  checkAdminStatus();
+                  alert("Akses Admin Diterima ✨");
+                } else {
+                  alert("Passcode Salah!");
+                }
+              }
+            }, 50);
+          } else {
+            tapTimer = setTimeout(() => {
+              tapCount = 0;
+            }, 1500);
           }
-        }, 50);
-      } else {
-        tapTimer = setTimeout(() => {
-          tapCount = 0;
-        }, 1500);
+        });
       }
     });
-
 
     // --- UPLOAD ADMIN & CROP FOTO ---
     function initPhotoSlots() {
