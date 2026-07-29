@@ -124,7 +124,6 @@ body {
   overflow: visible !important;
 }
 
-
     /* --- RING SPIRAL KAWAT LOGAM (LENGKUNG & ROUNDED) --- */
     .book-page::before {
       content: '';
@@ -170,27 +169,29 @@ body {
     }
     
 /* --- STIKER TAB / PEMBATAS BUKU DI ATAS --- */
+/* 1. Turunkan posisi container tab agar menempel dengan tepi buku */
 .book-tabs {
   position: absolute;
-  top: -30px;
+  top: -25px; /* Disesuaikan dari -30px menjadi -24px */
   right: 10px;
   display: flex;
-  gap: 3px; /* Dirapatkan dari 6px menjadi 3px */
+  gap: 3px;
   z-index: 12;
 }
 
+/* 2. Pastikan tombol tab tidak memiliki border bawah agar menyatu dengan buku */
 .tab-btn {
   background: #7a4f2d;
   color: #f3ece1;
   border: 1px solid #3d2716;
-  border-bottom: none;
-  padding: 5px 8px 4px 8px; /* Dirapatkan dari 6px 14px */
+  border-bottom: none; /* Menghilangkan border bawah */
+  padding: 5px 8px 4px 8px;
   font-family: 'Georgia', serif;
-  font-size: 0.72rem; /* Disesuaikan agar pas 6 tab */
+  font-size: 0.72rem;
   font-weight: bold;
   border-radius: 6px 6px 0 0;
   cursor: pointer;
-  box-shadow: 0 -3px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 -2px 4px rgba(0,0,0,0.15);
   transition: all 0.2s ease;
   letter-spacing: 0.2px;
   user-select: none;
