@@ -172,7 +172,7 @@ body {
 /* 1. Turunkan posisi container tab agar menempel dengan tepi buku */
 .book-tabs {
   position: absolute;
-  top: -25px; /* Disesuaikan dari -30px menjadi -24px */
+  top: -24px; /* Disesuaikan dari -30px menjadi -24px */
   right: 10px;
   display: flex;
   gap: 3px;
