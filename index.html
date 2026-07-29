@@ -168,8 +168,9 @@
       <div class="book-tabs">
         <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
         <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
-        <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Sketch</button>
-        <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Photo</button>
+        <button class="tab-btn" id="tabWikiBtn" onclick="switchTab('wiki')">👤 Wiki</button>
+        <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Skets</button>
+        <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Foto</button>
       </div>
 
       <div class="book-content" id="bookContent">
@@ -187,6 +188,11 @@
       <div class="book-content" id="polaroidAlbumContent" style="display: none;">
         <div class="polaroid-grid-view" id="polaroidGridContainer"></div>
       </div>
+
+<div class="book-content" id="wikiContent" style="display: none;">
+  <input type="file" id="wikiFileInput" accept="image/*" style="display: none;" onchange="handleWikiPhotoSelect(event)">  
+  <div class="status-msg">Memuat data wiki...</div>
+</div>
 
       <div class="book-footer">
         <div class="font-slider-container" id="sliderContainer">
@@ -593,69 +599,110 @@
     }
 
     // --- TAB SWITCHING ---
-    let albumPolaroidList = [];
-    let currentPolaroidPage = 0;
+// Variable Declarations
+let albumPolaroidList = [];
+let currentPolaroidPage = 0;
+let wikiList = [];
+let selectedWikiChar = null;
 
-    function switchTab(tab) {
-      activeTab = tab;
-      const tabNovelBtn = document.getElementById('tabNovelBtn');
-      const tabSolBtn = document.getElementById('tabSolBtn');
-      const tabIllustBtn = document.getElementById('tabIllustBtn');
-      const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
-      
-      const bookContent = document.getElementById('bookContent');
-      const illustContent = document.getElementById('illustrationContent');
-      const polaroidContent = document.getElementById('polaroidAlbumContent');
-      const sliderContainer = document.getElementById('sliderContainer');
+// Combined switchTab Function
+function switchTab(tab) {
+  activeTab = tab;
 
-      tabNovelBtn.classList.remove('active');
-      tabSolBtn.classList.remove('active');
-      tabIllustBtn.classList.remove('active');
-      tabPolaroidBtn.classList.remove('active');
+  // DOM Elements Selection
+  const tabNovelBtn = document.getElementById('tabNovelBtn');
+  const tabSolBtn = document.getElementById('tabSolBtn');
+  const tabWikiBtn = document.getElementById('tabWikiBtn');
+  const tabIllustBtn = document.getElementById('tabIllustBtn');
+  const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
 
-      bookContent.style.display = 'none';
-      illustContent.style.display = 'none';
-      polaroidContent.style.display = 'none';
-      sliderContainer.style.visibility = 'hidden';
+  const bookContent = document.getElementById('bookContent');
+  const wikiContent = document.getElementById('wikiContent');
+  const illustContent = document.getElementById('illustrationContent');
+  const polaroidContent = document.getElementById('polaroidAlbumContent');
+  const sliderContainer = document.getElementById('sliderContainer');
 
-      currentChapterIndex = -1;
-      pages = [];
-      currentPage = 0;
+  // Nav row elements
+  const pageIndicator = document.getElementById('pageIndicator');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const navRow = document.querySelector('.nav-row');
 
-      if (tab === 'novel') {
-        tabNovelBtn.classList.add('active');
-        bookContent.style.display = 'block';
-        renderTableOfContents();
-      } else if (tab === 'sol') {
-        tabSolBtn.classList.add('active');
-        bookContent.style.display = 'block';
+  // Reset Active Tab States
+  if (tabNovelBtn) tabNovelBtn.classList.remove('active');
+  if (tabSolBtn) tabSolBtn.classList.remove('active');
+  if (tabWikiBtn) tabWikiBtn.classList.remove('active');
+  if (tabIllustBtn) tabIllustBtn.classList.remove('active');
+  if (tabPolaroidBtn) tabPolaroidBtn.classList.remove('active');
 
-        if (allSolChapters.length === 0) {
-          loadSol();
-        } else {
-          renderTableOfContents();
-        }
-      } else if (tab === 'illustration') {
-        tabIllustBtn.classList.add('active');
-        illustContent.style.display = 'block';
+  // Hide All Content Blocks
+  if (bookContent) bookContent.style.display = 'none';
+  if (wikiContent) wikiContent.style.display = 'none';
+  if (illustContent) illustContent.style.display = 'none';
+  if (polaroidContent) polaroidContent.style.display = 'none';
+  if (sliderContainer) sliderContainer.style.visibility = 'hidden';
 
-        if (illustrations.length === 0) {
-          loadIllustrations();
-        } else {
-          renderIllustration();
-        }
-      } else if (tab === 'polaroid') {
-        tabPolaroidBtn.classList.add('active');
-        polaroidContent.style.display = 'block';
+  // Pastikan tombol navigasi bawah selalu terlihat secara default
+  if (navRow) navRow.style.display = 'flex';
 
-        // Selalu muat foto terbaru atau muat jika list masih kosong
-        if (albumPolaroidList.length === 0) {
-          loadAlbumPolaroids();
-        } else {
-          renderPolaroidGrid();
-        }
-      }
+  // Reset Book Reading State
+  currentChapterIndex = -1;
+  pages = [];
+  currentPage = 0;
+
+  // Tab Logic Execution
+  if (tab === 'novel') {
+    if (tabNovelBtn) tabNovelBtn.classList.add('active');
+    if (bookContent) bookContent.style.display = 'block';
+    renderTableOfContents();
+
+  } else if (tab === 'sol') {
+    if (tabSolBtn) tabSolBtn.classList.add('active');
+    if (bookContent) bookContent.style.display = 'block';
+
+    if (allSolChapters.length === 0) {
+      loadSol();
+    } else {
+      renderTableOfContents();
     }
+
+  } else if (tab === 'wiki') {
+    if (tabWikiBtn) tabWikiBtn.classList.add('active');
+    if (wikiContent) wikiContent.style.display = 'block';
+
+    // RESET & SEMBUNYIKAN NAVIGASI DI TAB WIKI
+    if (pageIndicator) pageIndicator.innerText = '';
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
+    if (navRow) navRow.style.display = 'none'; // Sembunyikan baris navigasi back/next
+
+    if (wikiList.length === 0) {
+      fetchWikiData();
+    } else {
+      renderWikiView();
+    }
+
+  } else if (tab === 'illustration') {
+    if (tabIllustBtn) tabIllustBtn.classList.add('active');
+    if (illustContent) illustContent.style.display = 'block';
+
+    if (illustrations.length === 0) {
+      loadIllustrations();
+    } else {
+      renderIllustration();
+    }
+
+  } else if (tab === 'polaroid') {
+    if (tabPolaroidBtn) tabPolaroidBtn.classList.add('active');
+    if (polaroidContent) polaroidContent.style.display = 'block';
+
+    if (albumPolaroidList.length === 0) {
+      loadAlbumPolaroids();
+    } else {
+      renderPolaroidGrid();
+    }
+  }
+}
 
     // --- MENGAMBIL SEMUA FOTO DARI GOOGLE SHEETS (TAB FOTO) ---
     async function loadAlbumPolaroids() {
@@ -1627,6 +1674,209 @@ async function loadPolaroidsBySubjek(subjek) {
       });
     }
 
+// Fetch data dari Apps Script
+async function fetchWikiData() {
+  const wikiContainer = document.getElementById('wikiContent');
+  wikiContainer.innerHTML = `<div class="status-msg">Memuat data wiki...</div>`;
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=get_wiki`);
+    wikiList = await res.json();
+    renderWikiView();
+  } catch (err) {
+    console.error("Gagal memuat wiki:", err);
+    wikiContainer.innerHTML = `<div class="status-msg" style="color:#a33;">Gagal memuat data wiki.</div>`;
+  }
+}
+
+// Render Tampilan List atau Detail Karakter Wiki
+function renderWikiView() {
+  const wikiContainer = document.getElementById('wikiContent');
+  let fileInputHtml = `<input type="file" id="wikiFileInput" accept="image/*" style="display: none;" onchange="handleWikiPhotoSelect(event)">`;
+
+  // Bersihkan teks indikator dan sembunyikan baris navigasi
+  const pageIndicator = document.getElementById('pageIndicator');
+  const navRow = document.querySelector('.nav-row');
+  if (pageIndicator) pageIndicator.innerText = '';
+  if (navRow) navRow.style.display = 'none';
+
+  if (!selectedWikiChar) {
+    if (wikiList.length === 0) {
+      wikiContainer.innerHTML = fileInputHtml + `<div class="status-msg">Belum ada data karakter.</div>`;
+      return;
+    }
+
+    let html = fileInputHtml + `<div class="toc-container"><div class="toc-title">📂 ENSIKLOPEDIA KARAKTER</div>`;
+    wikiList.forEach((char, index) => {
+      html += `
+        <div class="toc-item" onclick="selectWikiChar(${index})">
+          <div class="toc-judul">${escapeHtml(char.nama)}</div>
+          <div class="toc-bab" style="font-style: italic;">${char.nick ? '("'+escapeHtml(char.nick)+'")' : ''}</div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    wikiContainer.innerHTML = html;
+  } else {
+    const c = selectedWikiChar;
+    const isAdmin = sessionStorage.getItem('benivon_admin_logged') === 'true';
+    const photoSrc = c.foto ? c.foto : 'https://via.placeholder.com/150?text=No+Image';
+
+    let html = fileInputHtml + `
+      <div class="wiki-detail-container">
+        <button class="nav-btn" style="margin-bottom: 10px; padding: 4px 10px; font-size: 0.75rem; align-self: flex-start;" onclick="backToWikiList()">← Kembali ke Daftar</button>
+        
+        <div class="wiki-avatar-container">
+          <div class="wiki-avatar-wrapper ${isAdmin ? 'is-admin' : ''}" 
+               onclick="${isAdmin ? 'triggerWikiPhotoUpload()' : ''}" 
+               title="${isAdmin ? 'Klik untuk mengganti foto karakter (Admin)' : ''}">
+            
+            <img id="wikiAvatarImg" src="${photoSrc}" alt="${escapeHtml(c.nama)}" class="wiki-avatar-img">
+            ${isAdmin ? `<div class="wiki-avatar-overlay">📷 Ubah</div>` : ''}
+          </div>
+
+          ${isAdmin ? `<div class="admin-size-badge" id="wikiSizeBadge">...</div>` : ''}
+        </div>
+        
+        <h3 class="wiki-char-name">${escapeHtml(c.nama)}</h3>
+        ${c.nick ? `<div class="wiki-char-nick">Panggilan: <span>${escapeHtml(c.nick)}</span></div>` : ''}
+        ${c.ttl ? `<div class="wiki-field"><strong>TTL / Usia:</strong> <p>${escapeHtml(c.ttl)}</p></div>` : ''}
+        ${c.profil ? `<div class="wiki-field"><strong>Profil Ringkas:</strong> <p>${escapeHtml(c.profil)}</p></div>` : ''}
+        ${c.wajah ? `<div class="wiki-field"><strong>Ciri Wajah:</strong> <p>${escapeHtml(c.wajah)}</p></div>` : ''}
+        ${c.postur ? `<div class="wiki-field"><strong>Postur / Fisik:</strong> <p>${escapeHtml(c.postur)}</p></div>` : ''}
+        ${c.properti ? `<div class="wiki-field"><strong>Ciri khas / Properti:</strong> <p>${escapeHtml(c.properti)}</p></div>` : ''}
+        ${c.hubungan ? `<div class="wiki-field"><strong>Hubungan / Relasi:</strong> <p>${escapeHtml(c.hubungan)}</p></div>` : ''}
+        ${c.deskripsi ? `<div class="wiki-field"><strong>Deskripsi Lengkap:</strong> <p>${escapeHtml(c.deskripsi)}</p></div>` : ''}
+      </div>
+    `;
+    wikiContainer.innerHTML = html;
+
+    // LANGSUNG PANGGUL INI AGAR BADGE "..." LANGSUNG TERISI DENGAN UKURAN KB
+    if (isAdmin) {
+      updateWikiBadgeSize(c.foto);
+    }
+  }
+}
+
+// Buka file picker
+function triggerWikiPhotoUpload() {
+  const fileInput = document.getElementById('wikiFileInput');
+  if (fileInput) fileInput.click();
+}
+
+// Fungsi memperbarui badge ukuran KB menggunakan getImageSizeKB yang sudah ada
+function updateWikiBadgeSize(src) {
+  const badge = document.getElementById('wikiSizeBadge');
+  if (!badge) return;
+
+  if (!src || src === 'https://via.placeholder.com/150?text=No+Image') {
+    badge.textContent = '0 KB';
+    return;
+  }
+
+  if (typeof getImageSizeKB === 'function') {
+    getImageSizeKB(src).then(kb => {
+      badge.textContent = kb ? `${kb} KB` : '0 KB';
+    }).catch(() => {
+      badge.textContent = 'N/A';
+    });
+  } else if (src.startsWith('data:')) {
+    const base64Str = src.split(',')[1] || '';
+    const bytes = Math.round((base64Str.length * 3) / 4);
+    badge.textContent = `${(bytes / 1024).toFixed(1)} KB`;
+  }
+}
+
+// Handler Pilihan Foto: Crop 400x400 Center, WebP Quality 60%, Update Badge & Upload
+function handleWikiPhotoSelect(event) {
+  const file = event.target.files[0];
+  if (!file || !selectedWikiChar) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = async function() {
+      // 1. Resize & Kompres Gambar
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const targetSize = 400; // Size 400x400px
+
+      canvas.width = targetSize;
+      canvas.height = targetSize;
+
+      // Ambil bagian tengah gambar (crop 1:1)
+      const minDim = Math.min(img.width, img.height);
+      const sx = (img.width - minDim) / 2;
+      const sy = (img.height - minDim) / 2;
+
+      ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, targetSize, targetSize);
+
+      // Ubah ke WebP kualitas 0.6 (sangat ringkas)
+      const compressedBase64 = canvas.toDataURL('image/webp', 0.6);
+
+      // 2. Tampilkan pratinjau langsung di UI
+      const avatarImg = document.getElementById('wikiAvatarImg');
+      if (avatarImg) avatarImg.src = compressedBase64;
+
+      // 3. Konfirmasi pengguna
+      const confirmUpload = confirm(`Simpan foto baru untuk ${selectedWikiChar.nama}?`);
+      if (!confirmUpload) return;
+
+      // 4. Kirim Data ke Google Apps Script tanpa bentrok CORS
+      try {
+        const payloadData = JSON.stringify({
+          action: 'update_wiki_foto',
+          nama: selectedWikiChar.nama,
+          foto: compressedBase64
+        });
+
+        // Menggunakan application/x-www-form-urlencoded untuk menghindari preflight CORS
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams({ postData: payloadData })
+        });
+
+        const resData = await response.json();
+
+        if (resData.status === 'success') {
+          alert('Foto karakter berhasil diperbarui!');
+          selectedWikiChar.foto = compressedBase64; // Update cache lokal
+          updateWikiBadgeSize(compressedBase64); // Update badge KB
+        } else {
+          alert('Gagal memperbarui foto: ' + (resData.message || 'Error tidak diketahui'));
+        }
+      } catch (err) {
+        console.error("Upload Error:", err);
+        alert('Terjadi kesalahan saat mengunggah foto.');
+      }
+    };
+
+    img.src = e.target.result;
+  };
+
+  reader.readAsDataURL(file);
+}
+
+// Buka file picker saat foto diklik oleh Admin
+function triggerWikiPhotoUpload() {
+  const fileInput = document.getElementById('wikiFileInput');
+  if (fileInput) fileInput.click();
+}
+
+function selectWikiChar(index) {
+  selectedWikiChar = wikiList[index];
+  renderWikiView();
+}
+
+function backToWikiList() {
+  selectedWikiChar = null;
+  renderWikiView();
+}
+
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
 </body>
 </html>

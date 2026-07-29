@@ -1140,3 +1140,142 @@
   background: #d1b8a5;
   border-radius: 4px;
 }
+/* --- WIKI CHARACTER STYLING --- */
+.wiki-detail-container {
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wiki-photo-box {
+  width: 100%;
+  max-height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 6px;
+  overflow: hidden;
+  border-radius: 6px;
+  border: 1px dashed #7a4f2d;
+}
+
+.wiki-photo-box img {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.wiki-char-name {
+  font-size: 1.15rem;
+  color: #3d2716;
+  text-align: center;
+  border-bottom: 1.5px solid #7a4f2d;
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+}
+
+.wiki-char-nick {
+  font-size: 0.82rem;
+  text-align: center;
+  color: #6b5240;
+  margin-bottom: 8px;
+}
+
+.wiki-field {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 6px 8px;
+  border-radius: 4px;
+  border-left: 3px solid #7a4f2d;
+}
+
+.wiki-field strong {
+  color: #3d2716;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.wiki-field p {
+  text-indent: 0 !important;
+  color: #2c221e;
+  white-space: pre-line;
+}
+/* Container Utama Avatar Wiki (Tempat Badge & Foto) */
+.wiki-avatar-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 12px auto;
+  flex-shrink: 0;
+}
+
+/* Bingkai Bulat Foto Karakter */
+.wiki-avatar-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid #7a4f2d;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  background-color: #f5efe6;
+}
+
+.wiki-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Tampilan Khusus Admin */
+.wiki-avatar-wrapper.is-admin {
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.wiki-avatar-wrapper.is-admin:hover {
+  transform: scale(1.03);
+  border-color: #a35d28;
+}
+
+/* Overlay Text Ubah Foto */
+.wiki-avatar-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.wiki-avatar-wrapper.is-admin:hover .wiki-avatar-overlay {
+  opacity: 1;
+}
+
+/* Penyesuaian Posisi Badge Ukuran File agar Tidak Ketutupan Lingkaran */
+.wiki-avatar-container .admin-size-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -6px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  pointer-events: none;
+  z-index: 10;
+}
