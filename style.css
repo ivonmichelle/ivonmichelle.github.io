@@ -1455,7 +1455,7 @@ body {
     display: flex !important;
     flex-wrap: wrap !important;
     justify-content: flex-start;
-    gap: 1px 4px !important; /* Jarak antar tab (vertikal 3px, horizontal 4px) */
+    gap: 1px 1px !important; /* Jarak antar tab (vertikal 3px, horizontal 4px) */
   }
 
   .tab-btn {
