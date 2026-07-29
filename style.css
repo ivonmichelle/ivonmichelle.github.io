@@ -1449,13 +1449,13 @@ body {
     /* Posisikan di atas buku & isi penuh lebarnya */
     left: 10px !important;
     right: 10px !important;
-    top: -40px !important; /* Dinaikkan sedikit ke atas agar tidak menutupi buku */
+    top: -45px !important; /* Dinaikkan sedikit ke atas agar tidak menutupi buku */
     
     /* Gunakan Flexbox dengan wrap agar bisa turun ke baris ke-2 */
     display: flex !important;
     flex-wrap: wrap !important;
     justify-content: flex-start;
-    gap: 3px 4px !important; /* Jarak antar tab (vertikal 3px, horizontal 4px) */
+    gap: 1px 4px !important; /* Jarak antar tab (vertikal 3px, horizontal 4px) */
   }
 
   .tab-btn {
