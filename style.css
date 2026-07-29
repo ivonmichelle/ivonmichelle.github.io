@@ -1425,31 +1425,29 @@
   filter: drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.35));
 }
 /* --- FIX TAB RESPONSIVE UNTUK PONSEL --- */
+/* --- LAYOUT TAB 2 BARIS UNTUK PONSEL --- */
 @media screen and (max-width: 600px) {
   .book-tabs {
-    /* Mengubah patokan dari kanan ke kiri agar Kanon tetap terlihat dari kiri */
-    right: auto !important;
+    /* Posisikan di atas buku & isi penuh lebarnya */
     left: 10px !important;
+    right: 10px !important;
+    top: -52px !important; /* Dinaikkan sedikit ke atas agar tidak menutupi buku */
     
-    /* Membuat kontainer tab bisa di-scroll ke kanan jika tidak muat */
-    max-width: calc(100% - 20px);
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    
-    /* Menghilangkan scrollbar tapi tetap bisa di-scroll dengan jari */
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
-  }
-
-  .book-tabs::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    /* Gunakan Flexbox dengan wrap agar bisa turun ke baris ke-2 */
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start;
+    gap: 3px 4px !important; /* Jarak antar tab (vertikal 3px, horizontal 4px) */
   }
 
   .tab-btn {
-    /* Mengecilkan font & padding sedikit agar muat lebih banyak di HP */
-    font-size: 0.65rem !important;
-    padding: 4px 6px 3px 6px !important;
-    flex-shrink: 0; /* Mencegah tab gepeng/tertekan */
+    /* Lebar ~31% membuat 3 tab pas di baris pertama, dan 3 tab di baris kedua */
+    flex: 1 1 calc(33.33% - 4px) !important;
+    
+    text-align: center;
+    font-size: 0.65rem !important; /* Ukuran teks disesuaikan */
+    padding: 4px 2px !important;    /* Padding rapat tapi tetap mudah di-klik */
+    border-radius: 6px 6px 0 0;
+    box-sizing: border-box;
   }
 }
