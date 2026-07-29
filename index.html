@@ -5,126 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BenivoN</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Style Tambahan Modals & Custom Admin UI */
-    .admin-upload-modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 2000;
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
-      box-sizing: border-box;
-    }
-    .admin-upload-modal.active { display: flex; }
-    
-    .admin-card {
-      background: #fff8f0;
-      border: 2px solid #e2c0a8;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 520px;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-    
-    .admin-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #e2c0a8;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-    }
-
-    .admin-card-header h3 { margin: 0; color: #5a4234; }
-    
-    .admin-card-body {
-      overflow-y: auto;
-      padding-right: 5px;
-      flex: 1;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: bold;
-      color: #5a4234;
-      margin-bottom: 4px;
-    }
-
-    .form-control-select {
-      width: 100%;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      background: #fff;
-      font-size: 0.9rem;
-    }
-
-    .photo-slot {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-      background: #fff;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px dashed #d1b8a5;
-    }
-
-    .photo-slot span {
-      font-size: 0.8rem;
-      font-weight: bold;
-      min-width: 55px;
-      color: #725643;
-    }
-
-    .photo-slot input[type="file"] {
-      font-size: 0.8rem;
-      width: 100%;
-    }
-
-    .preview-thumb {
-      width: 36px;
-      height: 36px;
-      object-fit: cover;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      display: none;
-    }
-
-    .admin-card-footer {
-      margin-top: 15px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    .btn-submit-upload {
-      background: #d97736;
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .btn-submit-upload:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-  </style>
 </head>
 <body>
 
@@ -230,6 +110,11 @@
     <button class="fab-btn" id="btnAdminUpload" style="display: none;" onclick="openAdminUploadModal()" title="Tambah Foto (Admin)">
       📷
     </button>
+    
+<button class="fab-btn" id="floatingLogoutBtn" style="display: none;" onclick="adminLogout()" title="Logout Admin">
+  🔒
+</button>
+
   </div>
 
   <div class="jukebox-container">
@@ -334,10 +219,47 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    function checkAdminStatus() {
-      if (sessionStorage.getItem('benivon_admin_logged') === 'true') {
-        const btnAdmin = document.getElementById('btnAdminUpload');
-        if (btnAdmin) btnAdmin.style.display = 'inline-block';
+    // Fungsi Cek Status Admin
+// Fungsi Cek Status Admin (Sudah disesuaikan dengan Eruda)
+function checkAdminStatus() {
+  const isAdmin = sessionStorage.getItem('benivon_admin_logged') === 'true';
+  
+  const uploadBtn = document.getElementById('btnAdminUpload');
+  const logoutBtn = document.getElementById('floatingLogoutBtn');
+  
+  if (uploadBtn) {
+    uploadBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+  }
+  if (logoutBtn) {
+    logoutBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+  }
+
+  // --- KONTROL ERUDA BERDASARKAN STATUS ADMIN ---
+  if (isAdmin) {
+    // Jika belum ada script Eruda di halaman, muat secara dinamis
+    if (typeof eruda === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/eruda';
+      script.onload = () => eruda.init();
+      document.head.appendChild(script);
+    } else {
+      eruda.init();
+    }
+  } else {
+    // Jika logout / bukan admin dan eruda aktif, hancurkan/sembunyikan eruda
+    if (typeof eruda !== 'undefined' && eruda._isInit) {
+      eruda.destroy();
+    }
+  }
+}
+
+    // FUNGSI LOGOUT (Yang sebelumnya hilang)
+    function adminLogout() {
+      if (confirm("Apakah kamu yakin ingin keluar dari mode Admin?")) {
+        sessionStorage.removeItem('benivon_admin_logged');
+        checkAdminStatus();
+        alert("Berhasil Logout ✨");
+        location.reload();
       }
     }
 
@@ -358,6 +280,41 @@
         }
       }
     });
+
+    // Listener Ketuk / Klik 5x Di Mana Saja
+    let tapCount = 0;
+    let tapTimer = null;
+
+    document.addEventListener('pointerdown', (e) => {
+      // Abaikan jika sedang klik input, textarea, atau tombol FAB
+      if (e.target.closest('input, textarea, .fab-btn')) return;
+
+      tapCount++;
+      clearTimeout(tapTimer);
+
+      if (tapCount === 5) {
+        tapCount = 0;
+
+        setTimeout(async () => {
+          const pwd = prompt("Masukkan Passcode Admin:");
+          if (pwd) {
+            const hashed = await sha256(pwd);
+            if (hashed === ADMIN_HASH) {
+              sessionStorage.setItem('benivon_admin_logged', 'true');
+              checkAdminStatus();
+              alert("Akses Admin Diterima ✨");
+            } else {
+              alert("Passcode Salah!");
+            }
+          }
+        }, 50);
+      } else {
+        tapTimer = setTimeout(() => {
+          tapCount = 0;
+        }, 1500);
+      }
+    });
+
 
     // --- UPLOAD ADMIN & CROP FOTO ---
     function initPhotoSlots() {
@@ -1876,7 +1833,7 @@ function backToWikiList() {
 }
 
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>
 </body>
 </html>
