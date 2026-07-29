@@ -32,7 +32,17 @@
       <img src="images/didichung.png" id="introAvatarImg" alt="Avatar Intro" class="ivon-avatar-img">
     </div>
   </div>  
-
+<script>
+  (function() {
+    var savedName = localStorage.getItem('benivon_reader_name');
+    var overlay = document.getElementById('ivonIntroOverlay');
+    
+    // Jika BELUM ada nama (Pembaca Baru), ubah CSS-nya jadi 'flex' agar overlay muncul
+    if (!savedName && overlay) {
+      overlay.style.display = 'flex';
+    }
+  })();
+</script>
   <div class="desk-container" id="deskContainer">
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
 
