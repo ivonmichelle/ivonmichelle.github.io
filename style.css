@@ -1516,3 +1516,127 @@ body {
   /* Mencegah browser mengambil alih gerakan sentuhan jari */
   touch-action: none !important;
 }
+/* Modal Passcode Admin Kustom */
+.admin-auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 10002;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.admin-auth-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.admin-auth-card {
+  width: 90%;
+  max-width: 340px;
+  background-color: #fbf7ef;
+  border-radius: 8px;
+  border: 2px solid #3d2716;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: inherit;
+  color: #2c221e;
+}
+
+.admin-auth-header {
+  padding: 10px 14px;
+  background-color: #3d2716;
+  color: #f3ece1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-auth-header h3 {
+  font-size: 0.95rem;
+  font-weight: bold;
+}
+
+.admin-auth-body {
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.admin-password-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cfc5b8;
+  border-radius: 4px;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  outline: none;
+  background-color: #fff;
+  color: #2c221e;
+}
+
+.admin-password-input:focus {
+  border-color: #5c3a21;
+}
+
+.auth-error-msg {
+  color: #dc3545;
+  font-size: 0.78rem;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.admin-auth-footer {
+  padding: 10px 14px;
+  background-color: #f1e9db;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #e2d7c5;
+}
+/* Stiker di Katalog / Tab */
+.sticker-item {
+  width: 80px;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.25)); /* Efek timbul tanpa border */
+}
+
+.sticker-item:hover {
+  transform: scale(1.1) rotate(3deg);
+}
+
+/* Stiker yang sedang melayang di Layar (Instance Baru) */
+.floating-sticker {
+  position: fixed;
+  z-index: 9999;
+  cursor: grab;
+  user-select: none;
+  touch-action: none; /* Penting untuk kelancaran drag di HP */
+  filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.3));
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.floating-sticker:active {
+  cursor: grabbing;
+  transform: scale(1.05);
+}
+
+/* Animasi saat stiker diklik untuk kembali/menghilang */
+.floating-sticker.returning {
+  transform: scale(0) rotate(-20deg);
+  opacity: 0;
+}

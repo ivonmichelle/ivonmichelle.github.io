@@ -34,6 +34,33 @@
       <img src="images/didichung.png" id="introAvatarImg" alt="Avatar Intro" class="ivon-avatar-img">
     </div>
   </div>  
+  
+  <!-- Modal Auth Admin Kustom -->
+<div class="admin-auth-modal-overlay" id="adminAuthModalOverlay">
+  <div class="admin-auth-card">
+    <div class="admin-auth-header">
+      <h3>Akses Admin</h3>
+      <button class="close-btn" onclick="closeAdminAuthModal()">&times;</button>
+    </div>
+    <div class="admin-auth-body">
+      <label for="adminPasswordInput">Masukkan Passcode Admin:</label>
+      <input 
+        type="password" 
+        id="adminPasswordInput" 
+        class="admin-password-input" 
+        placeholder="••••••••" 
+        autocomplete="off"
+        onkeydown="if(event.key === 'Enter') verifyAdminPassword()"
+      />
+      <div id="adminAuthError" class="auth-error-msg" style="display: none;">Passcode Salah!</div>
+    </div>
+    <div class="admin-auth-footer">
+      <button class="nav-btn" onclick="closeAdminAuthModal()">Batal</button>
+      <button class="nav-btn" style="background: #28a745;" onclick="verifyAdminPassword()">Masuk</button>
+    </div>
+  </div>
+</div>
+
 <script>
   (function() {
     var savedName = localStorage.getItem('benivon_reader_name');
@@ -238,17 +265,16 @@
     let topZIndex = 100;
     let activeZoomedEl = null;
 
-    // --- FITUR ADMIN AUTH & SHA-256 CHECK ---
-    const ADMIN_HASH = "374961f303553001f5b4e05537bc655b02795ed2501866a94241caf70239e20f";
+// --- FITUR ADMIN AUTH & SHA-256 CHECK ---
+const ADMIN_HASH = "374961f303553001f5b4e05537bc655b02795ed2501866a94241caf70239e20f";
 
-    async function sha256(message) {
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
-    // Fungsi Cek Status Admin
 // Fungsi Cek Status Admin (Sudah disesuaikan dengan Eruda)
 function checkAdminStatus() {
   const isAdmin = sessionStorage.getItem('benivon_admin_logged') === 'true';
@@ -282,72 +308,90 @@ function checkAdminStatus() {
   }
 }
 
-    // FUNGSI LOGOUT (Yang sebelumnya hilang)
-    function adminLogout() {
-      if (confirm("Apakah kamu yakin ingin keluar dari mode Admin?")) {
-        sessionStorage.removeItem('benivon_admin_logged');
-        checkAdminStatus();
-        alert("Berhasil Logout ✨");
-        location.reload();
-      }
+// FUNGSI LOGOUT
+function adminLogout() {
+  if (confirm("Apakah kamu yakin ingin keluar dari mode Admin?")) {
+    sessionStorage.removeItem('benivon_admin_logged');
+    checkAdminStatus();
+    alert("Berhasil Logout ✨");
+    location.reload();
+  }
+}
+
+// --- FUNGSI MODAL DIALOG KUSTOM ---
+function openAdminAuthModal() {
+  const modal = document.getElementById('adminAuthModalOverlay');
+  const input = document.getElementById('adminPasswordInput');
+  const errorMsg = document.getElementById('adminAuthError');
+  
+  if (modal && input) {
+    input.value = '';
+    if (errorMsg) errorMsg.style.display = 'none';
+    modal.classList.add('active');
+    setTimeout(() => input.focus(), 100);
+  }
+}
+
+function closeAdminAuthModal() {
+  const modal = document.getElementById('adminAuthModalOverlay');
+  if (modal) modal.classList.remove('active');
+}
+
+async function verifyAdminPassword() {
+  const input = document.getElementById('adminPasswordInput');
+  const errorMsg = document.getElementById('adminAuthError');
+  const pwd = input ? input.value : '';
+
+  if (!pwd) return;
+
+  const hashed = await sha256(pwd);
+  if (hashed === ADMIN_HASH) {
+    sessionStorage.setItem('benivon_admin_logged', 'true');
+    checkAdminStatus();
+    closeAdminAuthModal();
+    alert("Akses Admin Diterima ✨");
+  } else {
+    if (errorMsg) errorMsg.style.display = 'block';
+    if (input) {
+      input.value = '';
+      input.focus();
     }
+  }
+}
 
-    // Listener Shortcut Key: ALT + A
-    document.addEventListener('keydown', async (e) => {
-      if (e.altKey && (e.key === 'a' || e.key === 'A')) {
-        e.preventDefault();
-        const pwd = prompt("Masukkan Passcode Admin:");
-        if (pwd) {
-          const hashed = await sha256(pwd);
-          if (hashed === ADMIN_HASH) {
-            sessionStorage.setItem('benivon_admin_logged', 'true');
-            checkAdminStatus();
-            alert("Akses Admin Diterima ✨");
-          } else {
-            alert("Passcode Salah!");
-          }
-        }
+// Listener Shortcut Key: ALT + A (Membuka Modal Kustom)
+document.addEventListener('keydown', (e) => {
+  if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+    e.preventDefault();
+    openAdminAuthModal();
+  }
+});
+
+// Listener Ketuk / Klik 5x khusus pada tulisan "2026 Didi Chung"
+let tapCount = 0;
+let tapTimer = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const adminTriggerEl = document.getElementById('adminTrigger');
+  
+  if (adminTriggerEl) {
+    adminTriggerEl.addEventListener('pointerdown', (e) => {
+      e.stopPropagation(); // Mencegah event merambat ke elemen lain
+
+      tapCount++;
+      clearTimeout(tapTimer);
+
+      if (tapCount === 5) {
+        tapCount = 0;
+        openAdminAuthModal();
+      } else {
+        tapTimer = setTimeout(() => {
+          tapCount = 0;
+        }, 1500);
       }
     });
-
-    // Listener Ketuk / Klik 5x khusus pada tulisan "2026 Didi Chung"
-    let tapCount = 0;
-    let tapTimer = null;
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const adminTriggerEl = document.getElementById('adminTrigger');
-      
-      if (adminTriggerEl) {
-        adminTriggerEl.addEventListener('pointerdown', (e) => {
-          e.stopPropagation(); // Mencegah event merambat ke elemen lain
-
-          tapCount++;
-          clearTimeout(tapTimer);
-
-          if (tapCount === 5) {
-            tapCount = 0;
-
-            setTimeout(async () => {
-              const pwd = prompt("Masukkan Passcode Admin:");
-              if (pwd) {
-                const hashed = await sha256(pwd);
-                if (hashed === ADMIN_HASH) {
-                  sessionStorage.setItem('benivon_admin_logged', 'true');
-                  checkAdminStatus();
-                  alert("Akses Admin Diterima ✨");
-                } else {
-                  alert("Passcode Salah!");
-                }
-              }
-            }, 50);
-          } else {
-            tapTimer = setTimeout(() => {
-              tapCount = 0;
-            }, 1500);
-          }
-        });
-      }
-    });
+  }
+});
 
     // --- UPLOAD ADMIN & CROP FOTO ---
     function initPhotoSlots() {
@@ -2168,7 +2212,7 @@ function renderStickerGrid() {
       : `images/${imgSrc}`;
 
     html += `
-      <div class="sticker-item-card" style="transform: rotate(${randomRotate}deg);" onclick="zoomAlbumPolaroid('${finalSrc}')">
+      <div class="sticker-item-card" style="transform: rotate(${randomRotate}deg);" onclick="spawnSticker('${finalSrc}')">
         <img src="${finalSrc}" alt="Stiker PNG" class="sticker-png-img">
       </div>
     `;
@@ -2185,7 +2229,84 @@ function renderStickerGrid() {
   if (prevBtn) prevBtn.disabled = currentStickerPage === 0;
   if (nextBtn) nextBtn.disabled = currentStickerPage >= totalPages - 1;
 }
+// Fungsi spawn stiker baru dari Katalog
+function spawnSticker(imgSrc, event) {
+  const sticker = document.createElement('img');
+  sticker.src = imgSrc;
+  sticker.classList.add('floating-sticker');
+  
+  // Set ukuran default stiker melayang
+  sticker.style.width = '120px'; 
+  
+  // Posisi awal di tempat kursor klik atau pertengahan layar
+  const startX = event ? event.clientX - 60 : window.innerWidth / 2 - 60;
+  const startY = event ? event.clientY - 60 : window.innerHeight / 2 - 60;
+  
+  sticker.style.left = `${startX}px`;
+  sticker.style.top = `${startY}px`;
 
+  document.body.appendChild(sticker);
+
+  // Inisialisasi Fitur Drag & Return
+  makeDraggableAndReturnable(sticker);
+}
+
+// Logic Drag and Drop & Klik untuk Mengembalikan
+function makeDraggableAndReturnable(elmnt) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  let isDragging = false;
+
+  elmnt.onmousedown = dragMouseDown;
+  elmnt.ontouchstart = dragMouseDown;
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    isDragging = false;
+    
+    // Ambil posisi awal kursor/sentuhan
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    pos3 = clientX;
+    pos4 = clientY;
+
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+    document.ontouchend = closeDragElement;
+    document.ontouchmove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    isDragging = true; // Jika kursor bergerak, berarti sedang di-drag
+    e = e || window.event;
+    
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    pos1 = pos3 - clientX;
+    pos2 = pos4 - clientY;
+    pos3 = clientX;
+    pos4 = clientY;
+
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+    document.ontouchend = null;
+    document.ontouchmove = null;
+
+    // Jika TIDAK di-drag (hanya klik biasa), kembalikan stiker ke buku/hilangkan
+    if (!isDragging) {
+      elmnt.classList.add('returning');
+      setTimeout(() => {
+        elmnt.remove();
+      }, 200); // Tunggu animasi rampung
+    }
+  }
+}
   </script>
 <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>
