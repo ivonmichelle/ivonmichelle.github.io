@@ -152,46 +152,47 @@
       z-index: -1;
     }
     
+/* --- STIKER TAB / PEMBATAS BUKU DI ATAS --- */
+.book-tabs {
+  position: absolute;
+  top: -30px;
+  right: 10px;
+  display: flex;
+  gap: 3px; /* Dirapatkan dari 6px menjadi 3px */
+  z-index: 12;
+}
 
-    /* --- STIKER TAB / PEMBATAS BUKU DI ATAS --- */
-    .book-tabs {
-      position: absolute;
-      top: -32px;
-      right: 15px;
-      display: flex;
-      gap: 6px;
-      z-index: 12;
-    }
+.tab-btn {
+  background: #7a4f2d;
+  color: #f3ece1;
+  border: 1px solid #3d2716;
+  border-bottom: none;
+  padding: 5px 8px 4px 8px; /* Dirapatkan dari 6px 14px */
+  font-family: 'Georgia', serif;
+  font-size: 0.72rem; /* Disesuaikan agar pas 6 tab */
+  font-weight: bold;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  box-shadow: 0 -3px 6px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+  letter-spacing: 0.2px;
+  user-select: none;
+  white-space: nowrap;
+}
 
-    .tab-btn {
-      background: #7a4f2d;
-      color: #f3ece1;
-      border: 1px solid #3d2716;
-      border-bottom: none;
-      padding: 6px 14px 4px 14px;
-      font-family: 'Georgia', serif;
-      font-size: 0.78rem;
-      font-weight: bold;
-      border-radius: 6px 6px 0 0;
-      cursor: pointer;
-      box-shadow: 0 -3px 6px rgba(0,0,0,0.2);
-      transition: all 0.2s ease;
-      letter-spacing: 0.5px;
-      user-select: none;
-    }
+.tab-btn:hover {
+  background: #8c5b35;
+}
 
-    .tab-btn:hover {
-      background: #8c5b35;
-    }
+.tab-btn.active {
+  background: #fbf7ef;
+  color: #3d2716;
+  border-color: #3d2716;
+  padding-top: 7px;
+  transform: translateY(-2px);
+  box-shadow: 0 -4px 8px rgba(0,0,0,0.3);
+}
 
-    .tab-btn.active {
-      background: #fbf7ef;
-      color: #3d2716;
-      border-color: #3d2716;
-      padding-top: 8px;
-      transform: translateY(-2px);
-      box-shadow: 0 -4px 8px rgba(0,0,0,0.3);
-    }
 
     /* FIX 1: Efek Drop Cap yang Lebih Stabil */
     .first-page-paragraph {
@@ -1395,3 +1396,31 @@
       background: #aaa;
       cursor: not-allowed;
     }
+    /* --- STYLES KHUSUS TAB STIKER (PURITY PNG) --- */
+.sticker-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  cursor: pointer;
+  background: transparent !important; /* Hilangkan background putih polaroid */
+  border: none !important;             /* Hilangkan garis border */
+  box-shadow: none !important;         /* Hilangkan bayangan kotak polaroid */
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.sticker-png-img {
+  max-width: 100%;
+  max-height: 140px;
+  object-fit: contain;
+  /* Bayangan tipis khusus mengikuti lekukan stiker PNG */
+  filter: drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.25)); 
+}
+
+.sticker-item-card:hover {
+  transform: scale(1.08) rotate(0deg) !important;
+}
+
+.sticker-item-card:hover .sticker-png-img {
+  filter: drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.35));
+}

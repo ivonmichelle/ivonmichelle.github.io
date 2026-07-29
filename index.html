@@ -55,13 +55,14 @@
     <div class="polaroid" id="polaroid7"><img src="" alt="Foto 7"></div>
 
     <div class="book-page">
-      <div class="book-tabs">
-        <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
-        <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
-        <button class="tab-btn" id="tabWikiBtn" onclick="switchTab('wiki')">👤 Wiki</button>
-        <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Skets</button>
-        <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Foto</button>
-      </div>
+<div class="book-tabs">
+  <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
+  <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
+  <button class="tab-btn" id="tabWikiBtn" onclick="switchTab('wiki')">👤 Wiki</button>
+  <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Skets</button>
+  <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Foto</button>
+  <button class="tab-btn" id="tabStickerBtn" onclick="switchTab('sticker')">🏷️ Stiker</button>
+</div>
 
       <div class="book-content" id="bookContent">
         <div class="status-msg">Memuat daftar cerita...</div>
@@ -78,7 +79,9 @@
       <div class="book-content" id="polaroidAlbumContent" style="display: none;">
         <div class="polaroid-grid-view" id="polaroidGridContainer"></div>
       </div>
-
+<div class="book-content" id="stickerAlbumContent" style="display: none;">
+  <div class="polaroid-grid-view" id="stickerGridContainer"></div>
+</div>
 <div class="book-content" id="wikiContent" style="display: none;">
   <input type="file" id="wikiFileInput" accept="image/*" style="display: none;" onchange="handleWikiPhotoSelect(event)">  
   <div class="status-msg">Memuat data wiki...</div>
@@ -214,6 +217,9 @@
     let rawParagraphs = [];
     let pages = [];
     let currentPage = 0;
+    
+    let albumStickerList = [];
+    let currentStickerPage = 0;
 
     const fontSizes = ['0.82rem', '0.92rem', '1.0rem', '1.1rem', '1.22rem'];
     let topZIndex = 100;
@@ -586,11 +592,13 @@ function switchTab(tab) {
   const tabWikiBtn = document.getElementById('tabWikiBtn');
   const tabIllustBtn = document.getElementById('tabIllustBtn');
   const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
+  const tabStickerBtn = document.getElementById('tabStickerBtn'); // <-- TAMBAHAN
 
   const bookContent = document.getElementById('bookContent');
   const wikiContent = document.getElementById('wikiContent');
   const illustContent = document.getElementById('illustrationContent');
   const polaroidContent = document.getElementById('polaroidAlbumContent');
+  const stickerContent = document.getElementById('stickerAlbumContent'); // <-- TAMBAHAN
   const sliderContainer = document.getElementById('sliderContainer');
 
   // Nav row elements
@@ -605,12 +613,14 @@ function switchTab(tab) {
   if (tabWikiBtn) tabWikiBtn.classList.remove('active');
   if (tabIllustBtn) tabIllustBtn.classList.remove('active');
   if (tabPolaroidBtn) tabPolaroidBtn.classList.remove('active');
+  if (tabStickerBtn) tabStickerBtn.classList.remove('active'); // <-- TAMBAHAN
 
   // Hide All Content Blocks
   if (bookContent) bookContent.style.display = 'none';
   if (wikiContent) wikiContent.style.display = 'none';
   if (illustContent) illustContent.style.display = 'none';
   if (polaroidContent) polaroidContent.style.display = 'none';
+  if (stickerContent) stickerContent.style.display = 'none'; // <-- TAMBAHAN
   if (sliderContainer) sliderContainer.style.visibility = 'hidden';
 
   // Pastikan tombol navigasi bawah selalu terlihat secara default
@@ -671,6 +681,16 @@ function switchTab(tab) {
       loadAlbumPolaroids();
     } else {
       renderPolaroidGrid();
+    }
+
+  } else if (tab === 'sticker') { // <-- TAMBAHAN BLOK STIKER
+    if (tabStickerBtn) tabStickerBtn.classList.add('active');
+    if (stickerContent) stickerContent.style.display = 'block';
+
+    if (albumStickerList.length === 0) {
+      loadAlbumStickers();
+    } else {
+      renderStickerGrid();
     }
   }
 }
@@ -1158,35 +1178,42 @@ async function loadPolaroidsBySubjek(subjek) {
       nextBtn.disabled = currentPage === pages.length - 1;
     }
 
-    function handlePrevNav() {
-      if (activeTab === 'novel' || activeTab === 'sol') {
-        if (currentChapterIndex !== -1) {
-          if (currentPage > 0) { currentPage--; renderPage(); }
-          else { renderTableOfContents(); }
-        }
-      } else if (activeTab === 'illustration') {
-        if (currentIllustIndex > 0) { currentIllustIndex--; renderIllustration(); }
-      } else if (activeTab === 'polaroid') {
-        if (currentPolaroidPage > 0) { currentPolaroidPage--; renderPolaroidGrid(); }
-      }
+function handlePrevNav() {
+  if (activeTab === 'novel' || activeTab === 'sol') {
+    if (currentChapterIndex !== -1) {
+      if (currentPage > 0) { currentPage--; renderPage(); }
+      else { renderTableOfContents(); }
     }
+  } else if (activeTab === 'illustration') {
+    if (currentIllustIndex > 0) { currentIllustIndex--; renderIllustration(); }
+  } else if (activeTab === 'polaroid') {
+    if (currentPolaroidPage > 0) { currentPolaroidPage--; renderPolaroidGrid(); }
+  } else if (activeTab === 'sticker') { // <--- TAMBAHAN UNTUK STIKER
+    if (currentStickerPage > 0) { currentStickerPage--; renderStickerGrid(); }
+  }
+}
 
-    function handleNextNav() {
-      if (activeTab === 'novel' || activeTab === 'sol') {
-        if (currentChapterIndex !== -1 && currentPage < pages.length - 1) {
-          currentPage++; renderPage();
-        }
-      } else if (activeTab === 'illustration') {
-        if (currentIllustIndex < illustrations.length - 1) {
-          currentIllustIndex++; renderIllustration();
-        }
-      } else if (activeTab === 'polaroid') {
-        const totalPages = Math.ceil(albumPolaroidList.length / 4);
-        if (currentPolaroidPage < totalPages - 1) {
-          currentPolaroidPage++; renderPolaroidGrid();
-        }
-      }
+function handleNextNav() {
+  if (activeTab === 'novel' || activeTab === 'sol') {
+    if (currentChapterIndex !== -1 && currentPage < pages.length - 1) {
+      currentPage++; renderPage();
     }
+  } else if (activeTab === 'illustration') {
+    if (currentIllustIndex < illustrations.length - 1) {
+      currentIllustIndex++; renderIllustration();
+    }
+  } else if (activeTab === 'polaroid') {
+    const totalPages = Math.ceil(albumPolaroidList.length / 4);
+    if (currentPolaroidPage < totalPages - 1) {
+      currentPolaroidPage++; renderPolaroidGrid();
+    }
+  } else if (activeTab === 'sticker') { // <--- TAMBAHAN UNTUK STIKER
+    const totalPages = Math.ceil(albumStickerList.length / 4); // sesuaikan pembagi (4) dengan isi per halaman stiker kamu
+    if (currentStickerPage < totalPages - 1) {
+      currentStickerPage++; renderStickerGrid();
+    }
+  }
+}
 
     function changeFontSize(val) {
       recalculatePagination();
@@ -1844,6 +1871,75 @@ function selectWikiChar(index) {
 function backToWikiList() {
   selectedWikiChar = null;
   renderWikiView();
+}
+
+async function loadAlbumStickers() {
+  const container = document.getElementById('stickerGridContainer');
+  if (container) {
+    container.innerHTML = `<div class="status-msg">Memuat stiker...</div>`;
+  }
+
+  try {
+    // Memanggil action get_stickers yang baru ditambahkan ke Google Apps Script
+    const res = await fetch(`${SCRIPT_URL}?action=get_stickers`);
+    const data = await res.json();
+
+    if (Array.isArray(data) && data.length > 0) {
+      albumStickerList = data;
+      currentStickerPage = 0;
+      renderStickerGrid();
+    } else {
+      if (container) container.innerHTML = `<div class="status-msg">Belum ada stiker di kolom H.</div>`;
+    }
+  } catch (err) {
+    console.error("Error loading stickers:", err);
+    if (container) {
+      container.innerHTML = `<div class="status-msg" style="color: #a33;">Gagal memuat stiker.</div>`;
+    }
+  }
+}
+
+function renderStickerGrid() {
+  const container = document.getElementById('stickerGridContainer');
+  if (!container) return;
+
+  const totalItems = albumStickerList.length;
+  if (totalItems === 0) {
+    container.innerHTML = `<div class="status-msg">Tidak ada stiker.</div>`;
+    return;
+  }
+
+  const itemsPerPage = 4;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = currentStickerPage * itemsPerPage;
+  const pageItems = albumStickerList.slice(startIndex, startIndex + itemsPerPage);
+
+  let html = '';
+
+  pageItems.forEach((imgSrc) => {
+    // Memberi sedikit variasi rotasi acak agar terlihat alami seperti stiker fisik yang ditempel
+    const randomRotate = (Math.random() * 14 - 7).toFixed(1);
+    const finalSrc = (imgSrc.startsWith('data:') || imgSrc.startsWith('http') || imgSrc.startsWith('images/')) 
+      ? imgSrc 
+      : `images/${imgSrc}`;
+
+    html += `
+      <div class="sticker-item-card" style="transform: rotate(${randomRotate}deg);" onclick="zoomAlbumPolaroid('${finalSrc}')">
+        <img src="${finalSrc}" alt="Stiker PNG" class="sticker-png-img">
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  // Navigasi Bawah
+  const pageIndicator = document.getElementById('pageIndicator');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  if (pageIndicator) pageIndicator.innerText = `Stiker ${currentStickerPage + 1} / ${totalPages}`;
+  if (prevBtn) prevBtn.disabled = currentStickerPage === 0;
+  if (nextBtn) nextBtn.disabled = currentStickerPage >= totalPages - 1;
 }
 
   </script>
