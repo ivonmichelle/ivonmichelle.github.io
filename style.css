@@ -916,6 +916,8 @@
   bottom: 60px;
   left: 0;
   width: 230px;
+  max-height: 280px; /* Atau gunakan 50vh agar responsif di layar HP */
+  overflow-y: auto;  /* Mengaktifkan scrollbar jika item lagu melebihi max-height */
   background: rgba(25, 17, 9, 0.95);
   border: 1px solid #8b5a2b;
   border-radius: 12px;
