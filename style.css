@@ -1696,7 +1696,6 @@ body {
 }
 
 /* --- ELEMEN NOT BALOK MELAYANG --- */
-/* --- ELEMEN NOT BALOK MELAYANG --- */
 .floating-note {
   position: fixed;
   pointer-events: none;
@@ -1923,4 +1922,157 @@ body.bg-asfalt-light,
 body.bg-dark-wood,
 body.bg-noisy-grid {
   background-repeat: repeat;
+}
+/* =========================================================
+   === CSS SISTEM PENCAHAYAAN DINAMIS (Pagi/Sore/Malam) ===
+   ========================================================= */
+
+/* Wadah dasar untuk semua overlay cahaya. 
+   Mereka menutupi seluruh layar tetapi "tembus pandang" terhadap klik, 
+   sehingga tidak mengganggu drag polaroid atau klik buku. */
+.daytime-sunlight-overlay,
+.sunset-shadow-overlay,
+.nighttime-spotlight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* PENTING: Klik tembus ke elemen di bawahnya */
+  z-index: 1000; /* Di atas meja kayu, tetapi di bawah Polaroid (100) & Buku (10) */
+  opacity: 0; /* Default: Sembunyi */
+  transition: opacity 1.5s ease-in-out; /* Transisi halus saat pergantian waktu */
+}
+
+/* -------------------------------------------------
+   1. EFEK SORE (Golden Hour & Bayangan Kusen Jendela)
+   ------------------------------------------------- */
+body.time-sore .sunset-shadow-overlay {
+  opacity: 1;
+}
+
+.sunset-shadow-overlay {
+  /* Nuansa hangat Golden Hour: Oranye kemerahan tipis di seluruh meja */
+  background-color: rgba(255, 120, 30, 0.08);
+  
+  /* Cahaya memancar dari kiri-atas (Cerah) menuju kanan-bawah (Agak Gelap) */
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(255, 180, 70, 0.35) 0%, rgba(255, 110, 20, 0.12) 60%, rgba(30, 10, 0, 0.3) 100%),
+    linear-gradient(135deg, rgba(255, 200, 100, 0.15) 0%, rgba(0, 0, 0, 0.2) 100%);
+  
+  overflow: hidden; /* Supaya bayangan miring tidak keluar layar */
+}
+
+/* KUSEN JENDELA PERSPEKTIF */
+.sunset-shadow-overlay::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: -20%;
+  width: 160%;
+  height: 160%;
+  
+  /* 
+    Hanya membuat 1 Salib Jendela (2 Garis Kusen Utama):
+    - 1 Kusen Vertikal di tengah
+    - 1 Kusen Horizontal di tengah
+  */
+  background-image: 
+    /* Kusen Horizontal */
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 45%,
+      rgba(40, 15, 5, 0.45) 45%,
+      rgba(40, 15, 5, 0.45) 53%, /* Ketebalan bingkai kayu horizontal */
+      transparent 53%,
+      transparent 100%
+    ),
+    /* Kusen Vertikal */
+    linear-gradient(
+      to right,
+      transparent 0%,
+      transparent 46%,
+      rgba(40, 15, 5, 0.45) 46%,
+      rgba(40, 15, 5, 0.45) 52%, /* Ketebalan bingkai kayu vertikal */
+      transparent 52%,
+      transparent 100%
+    );
+  
+  /* 
+    EFEK PERSPEKTIF & PROYEKSI SENJA:
+    - rotate(-28deg): Kemiringan masuknya cahaya senja
+    - skewX(-15deg): Efek perspektif (bayangan tertarik/memanjang karena posisi matahari rendah)
+  */
+  transform: rotate(-28deg) skewX(-15deg) scale(1.1);
+  
+  /* Blur lembut (soft shadow) seolah cahaya melewati jarak dari jendela ke meja */
+  filter: blur(12px); 
+}
+
+/* Efek Tambahan: Mengganti warna vignette meja agar selaras dengan nuansa senja */
+body.time-sore .desk-container {
+  box-shadow: inset 0 0 100px rgba(80, 25, 0, 0.5);
+}
+
+/* -------------------------------------------------
+   2. EFEK MALAM (Lampu Sorot Meja / Spotlight)
+   ------------------------------------------------- */
+/* Class ini akan ditambahkan oleh Javascript jika waktu Malam */
+body.time-malam .nighttime-spotlight-overlay {
+  opacity: 1;
+}
+
+.nighttime-spotlight-overlay {
+  /* --- KUNCI: LAMPU MEJA --- */
+  /* Kita menggunakan radial-gradient untuk menciptakan lingkaran cahaya hangat (kuning gading)
+     di tengah meja, sementara sekelilingnya menjadi sangat gelap. */
+  background-image: radial-gradient(
+    circle at 50% 45%, /* Titik pusat lampu (sedikit di atas tengah) */
+    rgba(255, 253, 230, 0.3) 0%,   /* Inti cahaya paling terang (sangat lembut) */
+    rgba(255, 248, 200, 0.15) 30%, /* Cahaya hangat memudar */
+    rgba(10, 5, 0, 0.6) 70%,        /* Mulai menggelap (Vignette) */
+    rgba(0, 0, 0, 0.85) 100%        /* Pinggiran layar sangat gelap gulita */
+  );
+}
+
+/* -------------------------------------------------
+   3. EFEK PAGI/SIANG (Cahaya Matahari Cerah) - Opsional
+   ------------------------------------------------- */
+/* Class ini akan ditambahkan oleh Javascript jika waktu Pagi/Siang */
+body.time-pagi .daytime-sunlight-overlay {
+  opacity: 1;
+}
+
+.daytime-sunlight-overlay {
+  /* Memberikan filter warna biru langit/putih yang sangat-sangat tipis, 
+     membuat meja terlihat lebih dingin dan bersih dibanding warna kayu aslinya. */
+  background-color: rgba(200, 230, 255, 0.02);
+  
+  /* Gradien radial lembut untuk mencerahkan bagian tengah meja */
+  background-image: radial-gradient(circle at center, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 70%);
+}
+
+/* Penyesuaian Polaroid saat Malam: 
+   Bayangan polaroid saat malam harus lebih pekat dan rapat 
+   karena sumber cahayanya (lampu meja) dekat. */
+body.time-malam .polaroid {
+  box-shadow: 2px 4px 10px rgba(0,0,0,0.7);
+}
+/* =========================================================
+   === OVERRIDE SAAT EFEK CAHAYA DIMATIKAN MANUALLY ===
+   ========================================================= */
+
+/* Ketika class .lighting-disabled ada di <body>, 
+   paksa semua overlay cahaya menjadi transparan/sembunyi */
+body.lighting-disabled .daytime-sunlight-overlay,
+body.lighting-disabled .sunset-shadow-overlay,
+body.lighting-disabled .nighttime-spotlight-overlay {
+  opacity: 0 !important;
+}
+
+/* Styling opsional untuk tombol Sub-FAB saat efek mati (visual cue) */
+#btnFabElement.disabled-state {
+  opacity: 0.6;
+  filter: grayscale(80%);
 }

@@ -168,6 +168,9 @@
   </script>
 
   <div class="desk-container initial-blur" id="deskContainer">
+  <div class="daytime-sunlight-overlay" id="daytimeOverlay"></div>
+    <div class="sunset-shadow-overlay" id="sunsetOverlay"></div>
+    <div class="nighttime-spotlight-overlay" id="nighttimeOverlay"></div>
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
 
     <div class="polaroid" id="polaroid1"><img src="" alt="Foto 1"></div>
@@ -284,11 +287,26 @@
     <!-- FAB PARENT: ELEMEN FOTO (ASLI) -->
     <div class="fab-wrapper">
       <div class="fab-sub-menu" id="fabElementSubMenu">
+        <button class="fab-btn" id="btnLighting" onclick="toggleLightingEffect()" title="Matikan/Hidupkan Efek Cahaya">💡</button>
         <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">🔄</button>
         <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">🎴</button>
       </div>
       <button class="fab-btn" id="btnFabElement" onclick="toggleFabElementMenu()" title="Menu Elemen Foto">🖼️</button>
     </div>
+<!-- Tag Audio Khusus Ambient SFX -->
+<audio id="ambientAudio" loop preload="auto"></audio>
+
+<!-- FAB Button / Menu Pilihan Ambient -->
+<div class="fab-wrapper">
+  <div class="fab-sub-menu" id="fabAmbientSubMenu">
+    <button class="fab-btn" onclick="playAmbient('rain')" title="Suara Hujan">🌧️</button>
+    <button class="fab-btn" onclick="playAmbient('thunder')" title="Hujan & Petir">🌩️</button>
+    <button class="fab-btn" onclick="playAmbient('crickets')" title="Suara Jangkrik Malam">🦗</button>
+    <button class="fab-btn" onclick="playAmbient('cafe')" title="Suara Kafe">☕</button>
+    <button class="fab-btn" onclick="stopAmbient()" title="Matikan Ambient">🚫</button>
+  </div>
+  <button class="fab-btn" id="btnFabAmbient" onclick="toggleFabAmbientMenu()" title="Suara Suasana (Ambient SFX)">🎧</button>
+</div>
 
     <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">🔇</button>
     <button class="fab-btn" onclick="openCommentModal()" title="Buku Tamu / Komentar">💬</button>
@@ -1752,12 +1770,62 @@ function renderTableOfContentsKanon() {
 
       activeZoomedEl = null;
     }
+// =========================================================
+// 1. LETAKKAN FUNGSI GLOBAL DI LUAR / DI ATAS LISTENER
+// =========================================================
+let isLightingEnabled = true;
+
+function updateLightingSystem() {
+  const bodyEl = document.body;
+  const btnFab = document.getElementById('btnFabElement');
+  const iconFab = document.getElementById('iconLighting');
+  
+  const savedState = localStorage.getItem('benivon_lighting_enabled');
+  if (savedState !== null) {
+    isLightingEnabled = (savedState === 'true');
+  }
+
+  // Cek Status Toggle
+  if (!isLightingEnabled) {
+    bodyEl.classList.add('lighting-disabled');
+    if (btnFab) btnFab.classList.add('disabled-state');
+    if (iconFab) iconFab.className = 'fas fa-lightbulb-slash';
+  } else {
+    bodyEl.classList.remove('lighting-disabled');
+    if (btnFab) btnFab.classList.remove('disabled-state');
+  }
+
+  // Hitung Waktu & Terapkan Class
+  const now = new Date();
+  const hours = now.getHours();
+  
+  bodyEl.classList.remove('time-pagi', 'time-sore', 'time-malam');
+
+  if (hours >= 5 && hours < 15) {
+    bodyEl.classList.add('time-pagi');
+    if (isLightingEnabled && iconFab) iconFab.className = 'fas fa-sun';
+  } else if (hours >= 15 && hours < 19) {
+    bodyEl.classList.add('time-sore');
+    if (isLightingEnabled && iconFab) iconFab.className = 'fas fa-cloud-sun';
+  } else {
+    bodyEl.classList.add('time-malam');
+    if (isLightingEnabled && iconFab) iconFab.className = 'fas fa-moon';
+  }
+}
+
+// Fungsi ini harus global agar onclick="toggleLightingEffect()" di HTML bisa membacanya
+function toggleLightingEffect() {
+  isLightingEnabled = !isLightingEnabled;
+  localStorage.setItem('benivon_lighting_enabled', isLightingEnabled);
+  updateLightingSystem();
+  console.log(`[BenivoN-Time] Efek Cahaya Meja: ${isLightingEnabled ? 'AKTIF' : 'NON-AKTIF'}`);
+}
 
     // --- INISIALISASI UTAMA WEBSITE ---
     window.addEventListener('DOMContentLoaded', () => {
       checkIntroStatus();
       checkAdminStatus();
-      
+      updateLightingSystem(); 
       // randomizePolaroids() DIHAPUS dari sini agar tidak menimpa posisi tersimpan!
       
       // MENJALANKAN ALL-IN-ONE PRELOADER DENGAN MODAL BLUR
@@ -2772,6 +2840,58 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// --- MANAJEMEN AMBIENT SOUND EFFECT (SFX) ---
+const ambientAudio = document.getElementById('ambientAudio');
+
+// Path daftar file ambient (simpan file mp3 ini di folder sfx/ atau bgm/)
+const ambientTracks = {
+  rain: 'sfx/rain_loop.mp3',
+  thunder: 'sfx/thunder_rain_loop.mp3',
+  crickets: 'sfx/crickets_night_loop.mp3',
+  cafe: 'sfx/cafe_ambiance_loop.mp3'
+};
+
+let currentAmbientKey = null;
+
+// Fungsi untuk Memutar Ambient
+function playAmbient(key) {
+  if (!ambientTracks[key]) return;
+
+  // Jika tombol yang sama diklik lagi, matikan ambient
+  if (currentAmbientKey === key && !ambientAudio.paused) {
+    stopAmbient();
+    return;
+  }
+
+  currentAmbientKey = key;
+  ambientAudio.src = ambientTracks[key];
+  
+  // ATUR VOLUME LEBIH PELAN DARIPADA JUKEBOX (Contoh: 25%)
+  ambientAudio.volume = 0.45; 
+  
+  ambientAudio.play().then(() => {
+    document.getElementById('btnFabAmbient').classList.add('pulsing');
+  }).catch(err => console.log("Gagal memutar ambient:", err));
+
+  toggleFabAmbientMenu(); // Tutup sub-menu setelah memilih
+}
+
+// Fungsi Mematikan Ambient
+function stopAmbient() {
+  if (ambientAudio) {
+    ambientAudio.pause();
+    ambientAudio.currentTime = 0;
+    currentAmbientKey = null;
+    document.getElementById('btnFabAmbient').classList.remove('pulsing');
+  }
+  toggleFabAmbientMenu();
+}
+
+// Toggle Menu FAB Ambient
+function toggleFabAmbientMenu() {
+  const subMenu = document.getElementById('fabAmbientSubMenu');
+  if (subMenu) subMenu.classList.toggle('show');
+}
 
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
