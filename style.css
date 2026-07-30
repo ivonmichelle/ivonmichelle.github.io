@@ -439,21 +439,21 @@ body {
     }
 
     /* Styling Polaroid */
-    .polaroid {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 110px;
-      background: #fff;
-      padding: 7px 7px 15px 7px;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.4);
-      border-radius: 2px;
-      z-index: 50;
-      cursor: grab;
-      user-select: none;
-      touch-action: none;
-      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, filter 0.4s ease;
-    }
+.polaroid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110px;
+  background: #fff;
+  padding: 7px 7px 15px 7px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+  border-radius: 2px;
+  z-index: 100;       /* Naikkan dari 50 ke 100 agar aman di atas Stiker (20) */
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, filter 0.4s ease;
+}
 
     .polaroid:active {
       cursor: grabbing;
@@ -658,20 +658,20 @@ body {
       cursor: not-allowed;
     }
 
-    .fab-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      flex-direction: row;
-      gap: 12px;
-      z-index: 9999;
-    }
+.fab-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  z-index: 9999;     /* Paling atas menimpa Polaroid dan Stiker */
+}
 
     .fab-btn {
       width: 50px;
       height: 50px;
-      background-color: #5c3a21;
+      background: rgba(43, 29, 12, 0.85) !important;
       color: #f3ece1;
       border: 2px solid #8b5a2b;
       border-radius: 50%;
@@ -923,7 +923,8 @@ body {
 
 .jukebox-btn {
   background: rgba(43, 29, 12, 0.85) !important;
-  border: 1px solid #8b5a2b !important;
+  border: 2px solid #8b5a2b;
+  border-radius: 50%;
   font-size: 1.3rem !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
@@ -937,7 +938,7 @@ body {
   width: 230px;
   max-height: 50vh; /* Atau gunakan 50vh agar responsif di layar HP */
   overflow-y: auto;  /* Mengaktifkan scrollbar jika item lagu melebihi max-height */
-  background: rgba(25, 17, 9, 0.95);
+  background: rgba(25, 17, 9, 0.85);
   border: 1px solid #8b5a2b;
   border-radius: 12px;
   padding: 10px;
@@ -1621,11 +1622,11 @@ body {
 
 /* Stiker yang sedang melayang di Layar (Instance Baru) */
 .floating-sticker {
-  position: fixed;
-  z-index: 9999;
+  position: absolute; /* Diubah ke absolute agar ikut scroll/area buku */
+  z-index: 20;        /* Di atas buku (10), di BUKAN 9999 agar tidak menimpa polaroid & menu */
   cursor: grab;
   user-select: none;
-  touch-action: none; /* Penting untuk kelancaran drag di HP */
+  touch-action: none;
   filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.3));
   transition: transform 0.15s ease, opacity 0.2s ease;
 }
