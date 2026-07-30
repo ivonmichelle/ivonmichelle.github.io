@@ -1855,3 +1855,92 @@ body {
   font-weight: 600;
   color: #5c3a21;
 }
+/* Layout Wrapper untuk FAB Parent & Sub-menu */
+.fab-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Sub Menu Kontainer (Membuka ke atas) */
+.fab-sub-menu {
+  position: absolute;
+  bottom: 60px; /* Posisi di atas tombol parent */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px) scale(0.8);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  pointer-events: none;
+}
+
+/* Class aktif saat FAB Parent diklik */
+.fab-sub-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Efek Putar Icon Tombol Parent saat Aktif */
+.fab-btn.spin-icon {
+  transform: rotate(180deg);
+}
+
+/* Preset Tema Background Meja */
+body.bg-purty-wood {
+  background-image: url('https://www.transparenttextures.com/patterns/purty-wood.png');
+}
+body.bg-retina-wood {
+  background-image: url('https://www.transparenttextures.com/patterns/retina-wood.png');
+}
+body.bg-wood-pattern {
+  background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+}
+body.bg-dark-wood {
+  background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+}
+/* Styling tombol khusus sub-FAB background */
+.fab-btn-bg {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Lingkaran sampel preview mini */
+.bg-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-sizing: border-box;
+}
+
+/* URL Tekstur Pattern Kayu untuk Preview & Body */
+.bg-purty-wood {
+  background-image: url('https://www.transparenttextures.com/patterns/purty-wood.png');
+}
+.bg-retina-wood {
+  background-image: url('https://www.transparenttextures.com/patterns/retina-wood.png');
+}
+.bg-wood-pattern {
+  background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+}
+.bg-dark-wood {
+  background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+}
+
+/* Penerapan ke seluruh halaman saat aktif */
+body.bg-purty-wood,
+body.bg-retina-wood,
+body.bg-wood-pattern,
+body.bg-dark-wood {
+  background-repeat: repeat;
+}
