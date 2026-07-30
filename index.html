@@ -2381,57 +2381,77 @@ function escapeHtml(text) {
       makeDraggableAndReturnable(sticker);
     }
 
-    function makeDraggableAndReturnable(elmnt) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      let isDragging = false;
+function makeDraggableAndReturnable(elmnt) {
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let initialLeft = 0, initialTop = 0;
+  let hasMoved = false; // Memastikan apakah benar-benar digeser atau sekadar diklik
 
-      elmnt.onmousedown = dragMouseDown;
-      elmnt.ontouchstart = dragMouseDown;
+  // Gunakan Pointer Events agar mouse, trackpad, dan touch diperlakukan sama
+  elmnt.onpointerdown = dragPointerDown;
 
-      function dragMouseDown(e) {
-        e = e || window.event;
-        isDragging = false;
-        
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        
-        pos3 = clientX;
-        pos4 = clientY;
+  function dragPointerDown(e) {
+    e.preventDefault(); // Mencegah seleksi teks / drag gambar bawaan browser
+    
+    isDragging = true;
+    hasMoved = false;
 
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-        document.ontouchend = closeDragElement;
-        document.ontouchmove = elementDrag;
-      }
+    // Menjaga agar kursor tetap "mengunci" stiker meskipun kursor bergerak sangat cepat
+    elmnt.setPointerCapture(e.pointerId);
 
-      function elementDrag(e) {
-        isDragging = true;
-        e = e || window.event;
-        
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    startX = e.clientX;
+    startY = e.clientY;
 
-        pos1 = pos3 - clientX;
-        pos2 = pos4 - clientY;
-        pos3 = clientX;
-        pos4 = clientY;
+    initialLeft = elmnt.offsetLeft;
+    initialTop = elmnt.offsetTop;
 
-        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-      }
+    elmnt.onpointermove = elementPointerMove;
+    elmnt.onpointerup = closePointerElement;
+    elmnt.onpointercancel = closePointerElement;
+  }
 
-      function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-        document.ontouchend = null;
-        document.ontouchmove = null;
+  function elementPointerMove(e) {
+    if (!isDragging) return;
 
-        if (!isDragging) {
-          elmnt.classList.add('returning');
-          setTimeout(() => { elmnt.remove(); }, 200);
-        }
-      }
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
+
+    // Ambang batas (threshold) 3px untuk membedakan antara "Klik/Tap" dan "Menggeser (Drag)"
+    if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+      hasMoved = true;
     }
+
+    if (hasMoved) {
+      elmnt.style.left = (initialLeft + deltaX) + "px";
+      elmnt.style.top = (initialTop + deltaY) + "px";
+    }
+  }
+
+  function closePointerElement(e) {
+    if (!isDragging) return;
+    isDragging = false;
+
+    // Lepaskan kuncian pointer
+    try {
+      elmnt.releasePointerCapture(e.pointerId);
+    } catch (err) {
+      // Ignore jika pointer capture sudah lepas
+    }
+
+    elmnt.onpointermove = null;
+    elmnt.onpointerup = null;
+    elmnt.onpointercancel = null;
+
+    // Jika stiker TIDAK digeser (hanya diklik/ditap sekali), hapus/kembalikan stiker
+    if (!hasMoved) {
+      elmnt.classList.add('returning');
+      setTimeout(() => { 
+        if (elmnt.parentNode) elmnt.remove(); 
+      }, 200);
+    }
+  }
+}
+
 
     let isPolaroidOn = true;
 
