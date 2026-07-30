@@ -137,10 +137,27 @@
   </div>
 
   <div class="fab-container">
-    <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">
-      🔄
-    </button>
+    <!-- WRAPPER FAB ELEMENT & SUB-FAB -->
+    <div class="fab-wrapper">
+      <!-- Sub-FAB Popover -->
+      <div class="fab-sub-menu" id="fabElementSubMenu">
+        <!-- Sub-FAB 1: Refresh Polaroid -->
+        <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">
+          🔄
+        </button>
+        <!-- Sub-FAB 2: Toggle Polaroid On/Off -->
+        <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">
+          🎴
+        </button>
+      </div>
 
+      <!-- FAB Utama Element (Icon Foto) -->
+      <button class="fab-btn" id="btnFabElement" onclick="toggleFabElementMenu()" title="Menu Elemen Foto">
+        🖼️
+      </button>
+    </div>
+
+    <!-- Tombol FAB Lainnya -->
     <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">
       🔇
     </button>
@@ -153,10 +170,9 @@
       📷
     </button>
     
-<button class="fab-btn" id="floatingLogoutBtn" style="display: none;" onclick="adminLogout()" title="Logout Admin">
-  🔒
-</button>
-
+    <button class="fab-btn" id="floatingLogoutBtn" style="display: none;" onclick="adminLogout()" title="Logout Admin">
+      🔒
+    </button>
   </div>
 
   <div class="jukebox-container">
@@ -1469,75 +1485,105 @@ function handleNextNav() {
       });
     }
 
-    // --- DRAG & ZOOM POLAROID ---
-    function makeElementDraggableAndZoomable(el) {
-      if (el.dataset.initialized) return;
-      el.dataset.initialized = "1";
+// --- DRAG & ZOOM POLAROID (TILT DINAMIS + ORIENTASI BARU SAAT DILEPAS) ---
+function makeElementDraggableAndZoomable(el) {
+  if (el.dataset.initialized) return;
+  el.dataset.initialized = "1";
 
-      let isDragging = false;
-      let startX = 0, startY = 0;
-      let moveDistance = 0;
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let moveDistance = 0;
 
-      function onStart(e) {
-        if (el.classList.contains('zoomed')) return;
+  function onStart(e) {
+    if (el.classList.contains('zoomed')) return;
 
-        isDragging = true;
-        moveDistance = 0;
-        topZIndex++;
-        el.style.zIndex = topZIndex;
+    isDragging = true;
+    moveDistance = 0;
+    topZIndex++;
+    el.style.zIndex = topZIndex;
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+    // Matikan transisi sebentar agar gerakan drag mengikuti kursor secara instan (tanpa lag)
+    el.style.transition = 'none';
 
-        const currentX = parseFloat(el.dataset.x) || 0;
-        const currentY = parseFloat(el.dataset.y) || 0;
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        startX = clientX - currentX;
-        startY = clientY - currentY;
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
 
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onEnd);
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', onEnd);
-      }
+    startX = clientX - currentX;
+    startY = clientY - currentY;
 
-      function onMove(e) {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault();
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+  function onMove(e) {
+    if (!isDragging) return;
+    if (e.cancelable) e.preventDefault();
 
-        const newX = clientX - startX;
-        const newY = clientY - startY;
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        const currentX = parseFloat(el.dataset.x) || 0;
-        const currentY = parseFloat(el.dataset.y) || 0;
+    const newX = clientX - startX;
+    const newY = clientY - startY;
 
-        moveDistance += Math.abs(newX - currentX) + Math.abs(newY - currentY);
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
 
-        el.dataset.x = newX;
-        el.dataset.y = newY;
+    // Hitung perubahan posisi X (kecepatan pergerakan horizontal)
+    const deltaX = newX - currentX;
 
-        const rotate = parseFloat(el.dataset.rotate) || 0;
-        el.style.transform = `translate(${newX}px, ${newY}px) rotate(${rotate}deg)`;
-      }
+    moveDistance += Math.abs(deltaX) + Math.abs(newY - currentY);
 
-      function onEnd() {
-        isDragging = false;
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onEnd);
-        document.removeEventListener('touchmove', onMove);
-        document.removeEventListener('touchend', onEnd);
+    el.dataset.x = newX;
+    el.dataset.y = newY;
 
-        if (moveDistance < 5) {
-          toggleZoomPolaroid(el);
-        }
-      }
+    const baseRotate = parseFloat(el.dataset.rotate) || 0;
 
-      el.addEventListener('mousedown', onStart);
-      el.addEventListener('touchstart', onStart, { passive: false });
+    // Tilt dinamis saat ditarik (miring ikutan gerak kursor, maks -12 s/d +12 derajat)
+    const dynamicTilt = Math.min(Math.max(deltaX * 0.8, -12), 12);
+    const currentRotate = baseRotate + dynamicTilt;
+
+    el.style.transform = `translate(${newX}px, ${newY}px) rotate(${currentRotate}deg)`;
+  }
+
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+
+    // Berikan efek transisi jatuh/melepas yang mulus
+    el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
+
+    if (moveDistance < 5) {
+      // Jika hanya klik biasa (tanpa geser), jalankan mode Zoom
+      toggleZoomPolaroid(el);
+    } else {
+      // BIKIN ORIENTASI BARU YANG JAUH BERBEDA:
+      // Rotasi acak baru antara -25 deg sampai +25 deg
+      const newRandomRotate = Math.floor(Math.random() * 50) - 25;
+
+      // Update data rotate agar acakan baru ini disimpan sebagai orientasi permanen
+      el.dataset.rotate = newRandomRotate;
+
+      // Pasang posisi dan orientasi rotasi baru
+      el.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${newRandomRotate}deg)`;
     }
+  }
+
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+}  
 
 let activeMouseMoveHandler = null;
 let activeMouseLeaveHandler = null;
@@ -1800,25 +1846,100 @@ function closeZoomedPolaroid() {
       randomizePolaroids();
     }
     
-    // --- PEMUTAR MUSIK BGM ---
-    function toggleBgm() {
-      const audio = document.getElementById('bgmAudio');
-      const bgmBtn = document.getElementById('btnBgmToggle');
+// --- PEMUTAR MUSIK BGM ---
+let noteStreamInterval = null;
 
-      if (audio.paused) {
-        audio.play().then(() => {
-          bgmBtn.innerText = '🎵';
-          bgmBtn.setAttribute('title', 'Matikan Musik');
-        }).catch(err => {
-          console.error("Gagal memutar audio:", err);
-          alert("Gagal memutar audio. Pastikan file 'bgm/Selesai Dengan Sunyi (Beni Theme - Lofi).mp3' tersedia!");
-        });
-      } else {
-        audio.pause();
-        bgmBtn.innerText = '🔇';
-        bgmBtn.setAttribute('title', 'Putar Musik');
+// Fungsi untuk membuat & melepaskan not balok melayang
+function spawnMusicNote() {
+  const jukeboxBtn = document.getElementById('btnJukebox');
+  if (!jukeboxBtn) return;
+
+  const rect = jukeboxBtn.getBoundingClientRect();
+  const notes = ['🎵', '🎶', '🎼', '♩', '♪', '♫'];
+  const randomNote = notes[Math.floor(Math.random() * notes.length)];
+
+  const noteEl = document.createElement('div');
+  noteEl.className = 'floating-note';
+  noteEl.innerText = randomNote;
+
+  const randomOffsetX = (Math.random() * 20) - 10; 
+  const posX = rect.left + (rect.width / 2) + randomOffsetX;
+  const posY = rect.top - 10;
+
+  noteEl.style.left = `${posX}px`;
+  noteEl.style.top = `${posY}px`;
+
+  document.body.appendChild(noteEl);
+
+  setTimeout(() => {
+    noteEl.remove();
+  }, 2000);
+}
+
+// Fungsi Utama Pengontrol Efek Visual
+function updateJukeboxVisualEffects(isPlaying) {
+  const jukeboxBtn = document.getElementById('btnJukebox');
+  
+  // MATIKAN INTERVAL YANG LAMA TERLEBIH DAHULU (Pencegahan penumpukan interval)
+  if (noteStreamInterval) {
+    clearInterval(noteStreamInterval);
+    noteStreamInterval = null;
+  }
+
+  if (isPlaying) {
+    if (jukeboxBtn) jukeboxBtn.classList.add('pulsing');
+    // Jalankan pembuat not balok baru
+    noteStreamInterval = setInterval(spawnMusicNote, 400);
+  } else {
+    if (jukeboxBtn) jukeboxBtn.classList.remove('pulsing');
+  }
+}
+
+// --- OTOMATISASI VIA EVENT LISTENER AUDIO (WAJIB DITAMBAHKAN) ---
+document.addEventListener('DOMContentLoaded', () => {
+  const audio = document.getElementById('bgmAudio');
+  if (!audio) return;
+
+  // Saat audio diputar (play / resume / ganti lagu)
+  audio.addEventListener('play', () => {
+    updateJukeboxVisualEffects(true);
+  });
+
+  // Saat audio di-pause
+  audio.addEventListener('pause', () => {
+    updateJukeboxVisualEffects(false);
+  });
+
+  // Saat audio selesai/habis
+  audio.addEventListener('ended', () => {
+    updateJukeboxVisualEffects(false);
+  });
+});
+
+// --- FUNGSI TOGGLE BGM (LEBIH SIMPEL) ---
+function toggleBgm() {
+  const audio = document.getElementById('bgmAudio');
+  const bgmBtn = document.getElementById('btnBgmToggle');
+
+  if (!audio) return;
+
+  if (audio.paused) {
+    audio.play().then(() => {
+      if (bgmBtn) {
+        bgmBtn.innerText = '🎵';
+        bgmBtn.setAttribute('title', 'Matikan Musik');
       }
+    }).catch(err => {
+      console.error("Gagal memutar audio:", err);
+    });
+  } else {
+    audio.pause();
+    if (bgmBtn) {
+      bgmBtn.innerText = '🔇';
+      bgmBtn.setAttribute('title', 'Putar Musik');
     }
+  }
+}
 
     function toggleJukeboxMenu() {
       const menu = document.getElementById('jukeboxMenu');
@@ -1833,21 +1954,24 @@ function closeZoomedPolaroid() {
     });
 
     function playJukeboxTrack(srcPath, title, element) {
-      const audio = document.getElementById('bgmAudio');
-      const btnToggle = document.getElementById('btnBgmToggle');
+  const audio = document.getElementById('bgmAudio');
+  const btnToggle = document.getElementById('btnBgmToggle');
 
-      document.querySelectorAll('.vinyl-item').forEach(item => item.classList.remove('active'));
-      if (element) element.classList.add('active');
+  document.querySelectorAll('.vinyl-item').forEach(item => item.classList.remove('active'));
+  if (element) element.classList.add('active');
 
-      audio.src = srcPath;
-      audio.load();
+  audio.src = srcPath;
+  audio.load();
 
-      audio.play().then(() => {
-        if (btnToggle) btnToggle.innerText = '🎵';
-      }).catch(err => {
-        console.log("Autoplay ditahan browser:", err);
-      });
-    }
+  audio.play().then(() => {
+    if (btnToggle) btnToggle.innerText = '🎵';
+    
+    // Aktifkan Efek Jukebox
+    updateJukeboxVisualEffects(true);
+  }).catch(err => {
+    console.log("Autoplay ditahan browser:", err);
+  });
+}
 
     async function loadJukeboxTracks() {
       const menuContainer = document.getElementById('jukeboxMenu');
@@ -2307,6 +2431,57 @@ function makeDraggableAndReturnable(elmnt) {
     }
   }
 }
+// --- KONTROL FAB ELEMENT & TOGGLE POLAROID ---
+let isPolaroidOn = true;
+
+// Toggle Menu Popover FAB Element
+function toggleFabElementMenu() {
+  const subMenu = document.getElementById('fabElementSubMenu');
+  const btnFab = document.getElementById('btnFabElement');
+  
+  if (subMenu) {
+    subMenu.classList.toggle('show');
+  }
+  if (btnFab) {
+    btnFab.classList.toggle('spin-icon');
+    setTimeout(() => btnFab.classList.remove('spin-icon'), 300);
+  }
+}
+
+// Toggle On/Off Tampilan Polaroid (Sebar vs Masuk Buku)
+function togglePolaroidScatter() {
+  isPolaroidOn = !isPolaroidOn;
+  const toggleBtn = document.getElementById('btnTogglePolaroid');
+
+  for (let i = 1; i <= 7; i++) {
+    const pol = document.getElementById(`polaroid${i}`);
+    if (pol) {
+      if (isPolaroidOn) {
+        // Mode ON: Kembalikan polaroid ke meja
+        pol.classList.remove('hide-in-book');
+      } else {
+        // Mode OFF: Polaroid masuk ke dalam buku & menghilang
+        pol.classList.add('hide-in-book');
+      }
+    }
+  }
+
+  // Update Ikon Sub-FAB
+  if (toggleBtn) {
+    toggleBtn.innerText = isPolaroidOn ? '🎴' : '📖';
+    toggleBtn.title = isPolaroidOn ? 'Sembunyikan ke Buku' : 'Sebarkan Polaroid';
+  }
+}
+
+// Menutup Popover FAB Element jika area luar diklik
+document.addEventListener('click', (e) => {
+  const wrapper = document.querySelector('.fab-wrapper');
+  const subMenu = document.getElementById('fabElementSubMenu');
+  if (wrapper && !wrapper.contains(e.target) && subMenu && subMenu.classList.contains('show')) {
+    subMenu.classList.remove('show');
+  }
+});
+
   </script>
 <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>
