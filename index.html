@@ -186,6 +186,7 @@
         <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Skets</button>
         <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Foto</button>
         <button class="tab-btn" id="tabStickerBtn" onclick="switchTab('sticker')">🏷️ Stiker</button>
+        <button class="tab-btn" id="tabDisclaimerBtn" onclick="switchTab('disclaimer')" title="Disclaimer & Hak Cipta">ℹ️</button>
       </div>
 
       <div class="book-content" id="bookContent">
@@ -739,7 +740,7 @@
     let wikiList = [];
     let selectedWikiChar = null;
 
-    function switchTab(tab) {
+        function switchTab(tab) {
       activeTab = tab;
 
       const tabNovelBtn = document.getElementById('tabNovelBtn');
@@ -748,6 +749,7 @@
       const tabIllustBtn = document.getElementById('tabIllustBtn');
       const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
       const tabStickerBtn = document.getElementById('tabStickerBtn');
+      const tabDisclaimerBtn = document.getElementById('tabDisclaimerBtn'); // Tambahan ID tombol disclaimer
 
       const bookContent = document.getElementById('bookContent');
       const wikiContent = document.getElementById('wikiContent');
@@ -767,6 +769,7 @@
       if (tabIllustBtn) tabIllustBtn.classList.remove('active');
       if (tabPolaroidBtn) tabPolaroidBtn.classList.remove('active');
       if (tabStickerBtn) tabStickerBtn.classList.remove('active');
+      if (tabDisclaimerBtn) tabDisclaimerBtn.classList.remove('active'); // Reset tombol disclaimer
 
       if (bookContent) bookContent.style.display = 'none';
       if (wikiContent) wikiContent.style.display = 'none';
@@ -816,6 +819,47 @@
         if (tabStickerBtn) tabStickerBtn.classList.add('active');
         if (stickerContent) stickerContent.style.display = 'block';
         renderStickerGrid();
+
+      // TAMBAHAN UNTUK DISCLAIMER:
+      } else if (tab === 'disclaimer') {
+        if (tabDisclaimerBtn) tabDisclaimerBtn.classList.add('active');
+        if (bookContent) {
+          bookContent.style.display = 'block';
+          bookContent.innerHTML = `
+            <div class="disclaimer-page" style="padding: 10px 5px; color: #4a3b32;">
+              <div style="text-align: center; margin-bottom: 14px; border-bottom: 1px dashed rgba(92, 58, 33, 0.3); padding-bottom: 8px;">
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600; color: #5c3a21;">📜 Disclaimer & Hak Cipta</h3>
+                <span style="font-size: 0.7rem; opacity: 0.7;">Informasi Legal & Hak Kekayaan Intelektual</span>
+              </div>
+
+              <div style="font-size: 0.82rem; line-height: 1.6; text-align: justify;">
+                <p style="margin-bottom: 12px;">
+                  <strong>1. Kesamaan Nama & Fiksi</strong><br>
+                  Seluruh cerita, karakter, dialog, dan peristiwa dalam karya ini adalah murni fiktif. Apabila terdapat kesamaan nama tokoh, tempat, lembaga, atau kejadian dengan dunia nyata, hal tersebut adalah murni kebetulan belaka tanpa ada unsur kesengajaan.
+                </p>
+
+                <p style="margin-bottom: 12px;">
+                  <strong>2. Hak Cipta Kekayaan Intelektual (IP)</strong><br>
+                  Seluruh komponen visual, desain antarmuka, ilustrasi, sketsa, foto, stiker, serta musik/lagu (OST) dalam aplikasi ini merupakan karya asli dan Kekayaan Intelektual (<em>Intellectual Property</em>) resmi milik <strong>didichung</strong>.
+                </p>
+
+                <p style="margin-bottom: 12px;">
+                  Dilarang keras mengunduh, menggandakan, mempublikasikan ulang, atau memperjualbelikan aset visual maupun audio di dalam aplikasi ini tanpa izin tertulis dari pemilik hak cipta.
+                </p>
+              </div>
+
+              <div style="text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid rgba(92, 58, 33, 0.2); font-size: 0.75rem; font-weight: 600; color: #5c3a21;">
+                &copy; 2026 didichung. All rights reserved.
+              </div>
+            </div>
+          `;
+        }
+
+        // Sembunyikan navigasi halaman buku/bab saat di tab disclaimer
+        if (pageIndicator) pageIndicator.innerText = '';
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
+        if (navRow) navRow.style.display = 'none';
       }
     }
 
@@ -2434,6 +2478,57 @@ function escapeHtml(text) {
         subMenu.classList.remove('show');
       }
     });
+    
+    function showDisclaimerTab() {
+  // 1. Matikan class 'active' dari SEMUA tombol tab (termasuk tombol disclaimer ini)
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+  // 2. Aktifkan class 'active' khusus pada tombol disclaimer
+  const discBtn = document.getElementById('tabDisclaimerBtn');
+  if (discBtn) {
+    discBtn.classList.add('active');
+  }
+
+  // 3. Cari elemen utama buku (mencari ID/Class yang cocok)
+  const contentArea = 
+    document.getElementById('bookPageContent') || 
+    document.getElementById('bookContent') || 
+    document.getElementById('storyContent') ||
+    document.querySelector('.book-page') || 
+    document.querySelector('.book-body');
+
+  if (!contentArea) {
+    console.error("Elemen kontainer buku tidak ditemukan!");
+    return;
+  }
+
+  // 4. Masukkan tampilan disclaimer ke dalam buku
+  contentArea.innerHTML = `
+    <div class="disclaimer-page" style="padding: 10px 5px; color: #4a3b32; font-family: inherit;">
+      <div style="text-align: center; margin-bottom: 14px; border-bottom: 1px dashed rgba(92, 58, 33, 0.3); padding-bottom: 8px;">
+        <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600; color: #5c3a21;">📜 Disclaimer & Hak Cipta</h3>
+        <span style="font-size: 0.7rem; opacity: 0.7;">Informasi Legal & Ketentuan Karya</span>
+      </div>
+
+      <div style="font-size: 0.82rem; line-height: 1.6; text-align: justify;">
+        <p style="margin-bottom: 12px;">
+          <strong>1. Kesamaan Nama & Fiksi</strong><br>
+          Seluruh cerita, karakter, dialog, dan peristiwa dalam karya ini adalah murni fiktif. Apabila terdapat kesamaan nama tokoh, tempat, lembaga, atau kejadian dengan dunia nyata, hal tersebut adalah murni kebetulan belaka tanpa ada unsur kesengajaan.
+        </p>
+
+        <p style="margin-bottom: 12px;">
+          <strong>2. Hak Cipta Kekayaan Intelektual (IP)</strong><br>
+          Seluruh komponen visual, desain antarmuka, ilustrasi, sketsa, foto, stiker, serta musik/lagu (OST) dalam aplikasi ini merupakan karya asli dan Kekayaan Intelektual (<em>Intellectual Property</em>) resmi milik <strong>Didi Chung</strong> (Tjoeng Tjondro Kurniadi).
+        </p>
+
+        <p style="margin-bottom: 12px;">
+          Dilarang keras mengunduh, menggandakan, mempublikasikan ulang, atau memperjualbelikan aset visual maupun audio di dalam aplikasi ini tanpa izin tertulis dari pemilik hak cipta.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
