@@ -244,11 +244,10 @@ body {
       line-height: 1.3;
     }
 
-    /* FIX 3: Konten Teks Dalam Buku (Hilangkan Scrollbar) */
     .book-content {
       flex: 1;
       min-height: 0;
-      overflow-y: hidden; /* Mengatur ke hidden agar scrollbar tidak muncul */
+      overflow-y: hidden;
       text-align: justify;
       hyphens: auto;
       transition: font-size 0.15s ease;
@@ -262,6 +261,15 @@ body {
     .book-content p.continuation {
       text-indent: 0;
     }
+
+.disclaimer-page {
+  height: 100%;
+  overflow-y: auto; /* Scroll hanya aktif di halaman disclaimer */
+  -webkit-overflow-scrolling: touch; /* Biar scroll smooth di HP */
+  box-sizing: border-box;
+  padding: 10px 5px;
+  color: #4a3b32;
+}
 
     /* --- STYLE DAFTAR ISI --- */
     .toc-container {
@@ -932,23 +940,24 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Popover Jukebox (Muncul ke atas) */
+/* Popover Jukebox (Container Utama) */
 .jukebox-menu {
   display: none;
   position: absolute;
   bottom: 60px;
   left: 0;
   width: 230px;
-  max-height: 50vh; /* Atau gunakan 50vh agar responsif di layar HP */
-  overflow-y: auto;  /* Mengaktifkan scrollbar jika item lagu melebihi max-height */
+  max-height: 50vh; /* Batas tinggi maksimal popover */
   background: rgba(25, 17, 9, 0.85);
   border: 1px solid #8b5a2b;
   border-radius: 12px;
   padding: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
+  
+  /* PENTING: Gunakan flexbox column dan matikan overflow di parent utama */
   flex-direction: column;
-  gap: 8px;
+  overflow: hidden; 
 }
 
 .jukebox-menu.show {
@@ -961,6 +970,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Header Tetap Diam di Atas (Fixed/Non-scrollable) */
 .jukebox-header {
   color: #e2c08d;
   font-size: 0.75rem;
@@ -969,7 +979,18 @@ body {
   text-align: center;
   border-bottom: 1px solid rgba(139, 90, 43, 0.4);
   padding-bottom: 6px;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+  flex-shrink: 0; /* Mencegah header menyusut/tertekan */
+}
+
+/* CONTAINER KHUSUS LIST LAGU (HANYA INI YANG BISA DI-SCROLL) */
+.jukebox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto; /* Scrollbar hanya aktif di area ini */
+  flex-grow: 1;     /* Mengisi sisa ruang yang ada di menu */
+  padding-right: 2px; /* Memberi sedikit ruang untuk scrollbar */
 }
 
 /* Card Item Piringan Hitam */
