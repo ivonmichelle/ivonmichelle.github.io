@@ -262,14 +262,14 @@
 <!-- FAB PARENT: BACKGROUND -->
 <div class="fab-wrapper">
   <div class="fab-sub-menu" id="fabBgSubMenu">
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('purty-wood')" title="Purty Wood">
-      <span class="bg-preview bg-purty-wood"></span>
+    <button class="fab-btn fab-btn-bg" onclick="changeBackground('escheresque-dark')" title="Escheresque Dark">
+      <span class="bg-preview bg-escheresque-dark"></span>
     </button>
     <button class="fab-btn fab-btn-bg" onclick="changeBackground('retina-wood')" title="Retina Wood">
       <span class="bg-preview bg-retina-wood"></span>
     </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('wood-pattern')" title="Wood Pattern">
-      <span class="bg-preview bg-wood-pattern"></span>
+    <button class="fab-btn fab-btn-bg" onclick="changeBackground('asfalt-light')" title="Asfalt Light">
+      <span class="bg-preview bg-asfalt-light"></span>
     </button>
     <button class="fab-btn fab-btn-bg" onclick="changeBackground('dark-wood')" title="Dark Wood">
       <span class="bg-preview bg-dark-wood"></span>
@@ -2727,7 +2727,7 @@ function toggleFabBgMenu() {
 // Fungsi Mengganti Background & Simpan ke LocalStorage
 function changeBackground(themeName) {
   // Hapus class background lama
-  document.body.classList.remove('bg-purty-wood', 'bg-retina-wood', 'bg-wood-pattern', 'bg-dark-wood', 'bg-noisy-grid');
+  document.body.classList.remove('bg-escheresque-dark', 'bg-retina-wood', 'bg-asfalt-light', 'bg-dark-wood', 'bg-noisy-grid');
   
   // Pasang class background baru
   document.body.classList.add(`bg-${themeName}`);

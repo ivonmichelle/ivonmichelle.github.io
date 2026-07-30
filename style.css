@@ -1866,13 +1866,13 @@ body {
 
 /* Preset Tema Background Meja */
 body.bg-purty-wood {
-  background-image: url('https://www.transparenttextures.com/patterns/purty-wood.png');
+  background-image: url('https://www.transparenttextures.com/patterns/escheresque-dark.png.png');
 }
 body.bg-retina-wood {
   background-image: url('https://www.transparenttextures.com/patterns/retina-wood.png');
 }
-body.bg-wood-pattern {
-  background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+body.bg-asfalt-light {
+  background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
 }
 body.bg-dark-wood {
   background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
@@ -1898,14 +1898,16 @@ body.bg-dark-wood {
 }
 
 /* URL Tekstur Pattern Kayu untuk Preview & Body */
-.bg-purty-wood {
-  background-image: url('https://www.transparenttextures.com/patterns/purty-wood.png');
+.bg-escheresque-dark {
+	  background-color: #909099;
+  background-image: url('https://www.transparenttextures.com/patterns/escheresque-dark.png');
 }
 .bg-retina-wood {
   background-image: url('https://www.transparenttextures.com/patterns/retina-wood.png');
 }
-.bg-wood-pattern {
-  background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+.bg-asfalt-light {
+  background-color: #78654d;
+  background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
 }
 .bg-dark-wood {
   background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
@@ -1915,9 +1917,9 @@ body.bg-dark-wood {
   background-image: url('https://www.transparenttextures.com/patterns/noisy-grid.png');
 }
 /* Penerapan ke seluruh halaman saat aktif */
-body.bg-purty-wood,
+body.bg-escheresque-dark,
 body.bg-retina-wood,
-body.bg-wood-pattern,
+body.bg-asfalt-light,
 body.bg-dark-wood,
 body.bg-noisy-grid {
   background-repeat: repeat;
