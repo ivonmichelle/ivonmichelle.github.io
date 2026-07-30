@@ -265,6 +265,12 @@
 <!-- FAB PARENT: BACKGROUND -->
 <div class="fab-wrapper">
   <div class="fab-sub-menu" id="fabBgSubMenu">
+      <button class="fab-btn fab-btn-bg" onclick="changeBackground('dimension')" title="Dimension">
+      <span class="bg-preview bg-dimension"></span>
+    </button>
+    <button class="fab-btn fab-btn-bg" onclick="changeBackground('debut-light')" title="Debut Light">
+      <span class="bg-preview bg-debut-light"></span>
+    </button>
     <button class="fab-btn fab-btn-bg" onclick="changeBackground('escheresque-dark')" title="Escheresque Dark">
       <span class="bg-preview bg-escheresque-dark"></span>
     </button>
@@ -2795,7 +2801,7 @@ function toggleFabBgMenu() {
 // Fungsi Mengganti Background & Simpan ke LocalStorage
 function changeBackground(themeName) {
   // Hapus class background lama
-  document.body.classList.remove('bg-escheresque-dark', 'bg-retina-wood', 'bg-asfalt-light', 'bg-dark-wood', 'bg-noisy-grid');
+  document.body.classList.remove('bg-dimension', 'bg-debut-light', 'bg-escheresque-dark', 'bg-retina-wood', 'bg-asfalt-light', 'bg-dark-wood', 'bg-noisy-grid');
   
   // Pasang class background baru
   document.body.classList.add(`bg-${themeName}`);

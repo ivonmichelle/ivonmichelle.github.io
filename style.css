@@ -450,21 +450,6 @@ body {
     }
 
     /* Styling Polaroid */
-.polaroid {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 110px;
-  background: #fff;
-  padding: 7px 7px 15px 7px;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.4);
-  border-radius: 2px;
-  z-index: 100;       /* Naikkan dari 50 ke 100 agar aman di atas Stiker (20) */
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, filter 0.4s ease;
-}
 
     .polaroid:active {
       cursor: grabbing;
@@ -1765,20 +1750,38 @@ body {
 
 /* --- ANIMASI TRANSISI POLAROID MASUK KE BUKU --- */
 .polaroid {
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
-              opacity 0.4s ease, 
-              box-shadow 0.3s ease, 
-              filter 0.4s ease;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110px;
+  background: #fff;
+  padding: 7px 7px 15px 7px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+  border-radius: 2px;
+  z-index: 100;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+
+  /* Tambahkan opacity, top, dan left ke dalam transition */
+  transition: 
+    transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
+    opacity 0.4s ease, 
+    top 0.5s ease, 
+    left 0.5s ease, 
+    box-shadow 0.3s ease, 
+    filter 0.4s ease;
 }
 
-/* Polaroid disembunyikan/masuk ke dalam buku */
 .polaroid.hide-in-book {
-  top: 52% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) scale(0.1) rotate(0deg) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+  top: 52%;
+  left: 50%;
+  /* Hapus !important agar transition berjalan mulus */
+  transform: translate(-50%, -50%) scale(0.05) rotate(0deg) !important; 
+  opacity: 0;
+  pointer-events: none;
 }
+
 /* Styling Header Jukebox agar fleksibel menyamping */
 .jukebox-header {
   display: flex;
@@ -1897,6 +1900,14 @@ body.bg-dark-wood {
 }
 
 /* URL Tekstur Pattern Kayu untuk Preview & Body */
+.bg-dimension {
+	  background-color: #7a4442;
+  background-image: url('https://www.transparenttextures.com/patterns/dimension.png');
+}
+.bg-debut-light {
+	  background-color: #3c4d8f;
+  background-image: url('https://www.transparenttextures.com/patterns/debut-light.png');
+}
 .bg-escheresque-dark {
 	  background-color: #909099;
   background-image: url('https://www.transparenttextures.com/patterns/escheresque-dark.png');
@@ -1916,6 +1927,8 @@ body.bg-dark-wood {
   background-image: url('https://www.transparenttextures.com/patterns/noisy-grid.png');
 }
 /* Penerapan ke seluruh halaman saat aktif */
+body.bg-dimension,
+body.bg-debut-light,
 body.bg-escheresque-dark,
 body.bg-retina-wood,
 body.bg-asfalt-light,
