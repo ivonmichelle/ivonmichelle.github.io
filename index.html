@@ -259,6 +259,28 @@
   </div>
 
   <div class="fab-container">
+<!-- FAB PARENT: BACKGROUND -->
+<div class="fab-wrapper">
+  <div class="fab-sub-menu" id="fabBgSubMenu">
+    <button class="fab-btn fab-btn-bg" onclick="changeBackground('purty-wood')" title="Purty Wood">
+      <span class="bg-preview bg-purty-wood"></span>
+    </button>
+    <button class="fab-btn fab-btn-bg" onclick="changeBackground('retina-wood')" title="Retina Wood">
+      <span class="bg-preview bg-retina-wood"></span>
+    </button>
+    <button class="fab-btn fab-btn-bg" onclick="changeBackground('wood-pattern')" title="Wood Pattern">
+      <span class="bg-preview bg-wood-pattern"></span>
+    </button>
+    <button class="fab-btn fab-btn-bg" onclick="changeBackground('dark-wood')" title="Dark Wood">
+      <span class="bg-preview bg-dark-wood"></span>
+    </button>
+        <button class="fab-btn fab-btn-bg" onclick="changeBackground('noisy-grid')" title="Noisy Grid">
+      <span class="bg-preview bg-noisy-grid"></span>
+    </button>
+  </div>
+  <button class="fab-btn" id="btnFabBg" onclick="toggleFabBgMenu()" title="Ganti Background">🎨</button>
+</div>
+
     <!-- FAB PARENT: ELEMEN FOTO (ASLI) -->
     <div class="fab-wrapper">
       <div class="fab-sub-menu" id="fabElementSubMenu">
@@ -2683,14 +2705,6 @@ function makeDraggableAndReturnable(elmnt) {
         toggleBtn.title = isPolaroidOn ? 'Sembunyikan ke Buku' : 'Sebarkan Polaroid';
       }
     }
-
-    document.addEventListener('click', (e) => {
-      const wrapper = document.querySelector('.fab-wrapper');
-      const subMenu = document.getElementById('fabElementSubMenu');
-      if (wrapper && !wrapper.contains(e.target) && subMenu && subMenu.classList.contains('show')) {
-        subMenu.classList.remove('show');
-      }
-    });
     
     // Toggle Buka/Tutup Menu Background FAB
 function toggleFabBgMenu() {
@@ -2739,18 +2753,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Update event listener global click agar menutup semua sub-menu jika area luar diklik
 document.addEventListener('click', (e) => {
-  const wrappers = document.querySelectorAll('.fab-wrapper');
-  let clickedInside = false;
+  const currentWrapper = e.target.closest('.fab-wrapper');
 
-  wrappers.forEach(wrapper => {
-    if (wrapper.contains(e.target)) clickedInside = true;
+  // Loop semua wrapper FAB yang ada di halaman
+  document.querySelectorAll('.fab-wrapper').forEach(wrapper => {
+    // Jika wrapper ini BUKAN wrapper yang sedang diklik user
+    if (wrapper !== currentWrapper) {
+      // Cari submenu di dalam wrapper lain tersebut dan sembunyikan
+      wrapper.querySelector('.show')?.classList.remove('show');
+    }
   });
 
-  if (!clickedInside) {
-    document.getElementById('fabElementSubMenu')?.classList.remove('show');
-    document.getElementById('fabBgSubMenu')?.classList.remove('show');
+  // Jika klik benar-benar di luar semua wrapper FAB
+  if (!currentWrapper) {
+    document.querySelectorAll('.fab-submenu').forEach(menu => {
+      menu.classList.remove('show');
+    });
   }
 });
+
 
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
