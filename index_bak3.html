@@ -259,31 +259,12 @@
   </div>
 
   <div class="fab-container">
-<!-- FAB PARENT: BACKGROUND -->
-<div class="fab-wrapper">
-  <div class="fab-sub-menu" id="fabBgSubMenu">
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('purty-wood')" title="Purty Wood">
-      <span class="bg-preview bg-purty-wood"></span>
-    </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('retina-wood')" title="Retina Wood">
-      <span class="bg-preview bg-retina-wood"></span>
-    </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('wood-pattern')" title="Wood Pattern">
-      <span class="bg-preview bg-wood-pattern"></span>
-    </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('dark-wood')" title="Dark Wood">
-      <span class="bg-preview bg-dark-wood"></span>
-    </button>
-  </div>
-  <button class="fab-btn" id="btnFabBg" onclick="toggleFabBgMenu()" title="Ganti Background">🎨</button>
-</div>
-
-    <!-- FAB PARENT: ELEMEN FOTO (ASLI) -->
     <div class="fab-wrapper">
       <div class="fab-sub-menu" id="fabElementSubMenu">
         <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">🔄</button>
         <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">🎴</button>
       </div>
+
       <button class="fab-btn" id="btnFabElement" onclick="toggleFabElementMenu()" title="Menu Elemen Foto">🖼️</button>
     </div>
 
@@ -2710,67 +2691,6 @@ function makeDraggableAndReturnable(elmnt) {
         subMenu.classList.remove('show');
       }
     });
-    
-    // Toggle Buka/Tutup Menu Background FAB
-function toggleFabBgMenu() {
-  const bgSubMenu = document.getElementById('fabBgSubMenu');
-  const btnBg = document.getElementById('btnFabBg');
-  const elementSubMenu = document.getElementById('fabElementSubMenu');
-
-  // Tutup sub-menu lain jika sedang terbuka
-  if (elementSubMenu && elementSubMenu.classList.contains('show')) {
-    elementSubMenu.classList.remove('show');
-  }
-
-  if (bgSubMenu) bgSubMenu.classList.toggle('show');
-  if (btnBg) {
-    btnBg.classList.toggle('spin-icon');
-    setTimeout(() => btnBg.classList.remove('spin-icon'), 300);
-  }
-}
-
-// Fungsi Mengganti Background & Simpan ke LocalStorage
-function changeBackground(themeName) {
-  // Hapus class background lama
-  document.body.classList.remove('bg-purty-wood', 'bg-retina-wood', 'bg-wood-pattern', 'bg-dark-wood');
-  
-  // Pasang class background baru
-  document.body.classList.add(`bg-${themeName}`);
-  
-  // Simpan preferensi pengguna
-  localStorage.setItem('benivon_bg_theme', themeName);
-
-  // Tutup menu FAB setelah memilih
-  const bgSubMenu = document.getElementById('fabBgSubMenu');
-  if (bgSubMenu) bgSubMenu.classList.remove('show');
-}
-
-// Memuat Background yang Tersimpan saat Halaman Dibuka
-function loadSavedBackground() {
-  const savedBg = localStorage.getItem('benivon_bg_theme') || 'retina-wood'; // default: retina-wood
-  changeBackground(savedBg);
-}
-
-// Jalankan auto-load saat DOM Siap
-document.addEventListener('DOMContentLoaded', () => {
-  loadSavedBackground();
-});
-
-// Update event listener global click agar menutup semua sub-menu jika area luar diklik
-document.addEventListener('click', (e) => {
-  const wrappers = document.querySelectorAll('.fab-wrapper');
-  let clickedInside = false;
-
-  wrappers.forEach(wrapper => {
-    if (wrapper.contains(e.target)) clickedInside = true;
-  });
-
-  if (!clickedInside) {
-    document.getElementById('fabElementSubMenu')?.classList.remove('show');
-    document.getElementById('fabBgSubMenu')?.classList.remove('show');
-  }
-});
-
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
