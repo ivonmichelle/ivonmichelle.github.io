@@ -212,6 +212,32 @@
         <div class="status-msg">Memuat data wiki...</div>
       </div>
 
+<!-- Elemen Disclaimer khusus agar tidak mengganggu bookContent -->
+<div id="disclaimerContent" style="display: none; height: 100%; overflow-y: auto;">
+  <div class="disclaimer-page" style="padding: 10px 5px; color: #4a3b32;">
+    <div style="text-align: center; margin-bottom: 14px; border-bottom: 1px dashed rgba(92, 58, 33, 0.3); padding-bottom: 8px;">
+      <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600; color: #5c3a21;">📜 Disclaimer & Hak Cipta</h3>
+      <span style="font-size: 0.7rem; opacity: 0.7;">Informasi Legal & Hak Kekayaan Intelektual</span>
+    </div>
+
+    <div style="font-size: 0.82rem; line-height: 1.6; text-align: justify; padding-bottom: 20px;">
+      <p style="margin-bottom: 12px;">
+        <strong>1. Kesamaan Nama & Fiksi</strong><br>
+        Seluruh cerita, karakter, dialog, dan peristiwa dalam karya ini adalah murni fiktif. Apabila terdapat kesamaan nama tokoh, tempat, lembaga, atau kejadian dengan dunia nyata, hal tersebut adalah murni kebetulan belaka tanpa ada unsur kesengajaan.
+      </p>
+
+      <p style="margin-bottom: 12px;">
+        <strong>2. Hak Cipta Kekayaan Intelektual (IP)</strong><br>
+        Seluruh komponen visual, desain antarmuka, ilustrasi, sketsa, foto, stiker, serta musik/lagu (OST) dalam aplikasi ini merupakan karya asli dan Kekayaan Intelektual (<em>Intellectual Property</em>) resmi milik <strong>Didi Chung</strong> (<em>Tjoeng Tjondro Kurniadi</em>).
+      </p>
+
+      <p style="margin-bottom: 12px;">
+        Dilarang keras mengunduh, menggandakan, mempublikasikan ulang, atau memperjualbelikan aset visual maupun audio di dalam aplikasi ini tanpa izin tertulis dari pemilik hak cipta.
+      </p>
+    </div>
+  </div>
+</div>
+
       <div class="book-footer">
         <div class="font-slider-container" id="sliderContainer">
           <span>A-</span>
@@ -328,7 +354,7 @@
       <button onclick="closeCropModal()" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Batal</button>
     </div>
   </div>
-
+ 
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
 
@@ -359,43 +385,6 @@
       if (fillEl) fillEl.style.width = `${percent}%`;
       if (textEl) textEl.innerText = `${percent}%`;
       if (statusEl && statusMsg) statusEl.innerText = statusMsg;
-    }
-
-    async function preloadAllDataInBackground() {
-      const totalSteps = 7;
-      let completedSteps = 0;
-
-      const incrementProgress = (msg) => {
-        completedSteps++;
-        const percent = Math.round((completedSteps / totalSteps) * 100);
-        updateLoadingProgress(percent, msg);
-      };
-
-      // Buat daftar promise loader untuk berjalan paralel di background
-      const tasks = [
-        loadNovel().then(() => incrementProgress("Cerita Kanon dimuat...")).catch(() => incrementProgress("Kanon selesai (dengan fallback)")),
-        loadSol().then(() => incrementProgress("Cerita SoL dimuat...")).catch(() => incrementProgress("SoL selesai (dengan fallback)")),
-        fetchWikiData().then(() => incrementProgress("Data Wiki dimuat...")).catch(() => incrementProgress("Wiki selesai")),
-        loadIllustrations().then(() => incrementProgress("Ilustrasi dimuat...")).catch(() => incrementProgress("Ilustrasi selesai")),
-        loadAlbumPolaroids().then(() => incrementProgress("Album Foto dimuat...")).catch(() => incrementProgress("Foto selesai")),
-        loadAlbumStickers().then(() => incrementProgress("Katalog Stiker dimuat...")).catch(() => incrementProgress("Stiker selesai")),
-        loadJukeboxTracks().then(() => incrementProgress("Playlist BGM dimuat...")).catch(() => incrementProgress("Jukebox selesai"))
-      ];
-
-      // Eksekusi semua secara paralel
-      await Promise.allSettled(tasks);
-
-      // Tampilkan status akhir
-      updateLoadingProgress(100, "Semua kenangan siap! ✨");
-      
-      // Berikan jeda halus sebelum menyembunyikan modal & hilangkan blur
-      setTimeout(() => {
-        const overlay = document.getElementById('appLoadingOverlay');
-        const deskContainer = document.getElementById('deskContainer');
-
-        if (overlay) overlay.classList.add('fade-out');
-        if (deskContainer) deskContainer.classList.remove('initial-blur');
-      }, 500);
     }
 
     // --- FITUR ADMIN AUTH & SHA-256 CHECK ---
@@ -740,124 +729,103 @@
     let wikiList = [];
     let selectedWikiChar = null;
 
-        function switchTab(tab) {
-      activeTab = tab;
+function switchTab(tab) {
+  activeTab = tab;
 
-      const tabNovelBtn = document.getElementById('tabNovelBtn');
-      const tabSolBtn = document.getElementById('tabSolBtn');
-      const tabWikiBtn = document.getElementById('tabWikiBtn');
-      const tabIllustBtn = document.getElementById('tabIllustBtn');
-      const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
-      const tabStickerBtn = document.getElementById('tabStickerBtn');
-      const tabDisclaimerBtn = document.getElementById('tabDisclaimerBtn'); // Tambahan ID tombol disclaimer
+  const tabNovelBtn = document.getElementById('tabNovelBtn');
+  const tabSolBtn = document.getElementById('tabSolBtn');
+  const tabWikiBtn = document.getElementById('tabWikiBtn');
+  const tabIllustBtn = document.getElementById('tabIllustBtn');
+  const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
+  const tabStickerBtn = document.getElementById('tabStickerBtn');
+  const tabDisclaimerBtn = document.getElementById('tabDisclaimerBtn');
 
-      const bookContent = document.getElementById('bookContent');
-      const wikiContent = document.getElementById('wikiContent');
-      const illustContent = document.getElementById('illustrationContent');
-      const polaroidContent = document.getElementById('polaroidAlbumContent');
-      const stickerContent = document.getElementById('stickerAlbumContent');
-      const sliderContainer = document.getElementById('sliderContainer');
+  const bookContent = document.getElementById('bookContent');
+  const wikiContent = document.getElementById('wikiContent');
+  const illustContent = document.getElementById('illustrationContent');
+  const polaroidContent = document.getElementById('polaroidAlbumContent');
+  const stickerContent = document.getElementById('stickerAlbumContent');
+  const disclaimerContent = document.getElementById('disclaimerContent'); // Elemen khusus disclaimer
+  const sliderContainer = document.getElementById('sliderContainer');
 
-      const pageIndicator = document.getElementById('pageIndicator');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const navRow = document.querySelector('.nav-row');
+  const pageIndicator = document.getElementById('pageIndicator');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const navRow = document.querySelector('.nav-row');
 
-      if (tabNovelBtn) tabNovelBtn.classList.remove('active');
-      if (tabSolBtn) tabSolBtn.classList.remove('active');
-      if (tabWikiBtn) tabWikiBtn.classList.remove('active');
-      if (tabIllustBtn) tabIllustBtn.classList.remove('active');
-      if (tabPolaroidBtn) tabPolaroidBtn.classList.remove('active');
-      if (tabStickerBtn) tabStickerBtn.classList.remove('active');
-      if (tabDisclaimerBtn) tabDisclaimerBtn.classList.remove('active'); // Reset tombol disclaimer
+  // Reset active pada tab
+  if (tabNovelBtn) tabNovelBtn.classList.remove('active');
+  if (tabSolBtn) tabSolBtn.classList.remove('active');
+  if (tabWikiBtn) tabWikiBtn.classList.remove('active');
+  if (tabIllustBtn) tabIllustBtn.classList.remove('active');
+  if (tabPolaroidBtn) tabPolaroidBtn.classList.remove('active');
+  if (tabStickerBtn) tabStickerBtn.classList.remove('active');
+  if (tabDisclaimerBtn) tabDisclaimerBtn.classList.remove('active');
 
-      if (bookContent) bookContent.style.display = 'none';
-      if (wikiContent) wikiContent.style.display = 'none';
-      if (illustContent) illustContent.style.display = 'none';
-      if (polaroidContent) polaroidContent.style.display = 'none';
-      if (stickerContent) stickerContent.style.display = 'none';
-      if (sliderContainer) sliderContainer.style.visibility = 'hidden';
+  // Sembunyikan semua container
+  if (bookContent) bookContent.style.display = 'none';
+  if (wikiContent) wikiContent.style.display = 'none';
+  if (illustContent) illustContent.style.display = 'none';
+  if (polaroidContent) polaroidContent.style.display = 'none';
+  if (stickerContent) stickerContent.style.display = 'none';
+  if (disclaimerContent) disclaimerContent.style.display = 'none';
+  if (sliderContainer) sliderContainer.style.visibility = 'hidden';
 
-      if (navRow) navRow.style.display = 'flex';
+  if (navRow) navRow.style.display = 'flex';
 
-      currentChapterIndex = -1;
-      pages = [];
-      currentPage = 0;
+  currentChapterIndex = -1;
+  pages = [];
+  currentPage = 0;
 
-      if (tab === 'novel') {
-        if (tabNovelBtn) tabNovelBtn.classList.add('active');
-        if (bookContent) bookContent.style.display = 'block';
-        renderTableOfContents();
+  if (tab === 'novel') {
+    if (tabNovelBtn) tabNovelBtn.classList.add('active');
+    if (bookContent) bookContent.style.display = 'block';
+    renderTableOfContents();
 
-      } else if (tab === 'sol') {
-        if (tabSolBtn) tabSolBtn.classList.add('active');
-        if (bookContent) bookContent.style.display = 'block';
-        renderTableOfContents();
+  } else if (tab === 'sol') {
+    if (tabSolBtn) tabSolBtn.classList.add('active');
+    if (bookContent) bookContent.style.display = 'block';
+    renderTableOfContents();
 
-      } else if (tab === 'wiki') {
-        if (tabWikiBtn) tabWikiBtn.classList.add('active');
-        if (wikiContent) wikiContent.style.display = 'block';
+  } else if (tab === 'wiki') {
+    if (tabWikiBtn) tabWikiBtn.classList.add('active');
+    if (wikiContent) wikiContent.style.display = 'block';
 
-        if (pageIndicator) pageIndicator.innerText = '';
-        if (prevBtn) prevBtn.disabled = true;
-        if (nextBtn) nextBtn.disabled = true;
-        if (navRow) navRow.style.display = 'none';
+    if (pageIndicator) pageIndicator.innerText = '';
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
+    if (navRow) navRow.style.display = 'none';
 
-        renderWikiView();
+    renderWikiView();
 
-      } else if (tab === 'illustration') {
-        if (tabIllustBtn) tabIllustBtn.classList.add('active');
-        if (illustContent) illustContent.style.display = 'block';
-        renderIllustration();
+  } else if (tab === 'illustration') {
+    if (tabIllustBtn) tabIllustBtn.classList.add('active');
+    if (illustContent) illustContent.style.display = 'block';
+    renderIllustration();
 
-      } else if (tab === 'polaroid') {
-        if (tabPolaroidBtn) tabPolaroidBtn.classList.add('active');
-        if (polaroidContent) polaroidContent.style.display = 'block';
-        renderPolaroidGrid();
+  } else if (tab === 'polaroid') {
+    if (tabPolaroidBtn) tabPolaroidBtn.classList.add('active');
+    if (polaroidContent) polaroidContent.style.display = 'block';
+    renderPolaroidGrid();
 
-      } else if (tab === 'sticker') {
-        if (tabStickerBtn) tabStickerBtn.classList.add('active');
-        if (stickerContent) stickerContent.style.display = 'block';
-        renderStickerGrid();
+  } else if (tab === 'sticker') {
+    if (tabStickerBtn) tabStickerBtn.classList.add('active');
+    if (stickerContent) stickerContent.style.display = 'block';
+    renderStickerGrid();
 
-      // TAMBAHAN UNTUK DISCLAIMER:
-      } else if (tab === 'disclaimer') {
-        if (tabDisclaimerBtn) tabDisclaimerBtn.classList.add('active');
-        if (bookContent) {
-          bookContent.style.display = 'block';
-          bookContent.innerHTML = `
-            <div class="disclaimer-page" style="padding: 10px 5px; color: #4a3b32;">
-              <div style="text-align: center; margin-bottom: 14px; border-bottom: 1px dashed rgba(92, 58, 33, 0.3); padding-bottom: 8px;">
-                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600; color: #5c3a21;">📜 Disclaimer & Hak Cipta</h3>
-                <span style="font-size: 0.7rem; opacity: 0.7;">Informasi Legal & Hak Kekayaan Intelektual</span>
-              </div>
-
-              <div style="font-size: 0.82rem; line-height: 1.6; text-align: justify;">
-                <p style="margin-bottom: 12px;">
-                  <strong>1. Kesamaan Nama & Fiksi</strong><br>
-                  Seluruh cerita, karakter, dialog, dan peristiwa dalam karya ini adalah murni fiktif. Apabila terdapat kesamaan nama tokoh, tempat, lembaga, atau kejadian dengan dunia nyata, hal tersebut adalah murni kebetulan belaka tanpa ada unsur kesengajaan.
-                </p>
-
-                <p style="margin-bottom: 12px;">
-                  <strong>2. Hak Cipta Kekayaan Intelektual (IP)</strong><br>
-                  Seluruh komponen visual, desain antarmuka, ilustrasi, sketsa, foto, stiker, serta musik/lagu (OST) dalam aplikasi ini merupakan karya asli dan Kekayaan Intelektual (<em>Intellectual Property</em>) resmi milik <strong>Didi Chung</strong> (<em>Tjoeng Tjondro Kurniadi</em>).
-                </p>
-
-                <p style="margin-bottom: 12px;">
-                  Dilarang keras mengunduh, menggandakan, mempublikasikan ulang, atau memperjualbelikan aset visual maupun audio di dalam aplikasi ini tanpa izin tertulis dari pemilik hak cipta.
-                </p>
-              </div>
-            </div>
-          `;
-        }      
-
-        // Sembunyikan navigasi halaman buku/bab saat di tab disclaimer
-        if (pageIndicator) pageIndicator.innerText = '';
-        if (prevBtn) prevBtn.disabled = true;
-        if (nextBtn) nextBtn.disabled = true;
-        if (navRow) navRow.style.display = 'none';
-      }
+  } else if (tab === 'disclaimer') {
+    if (tabDisclaimerBtn) tabDisclaimerBtn.classList.add('active');
+    if (disclaimerContent) {
+      disclaimerContent.style.display = 'block';
+      disclaimerContent.scrollTop = 0;
     }
+
+    if (pageIndicator) pageIndicator.innerText = '';
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
+    if (navRow) navRow.style.display = 'none';
+  }
+}
 
     async function loadAlbumPolaroids() {
       try {
@@ -1507,6 +1475,7 @@
         el.dataset.rotate = randomRotate;
         el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
         makeElementDraggableAndZoomable(el);
+        saveAppState();
       });
     }
 
@@ -1672,6 +1641,7 @@
         el.addEventListener('touchmove', activeTouchMoveHandler, { passive: false });
         el.addEventListener('touchend', activeTouchEndHandler);
         el.addEventListener('touchcancel', activeTouchEndHandler);
+        saveAppState();
       }
     }
 
@@ -1717,15 +1687,199 @@
     window.addEventListener('DOMContentLoaded', () => {
       checkIntroStatus();
       checkAdminStatus();
-      randomizePolaroids();
+      
+      // randomizePolaroids() DIHAPUS dari sini agar tidak menimpa posisi tersimpan!
       
       // MENJALANKAN ALL-IN-ONE PRELOADER DENGAN MODAL BLUR
       preloadAllDataInBackground();
+    }); 
+
+    async function preloadAllDataInBackground() {
+      const totalSteps = 7;
+      let completedSteps = 0;
+
+      const incrementProgress = (msg) => {
+        completedSteps++;
+        const percent = Math.round((completedSteps / totalSteps) * 100);
+        updateLoadingProgress(percent, msg);
+      };
+
+      // Buat daftar promise loader untuk berjalan paralel di background
+      const tasks = [
+        loadNovel().then(() => incrementProgress("Cerita Kanon dimuat...")).catch(() => incrementProgress("Kanon selesai (dengan fallback)")),
+        loadSol().then(() => incrementProgress("Cerita SoL dimuat...")).catch(() => incrementProgress("SoL selesai (dengan fallback)")),
+        fetchWikiData().then(() => incrementProgress("Data Wiki dimuat...")).catch(() => incrementProgress("Wiki selesai")),
+        loadIllustrations().then(() => incrementProgress("Ilustrasi dimuat...")).catch(() => incrementProgress("Ilustrasi selesai")),
+        loadAlbumPolaroids().then(() => incrementProgress("Album Foto dimuat...")).catch(() => incrementProgress("Foto selesai")),
+        loadAlbumStickers().then(() => incrementProgress("Katalog Stiker dimuat...")).catch(() => incrementProgress("Stiker selesai")),
+        loadJukeboxTracks().then(() => incrementProgress("Playlist BGM dimuat...")).catch(() => incrementProgress("Jukebox selesai"))
+      ];
+
+      // Eksekusi semua secara paralel
+      await Promise.allSettled(tasks);
+
+      // Tampilkan status akhir
+      updateLoadingProgress(100, "Semua kenangan siap! ✨");
+      
+      // Berikan jeda halus sebelum menyembunyikan modal & hilangkan blur
+      setTimeout(() => {
+        const overlay = document.getElementById('appLoadingOverlay');
+        const deskContainer = document.getElementById('deskContainer');
+
+        // --- CUKUP TAMBAHKAN DUA BARIS INI ---
+        const restored = restoreAppState(); // Coba kembalikan posisi terakhir pembaca
+        if (!restored) randomizePolaroids(); // Jika pembaca baru (belum ada histori), acak polaroid
+
+        if (overlay) overlay.classList.add('fade-out');
+        if (deskContainer) deskContainer.classList.remove('initial-blur');
+      }, 500);
+    }
+
+    // --- SISTEM SIMPAN POSISI & HALAMAN (AUTO-SAVE) ---
+    function saveAppState() {
+      // 1. Ambil data polaroid dengan pengamanan (JANGAN SIMPAN JIKA MASIH KOSONG)
+      const polaroidData = [1,2,3,4,5,6,7].map(i => {
+        const el = document.getElementById(`polaroid${i}`);
+        const img = el ? el.querySelector('img') : null;
+        
+        // Ambil URL gambar aktual
+        let imageSrc = img ? (img.getAttribute('src') || img.src || '') : '';
+        
+        // Hindari menyimpan URL relatif yang rusak/empty base64
+        if (imageSrc.includes('about:blank') || imageSrc === window.location.href) {
+          imageSrc = '';
+        }
+
+        return {
+          x: el ? el.dataset.x || 0 : 0,
+          y: el ? el.dataset.y || 0 : 0,
+          rotate: el ? el.dataset.rotate || 0 : 0,
+          src: imageSrc
+        };
+      });
+
+      // Cegah menimpa localStorage jika Polaroid belum terisi sama sekali saat awal load
+      const hasValidPolaroid = polaroidData.some(p => p.src !== '');
+      const savedBefore = localStorage.getItem('benivon_last_state');
+
+      // Jika memuat dari nol & belum ada foto, batalkan save otomatis
+      if (!hasValidPolaroid && !savedBefore) {
+        return; 
+      }
+
+      const state = {
+        activeTab: typeof activeTab !== 'undefined' ? activeTab : 'novel',
+        currentChapterIndex: typeof currentChapterIndex !== 'undefined' ? currentChapterIndex : -1,
+        currentPage: typeof currentPage !== 'undefined' ? currentPage : 0,
+        polaroids: polaroidData,
+        stickers: Array.from(document.querySelectorAll('.floating-sticker')).map(img => ({
+          src: img.getAttribute('src') || img.src,
+          left: img.style.left,
+          top: img.style.top
+        }))
+      };
+
+      localStorage.setItem('benivon_last_state', JSON.stringify(state));
+    }
+
+    function restoreAppState() {
+      const saved = localStorage.getItem('benivon_last_state');
+      if (!saved) return false;
+
+      try {
+        const state = JSON.parse(saved);
+
+        // Validasi: Jika data polaroid tidak ada atau kosong, anggap restore gagal
+        if (!state.polaroids || !Array.isArray(state.polaroids) || state.polaroids.length < 7) {
+          return false;
+        }
+
+        // Cek apakah minimal ada 1 foto polaroid yang memiliki URL valid
+        const hasValidImages = state.polaroids.some(p => p.src && p.src !== '' && !p.src.includes('about:blank'));
+        if (!hasValidImages) {
+          // Jika data di storage ternyata foto kosong semua, GAGALKAN restore
+          // agar sistem memicu randomizePolaroids()!
+          return false; 
+        }
+
+        // 1. Restore Polaroid Meja
+        state.polaroids.forEach((pos, idx) => {
+          const el = document.getElementById(`polaroid${idx + 1}`);
+          if (el) {
+            el.dataset.x = pos.x;
+            el.dataset.y = pos.y;
+            el.dataset.rotate = pos.rotate;
+            
+            // Terapkan Transformasi Posisi
+            el.style.transform = `translate(${pos.x}px, ${pos.y}px) rotate(${pos.rotate}deg)`;
+
+            const img = el.querySelector('img');
+            if (img && pos.src) {
+              img.src = pos.src;
+            }
+
+            // Pasang kembali event listener drag
+            if (typeof makeElementDraggableAndZoomable === 'function') {
+              makeElementDraggableAndZoomable(el);
+            }
+          }
+        });
+
+        // 2. Restore Stiker
+        if (state.stickers && Array.isArray(state.stickers)) {
+          document.querySelectorAll('.floating-sticker').forEach(s => s.remove());
+          state.stickers.forEach(stk => {
+            if (!stk.src) return;
+            const sticker = document.createElement('img');
+            sticker.src = stk.src;
+            sticker.classList.add('floating-sticker');
+            sticker.style.width = '120px';
+            sticker.style.left = stk.left;
+            sticker.style.top = stk.top;
+            document.body.appendChild(sticker);
+            if (typeof makeDraggableAndReturnable === 'function') {
+              makeDraggableAndReturnable(sticker);
+            }
+          });
+        }
+
+        // 3. Restore Tab & Bab
+        if (state.activeTab && typeof switchTab === 'function') {
+          switchTab(state.activeTab);
+          if (state.currentChapterIndex !== -1 && typeof openChapter === 'function') {
+            openChapter(state.currentChapterIndex);
+            setTimeout(() => {
+              if (typeof currentPage !== 'undefined' && state.currentPage) {
+                currentPage = state.currentPage;
+                if (typeof renderPage === 'function') renderPage();
+                else if (typeof updatePageDisplay === 'function') updatePageDisplay();
+              }
+            }, 100);
+          }
+        }
+
+        return true; // Restore BENAR-BENAR BERHASIL
+      } catch (e) {
+        console.error("Gagal restore state:", e);
+        return false; // Jika error JSON parse, pemicu randomizePolaroids() akan jalan
+      }
+    }
+
+    // LISTENER MULTI-TRIGGER (Leluasa di HP & Desktop)
+    window.addEventListener('beforeunload', saveAppState);
+
+    // Trigger paling ampuh untuk HP / Browser Tab ditutup!
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        saveAppState();
+      }
     });
 
     window.addEventListener('resize', () => {
-      if (rawParagraphs.length > 0 && currentChapterIndex !== -1) {
-        recalculatePagination();
+      if (typeof rawParagraphs !== 'undefined' && rawParagraphs.length > 0 && typeof currentChapterIndex !== 'undefined' && currentChapterIndex !== -1) {
+        if (typeof recalculatePagination === 'function') {
+          recalculatePagination();
+        }
       }
     });
 
@@ -2009,7 +2163,7 @@ async function loadJukeboxTracks() {
 
     jukeboxPlaylist = await response.json();
     
-    // Header & Button Switcher Mode
+    // Header & Button Switcher Mode + Wadah khusus .jukebox-list
     menuContainer.innerHTML = `
       <div class="jukebox-header">
         <span>🎵 JUKEBOX</span>
@@ -2017,40 +2171,36 @@ async function loadJukeboxTracks() {
           ${isPlayAll ? 'Mode: 🔁 Semua' : 'Mode: 🔂 1 Lagu'}
         </button>
       </div>
+      <div class="jukebox-list" id="jukeboxList"></div>
     `;
 
+    const listContainer = document.getElementById('jukeboxList');
+
     if (jukeboxPlaylist.length === 0) {
-      menuContainer.innerHTML += '<div style="color:#a89379; font-size:0.75rem; text-align:center; padding:8px;">Tidak ada lagu.</div>';
+      listContainer.innerHTML = '<div style="color:#a89379; font-size:0.75rem; text-align:center; padding:8px;">Tidak ada lagu.</div>';
       return;
     }
 
-    // ============================================================
-    // DETEKSI OTOMATIS: Pencocokan Lagu HTML Default ke JSON
-    // ============================================================
+    // Pencocokan Lagu HTML Default ke JSON
     if (audio && audio.src) {
-      // Ambil nama file lagu yang terpasang di <audio> HTML (di-decode untuk spasi/karakter khusus)
       const currentFileName = decodeURIComponent(audio.src.split('/').pop());
 
-      // Cari indeks file lagu tersebut di dalam bgm.json
       const matchIndex = jukeboxPlaylist.findIndex(track => {
         return track.file === currentFileName || encodeURIComponent(track.file) === currentFileName;
       });
 
       if (matchIndex !== -1) {
-        // Jika ketemu, set pointer indeks lagu aktif saat ini sesuai urutan di JSON
         currentTrackIndex = matchIndex;
       } else {
-        // Jika tidak ketemu di JSON (misal file berbeda), set lagu pertama di JSON ke <audio>
         currentTrackIndex = 0;
         audio.src = `bgm/${jukeboxPlaylist[0].file}`;
       }
     }
 
-    // Render daftar lagu ke menu UI
+    // Render daftar lagu ke dalam .jukebox-list
     jukeboxPlaylist.forEach((track, index) => {
       const vinylItem = document.createElement('div');
       
-      // Tandai lagu yang sedang aktif di player
       vinylItem.className = `vinyl-item ${index === currentTrackIndex ? 'active' : ''}`;
       
       vinylItem.onclick = function () {
@@ -2064,12 +2214,12 @@ async function loadJukeboxTracks() {
         </div>
       `;
 
-      menuContainer.appendChild(vinylItem);
+      listContainer.appendChild(vinylItem); // <--- Dimasukkan ke listContainer
     });
 
   } catch (err) {
     console.warn('Gagal memuat bgm.json:', err);
-    menuContainer.innerHTML += '<div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
+    menuContainer.innerHTML = '<div class="jukebox-header">🎵 JUKEBOX</div><div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
   }
 }
 
@@ -2451,7 +2601,6 @@ function makeDraggableAndReturnable(elmnt) {
     }
   }
 }
-
 
     let isPolaroidOn = true;
 
