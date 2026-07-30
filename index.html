@@ -780,7 +780,7 @@ function switchTab(tab) {
   if (tab === 'novel') {
     if (tabNovelBtn) tabNovelBtn.classList.add('active');
     if (bookContent) bookContent.style.display = 'block';
-    renderTableOfContents();
+    renderTableOfContentsKanon();
 
   } else if (tab === 'sol') {
     if (tabSolBtn) tabSolBtn.classList.add('active');
@@ -1154,6 +1154,54 @@ function switchTab(tab) {
       document.getElementById('nextBtn').disabled = true;
       document.getElementById('sliderContainer').style.visibility = 'hidden';
     }
+
+function renderTableOfContentsKanon() {
+  currentChapterIndex = -1;
+  pages = [];
+  currentPage = 0;
+
+  const contentDiv = document.getElementById('bookContent');
+  const titleIcon = '📖';
+  const titleText = 'Daftar Isi';
+
+  let html = `
+    <div class="toc-container">
+      <div class="toc-title">${titleIcon} ${titleText}</div>
+  `;
+
+  if (allChapters.length === 0) {
+    html += `<div class="status-msg">Belum ada cerita.</div>`;
+  } else {
+    allChapters.forEach((ch, index) => {
+      const subjekHtml = ch.subjek 
+        ? `<div class="toc-subjek" style="font-style: italic; font-size: 0.85em; opacity: 0.8; margin-top: 2px;">(${escapeHtml(ch.subjek)})</div>` 
+        : '';
+
+      // Format Bab: UPPERCASE + Warna Kecokelatan + Titik Dua
+      // Kamu bisa sesuaikan kode warna #a35d28 (sienna/brown) sesuai selera tema UI kamu
+      const babText = ch.bab 
+        ? `<span class="toc-bab" style="color: #a35d28; font-weight: bold; text-transform: uppercase;">${escapeHtml(ch.bab)}</span> : ` 
+        : '';
+
+      html += `
+        <div class="toc-item" onclick="openChapter(${index})">
+          <div class="toc-judul-box">
+            <span class="toc-judul">${babText}${escapeHtml(ch.judul)}</span>
+          </div>
+          ${subjekHtml}
+        </div>
+      `;
+    });
+  }
+
+  html += `</div>`;
+  contentDiv.innerHTML = html;
+
+  document.getElementById('pageIndicator').innerText = titleText;
+  document.getElementById('prevBtn').disabled = true;
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('sliderContainer').style.visibility = 'hidden';
+}
 
     function openChapter(index) {
       const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
