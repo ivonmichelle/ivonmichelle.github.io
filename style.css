@@ -1449,18 +1449,38 @@ body {
 
 /* --- LAYOUT TAB 2 BARIS UNTUK PONSEL --- */
 @media screen and (max-width: 600px) {
+@media screen and (max-width: 600px) {
   .book-tabs {
-    /* Posisikan di atas buku & isi penuh lebarnya */
     left: 10px !important;
     right: 10px !important;
-    top: -45px !important; /* Dinaikkan sedikit ke atas agar tidak menutupi buku */
+    top: -45px !important; 
     
-    /* Gunakan Flexbox dengan wrap agar bisa turun ke baris ke-2 */
     display: flex !important;
     flex-wrap: wrap !important;
     justify-content: flex-start;
-    gap: 1px 1px !important; /* Jarak antar tab (vertikal 3px, horizontal 4px) */
+    gap: 1px !important;
   }
+
+  /* Target tombol/item di dalam .book-tabs (sesuaikan tag jika bukan button/a/div) */
+  .book-tabs > * {
+    box-sizing: border-box !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    text-align: center;
+  }
+
+  /* 3 Tab Pertama (Baris 1) -> 100% / 3 = ~33.3% */
+  .book-tabs > *:nth-child(-n+3) {
+    flex: 0 0 calc(33.33% - 1px) !important;
+    max-width: calc(33.33% - 1px) !important;
+  }
+
+  /* 4 Tab Sisanya (Baris 2: Skets, Foto, Stiker, Info) -> 100% / 4 = 25% */
+  .book-tabs > *:nth-child(n+4) {
+    flex: 0 0 calc(25% - 1px) !important;
+    max-width: calc(25% - 1px) !important;
+  }
+}
 
   .tab-btn {
     /* Lebar ~31% membuat 3 tab pas di baris pertama, dan 3 tab di baris kedua */
