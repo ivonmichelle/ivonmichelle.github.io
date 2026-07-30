@@ -4,805 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BenivoN</title>
-  <style>    
-    /* Reset & Base Styling */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      min-height: -webkit-fill-available;
-      overflow: hidden !important; 
-      position: fixed; 
-      touch-action: pan-x pan-y;
-    }
-
-    body {
-      font-family: 'Georgia', 'Palatino', 'Times New Roman', serif;
-      background-color: #2b1d0c;
-      background-image: 
-        radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%),
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px),
-        linear-gradient(90deg, #3a2612, #4a3219 25%, #2d1e0f 50%, #4a3219 75%, #3a2612);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Container Utama Meja */
-    .desk-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      box-sizing: border-box;
-      transition: filter 0.4s ease;
-    }
-
-    /* Efek Blur/Bokeh untuk latar belakang saat foto di-zoom */
-    .desk-container.blurred .book-page,
-    .desk-container.blurred .polaroid:not(.zoomed) {
-      filter: blur(8px) brightness(0.6);
-      transition: filter 0.4s ease;
-      pointer-events: none;
-    }
-
-    /* Overlay latar belakang gelap untuk mempertegas Bokeh */
-    .lightbox-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      z-index: 9000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
-
-    .lightbox-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .book-page {
-      position: absolute;
-      top: 52%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      
-      width: 420px;
-      max-width: 90vw;
-      
-      height: 84vh;
-      max-height: 560px;
-      
-      background-color: #fbf7ef;
-      border-radius: 4px 12px 12px 4px;
-      padding: 18px 20px 10px 25px;
-      box-shadow: 
-        -10px 0 20px rgba(0,0,0,0.4),
-        0 15px 35px rgba(0,0,0,0.6),
-        inset 20px 0 30px -10px rgba(0,0,0,0.08),
-        inset -2px 0 5px rgba(0,0,0,0.05);
-      
-      border-left: 12px solid #3d2716;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      z-index: 10;
-      color: #2c221e;
-      line-height: 1.4;
-      box-sizing: border-box;
-      flex-shrink: 0;
-      transition: filter 0.4s ease;
-    }
-
-    /* --- STIKER TAB / PEMBATAS BUKU DI ATAS --- */
-    .book-tabs {
-      position: absolute;
-      top: -32px;
-      right: 15px;
-      display: flex;
-      gap: 6px;
-      z-index: 12;
-    }
-
-    .tab-btn {
-      background: #7a4f2d;
-      color: #f3ece1;
-      border: 1px solid #3d2716;
-      border-bottom: none;
-      padding: 6px 14px 4px 14px;
-      font-family: 'Georgia', serif;
-      font-size: 0.78rem;
-      font-weight: bold;
-      border-radius: 6px 6px 0 0;
-      cursor: pointer;
-      box-shadow: 0 -3px 6px rgba(0,0,0,0.2);
-      transition: all 0.2s ease;
-      letter-spacing: 0.5px;
-      user-select: none;
-    }
-
-    .tab-btn:hover {
-      background: #8c5b35;
-    }
-
-    .tab-btn.active {
-      background: #fbf7ef;
-      color: #3d2716;
-      border-color: #3d2716;
-      padding-top: 8px;
-      transform: translateY(-2px);
-      box-shadow: 0 -4px 8px rgba(0,0,0,0.3);
-    }
-
-    /* FIX 1: Efek Drop Cap yang Lebih Stabil */
-    .first-page-paragraph {
-      text-indent: 0 !important;
-    }
-
-    .first-page-paragraph::first-letter {
-      font-size: 3.2em;
-      float: left;
-      line-height: 0.75;
-      margin-right: 0.15em;
-      margin-top: 0.05em;
-      font-family: 'Georgia', 'Times New Roman', serif;
-      font-weight: bold;
-      color: #3d2716;
-      text-transform: uppercase; 
-    }
-
-    /* FIX 2: Styling Judul Cerita (Centered + Spasi Ke Isi) */
-    .chapter-title {
-      text-align: center;
-      font-weight: bold;
-      font-size: 1.25em;
-      margin-bottom: 1.2em;
-      color: #3d2716;
-      text-indent: 0 !important;
-      display: block;
-      line-height: 1.3;
-    }
-
-    /* FIX 3: Konten Teks Dalam Buku (Hilangkan Scrollbar) */
-    .book-content {
-      flex: 1;
-      min-height: 0;
-      overflow-y: hidden; /* Mengatur ke hidden agar scrollbar tidak muncul */
-      text-align: justify;
-      hyphens: auto;
-      transition: font-size 0.15s ease;
-    }
-
-    .book-content p {
-      text-indent: 1.8em;
-      margin-bottom: 0.1em;
-    }
-
-    .book-content p.continuation {
-      text-indent: 0;
-    }
-
-    /* --- STYLE DAFTAR ISI --- */
-    .toc-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 5px;
-      height: 100%;
-      overflow-y: auto; /* Scrollbar khusus untuk daftar isi jika panjang */
-    }
-
-    .toc-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-      text-align: center;
-      border-bottom: 2px dashed #5c3a21;
-      padding-bottom: 8px;
-      margin-bottom: 6px;
-      color: #3d2716;
-    }
-
-    .toc-item {
-      background: rgba(255, 255, 255, 0.6);
-      border: 1px solid #d4c5b2;
-      border-radius: 6px;
-      padding: 10px 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .toc-item:hover {
-      background: #ffffff;
-      border-color: #5c3a21;
-      transform: translateX(3px);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .toc-bab {
-      font-size: 0.75rem;
-      font-weight: bold;
-      color: #7a4f2d;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .toc-judul {
-      font-size: 0.92rem;
-      color: #2c221e;
-      font-weight: 600;
-    }
-
-    /* --- VIEW ILUSTRASI KARAKTER --- */
-    .illustration-view {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      width: 100%;
-      padding: 0;
-      margin: 0;
-      overflow: hidden;
-    }
-
-    .illustration-card {
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      padding: 0;
-      margin: 0;
-      box-shadow: none;
-      border: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .illustration-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      border-radius: 0;
-      background-color: transparent;
-      border: none;
-      box-shadow: none;
-      display: block;
-      filter: sepia(0.85) contrast(1.0) brightness(1.1) saturate(0.5);
-      mix-blend-mode: multiply;
-    }
-
-    /* Footer & Pengaturan Kontrol */
-    .book-footer {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-top: 6px;
-      border-top: 1px solid rgba(139, 90, 43, 0.2);
-      user-select: none;
-      margin-top: 4px;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 9999;
-    }
-
-    /* Kontrol Navigasi & Info Halaman */
-    .nav-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .page-number {
-      font-style: italic;
-      color: #7a6352;
-      font-size: 0.85rem;
-    }
-
-    .nav-btn {
-      background: #5c3a21;
-      color: #f3ece1;
-      border: none;
-      padding: 6px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.85rem;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-
-    .nav-btn:hover:not(:disabled) {
-      background: #7a4f2d;
-      transform: translateY(-1px);
-    }
-
-    .nav-btn:disabled {
-      background: #cfc5b8;
-      color: #9c9285;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    /* Slider Pengaturan Ukuran Font */
-    .font-slider-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      font-size: 0.75rem;
-      color: #6b5344;
-    }
-
-    .font-slider-container input[type=range] {
-      -webkit-appearance: none;
-      width: 140px;
-      height: 5px;
-      background: #d4c5b2;
-      border-radius: 3px;
-      outline: none;
-    }
-
-    .font-slider-container input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #5c3a21;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-
-    .font-slider-container input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-    }
-
-    /* Styling Polaroid */
-    .polaroid {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 110px;
-      background: #fff;
-      padding: 7px 7px 15px 7px;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.4);
-      border-radius: 2px;
-      z-index: 50;
-      cursor: grab;
-      user-select: none;
-      touch-action: none;
-      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, filter 0.4s ease;
-    }
-
-    .polaroid:active {
-      cursor: grabbing;
-    }
-
-    .polaroid.zoomed {
-      z-index: 10000 !important;
-      cursor: pointer;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.2) !important;
-      transform: translate(-50%, -50%) scale(3.2) rotate(0deg) !important;
-    }
-
-    .polaroid img {
-      width: 100%;
-      height: 95px;
-      object-fit: cover;
-      display: block;
-      filter: sepia(0.12) contrast(1.05);
-      pointer-events: none;
-    }
-
-    .status-msg {
-      text-align: center;
-      font-style: italic;
-      color: #6b5344;
-      margin-top: 40%;
-    }
-
-    /* Modal Window Komentar */
-    .comment-modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 10001;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .comment-modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .comment-modal {
-      width: 90%;
-      max-width: 420px;
-      max-height: 85dvh;
-      background-color: #fbf7ef;
-      border-radius: 8px;
-      border: 2px solid #3d2716;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      font-family: inherit;
-      color: #2c221e;
-    }
-
-    .modal-header {
-      padding: 12px 16px;
-      background-color: #3d2716;
-      color: #f3ece1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-header h3 {
-      font-size: 1.05rem;
-      font-weight: normal;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: #f3ece1;
-      font-size: 1.4rem;
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    .comments-list {
-      flex: 1;
-      padding: 14px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background-color: #f7f2e7;
-    }
-
-    .comment-item {
-      background: #ffffff;
-      padding: 10px 12px;
-      border-radius: 6px;
-      border-left: 4px solid #5c3a21;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      font-size: 0.88rem;
-    }
-
-    .comment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-      font-size: 0.78rem;
-      color: #7a6352;
-    }
-
-    .comment-author {
-      font-weight: bold;
-      color: #3d2716;
-    }
-
-    .comment-body {
-      word-wrap: break-word;
-      white-space: pre-wrap;
-      color: #2c221e;
-      line-height: 1.35;
-    }
-
-    .comment-form {
-      padding: 12px;
-      background-color: #fbf7ef;
-      border-top: 1px solid rgba(139, 90, 43, 0.2);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .comment-user-badge {
-      font-size: 0.8rem;
-      color: #5c3a21;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .change-name-btn {
-      font-size: 0.72rem;
-      color: #8c7360;
-      text-decoration: underline;
-      cursor: pointer;
-      font-weight: normal;
-    }
-
-    .comment-textarea {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid #cfc5b8;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: 0.85rem;
-      background-color: #fff;
-      color: #2c221e;
-      outline: none;
-      resize: none;
-      height: 60px;
-    }
-
-    .comment-textarea:focus {
-      border-color: #5c3a21;
-    }
-
-    .form-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .char-counter {
-      font-size: 0.75rem;
-      color: #7a6352;
-    }
-
-    .submit-btn {
-      background: #5c3a21;
-      color: #f3ece1;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: background 0.2s ease;
-    }
-
-    .submit-btn:hover:not(:disabled) {
-      background: #7a4f2d;
-    }
-
-    .submit-btn:disabled {
-      background: #cfc5b8;
-      cursor: not-allowed;
-    }
-
-    .fab-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      flex-direction: row;
-      gap: 12px;
-      z-index: 9999;
-    }
-
-    .fab-btn {
-      width: 50px;
-      height: 50px;
-      background-color: #5c3a21;
-      color: #f3ece1;
-      border: 2px solid #8b5a2b;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-      font-size: 1.2rem;
-      transition: transform 0.2s ease, background-color 0.2s ease;
-      user-select: none;
-      outline: none;
-    }
-
-    .fab-btn:hover {
-      transform: scale(1.1);
-      background-color: #7a4f2d;
-    }
-
-    .fab-btn:active {
-      transform: scale(0.95);
-    }
-
-    .spin-icon {
-      animation: spin 0.5s ease-in-out;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .copyright-text {
-      text-align: center;
-      font-size: 0.72rem;
-      color: #8c7360;
-      font-family: inherit;
-      margin-top: 2px;
-      user-select: none;
-      letter-spacing: 0.5px;
-    }
-
-    /* --- INTRO AVATAR IVON & BUBBLE TEXT --- */
-    .ivon-intro-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-      z-index: 20000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 1;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
-    }
-
-    .ivon-intro-overlay.fade-out {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .ivon-intro-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      max-width: 440px;
-      width: 88%;
-      animation: floatIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    @keyframes floatIn {
-      from { opacity: 0; transform: translateY(30px) scale(0.9); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .ivon-speech-bubble {
-      position: relative;
-      background: #fbf7ef;
-      border: 3px solid #3d2716;
-      border-radius: 16px;
-      padding: 16px 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      color: #2c221e;
-      font-size: 0.88rem;
-      line-height: 1.45;
-      text-align: left;
-      margin-bottom: 20px;
-      width: 100%;
-    }
-
-    .ivon-speech-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -14px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-width: 14px 12px 0 12px;
-      border-style: solid;
-      border-color: #3d2716 transparent transparent transparent;
-      display: block;
-      width: 0;
-    }
-
-    .ivon-speech-bubble::before {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-width: 11px 9px 0 9px;
-      border-style: solid;
-      border-color: #fbf7ef transparent transparent transparent;
-      display: block;
-      width: 0;
-      z-index: 1;
-    }
-
-    .ivon-intro-input {
-      width: 100%;
-      padding: 10px 12px;
-      margin-top: 12px;
-      border: 2px solid #5c3a21;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      outline: none;
-      background-color: #fff;
-    }
-
-    .ivon-intro-btn {
-      margin-top: 12px;
-      width: 100%;
-      background: #5c3a21;
-      color: #f3ece1;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.9rem;
-      font-weight: bold;
-      transition: background 0.2s ease;
-    }
-
-    .ivon-intro-btn:hover {
-      background: #7a4f2d;
-    }
-
-    .ivon-avatar-img {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      border: 4px solid #fbf7ef;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-      object-fit: cover;
-      background-color: #3d2716;
-      animation: gentleBounce 2s infinite ease-in-out;
-    }
-
-    @keyframes gentleBounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-
-    @media (max-width: 768px) {
-      .polaroid {
-        width: 80px !important;
-        padding: 5px 5px 10px 5px !important;
-      }
-      .polaroid img {
-        height: 70px !important;
-      }
-      .ivon-intro-card {
-        width: 90%;
-      }
-      .ivon-speech-bubble {
-        font-size: 0.82rem;
-        padding: 14px 16px;
-      }
-      .ivon-avatar-img {
-        width: 90px;
-        height: 90px;
-      }
-      .book-tabs {
-        right: 10px;
-      }
-      .tab-btn {
-        padding: 5px 10px 3px 10px;
-        font-size: 0.72rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body>
 
@@ -810,10 +14,12 @@
     <div class="ivon-intro-card">
       
       <div class="ivon-speech-bubble" id="introStep1">
-        <strong>Halo, traveler manis! ✨</strong><br><br>
-        Sebelum kita berpetualang di buku kenangan ini, Ivon boleh tahu nama kamu siapa? 💖
-        <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off">
-        <button class="ivon-intro-btn" onclick="submitReaderName()">Lanjut ➔</button>
+		Hai, saya <strong>Didi Chung</strong>, penulis cerita ini. Saya mulai menulis cerita ini sekitar 2 tahun yang lalu. Jujur, saya tidak pandai menulis, tapi saya punya sebuah cerita yang ingin saya bagikan, jadi saya memberanikan diri menulis... 😁<br><br>
+        Cerita ini <em>non-linear</em>—kamu bebas mulai dari bagian mana saja, meskipun membacanya secara berurutan tentunya lebih baik. Di sini kamu bisa menikmati cerita <em>slice of life</em>, foto-foto, galeri, ilustrasi, hingga musik OST.<br><br>
+        Ini merupakan proyek <strong>WIP (Work in Progress)</strong> dan akan terus diperbarui bertahap. Silakan nikmati setiap sudut kisah ini dengan santai dan jangan lupa komentar di buku tamu... 🙏🏻<br><br>
+        Sebelum kita mulai, bolehkah saya tahu siapa namamu?
+        <input type="text" id="readerNameInput" class="ivon-intro-input" placeholder="Tulis namamu di sini..." maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter') submitReaderName()">
+        <button class="ivon-intro-btn" style="position: relative; z-index: 10; cursor: pointer; margin-top: 12px;" onclick="submitReaderName()">Lanjut ➔</button>
       </div>
 
       <div class="ivon-speech-bubble" id="introStep2" style="display: none;">
@@ -825,10 +31,47 @@
         <button class="ivon-intro-btn" style="margin-top: 16px;" onclick="dismissIvonIntro()">Masuk ke Buku 📖</button>
       </div>
 
-      <img src="images/avatarivon.png" alt="Ivon Avatar" class="ivon-avatar-img">
+      <img src="images/didichung.png" id="introAvatarImg" alt="Avatar Intro" class="ivon-avatar-img">
+    </div>
+  </div>  
+  
+  <!-- Modal Auth Admin Kustom -->
+<div class="admin-auth-modal-overlay" id="adminAuthModalOverlay">
+  <div class="admin-auth-card">
+    <div class="admin-auth-header">
+      <h3>Akses Admin</h3>
+      <button class="close-btn" onclick="closeAdminAuthModal()">&times;</button>
+    </div>
+    <div class="admin-auth-body">
+      <label for="adminPasswordInput">Masukkan Passcode Admin:</label>
+      <input 
+        type="password" 
+        id="adminPasswordInput" 
+        class="admin-password-input" 
+        placeholder="••••••••" 
+        autocomplete="off"
+        onkeydown="if(event.key === 'Enter') verifyAdminPassword()"
+      />
+      <div id="adminAuthError" class="auth-error-msg" style="display: none;">Passcode Salah!</div>
+    </div>
+    <div class="admin-auth-footer">
+      <button class="nav-btn" onclick="closeAdminAuthModal()">Batal</button>
+      <button class="nav-btn" style="background: #28a745;" onclick="verifyAdminPassword()">Masuk</button>
     </div>
   </div>
+</div>
 
+<script>
+  (function() {
+    var savedName = localStorage.getItem('benivon_reader_name');
+    var overlay = document.getElementById('ivonIntroOverlay');
+    
+    // Jika BELUM ada nama (Pembaca Baru), ubah CSS-nya jadi 'flex' agar overlay muncul
+    if (!savedName && overlay) {
+      overlay.style.display = 'flex';
+    }
+  })();
+</script>
   <div class="desk-container" id="deskContainer">
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
 
@@ -841,10 +84,14 @@
     <div class="polaroid" id="polaroid7"><img src="" alt="Foto 7"></div>
 
     <div class="book-page">
-      <div class="book-tabs">
-        <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Cerita</button>
-        <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Ilustrasi</button>
-      </div>
+<div class="book-tabs">
+  <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
+  <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
+  <button class="tab-btn" id="tabWikiBtn" onclick="switchTab('wiki')">👤 Wiki</button>
+  <button class="tab-btn" id="tabIllustBtn" onclick="switchTab('illustration')">🎨 Skets</button>
+  <button class="tab-btn" id="tabPolaroidBtn" onclick="switchTab('polaroid')">📸 Foto</button>
+  <button class="tab-btn" id="tabStickerBtn" onclick="switchTab('sticker')">🏷️ Stiker</button>
+</div>
 
       <div class="book-content" id="bookContent">
         <div class="status-msg">Memuat daftar cerita...</div>
@@ -858,6 +105,17 @@
         </div>
       </div>
       
+      <div class="book-content" id="polaroidAlbumContent" style="display: none;">
+        <div class="polaroid-grid-view" id="polaroidGridContainer"></div>
+      </div>
+<div class="book-content" id="stickerAlbumContent" style="display: none;">
+  <div class="polaroid-grid-view" id="stickerGridContainer"></div>
+</div>
+<div class="book-content" id="wikiContent" style="display: none;">
+  <input type="file" id="wikiFileInput" accept="image/*" style="display: none;" onchange="handleWikiPhotoSelect(event)">  
+  <div class="status-msg">Memuat data wiki...</div>
+</div>
+
       <div class="book-footer">
         <div class="font-slider-container" id="sliderContainer">
           <span>A-</span>
@@ -871,12 +129,136 @@
           <button class="nav-btn" id="nextBtn" onclick="handleNextNav()">Next →</button>
         </div>
         
-        <div class="copyright-text">
-          &copy; 2026 Didi Chung
-        </div>
+<div class="copyright-text" id="adminTrigger" style="cursor: pointer;">
+  &copy; 2026 Didi Chung
+</div>
       </div>
     </div>
   </div>
+
+  <div class="fab-container">
+    <!-- WRAPPER FAB ELEMENT & SUB-FAB -->
+    <div class="fab-wrapper">
+      <!-- Sub-FAB Popover -->
+      <div class="fab-sub-menu" id="fabElementSubMenu">
+        <!-- Sub-FAB 1: Refresh Polaroid -->
+        <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">
+          🔄
+        </button>
+        <!-- Sub-FAB 2: Toggle Polaroid On/Off -->
+        <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">
+          🎴
+        </button>
+      </div>
+
+      <!-- FAB Utama Element (Icon Foto) -->
+      <button class="fab-btn" id="btnFabElement" onclick="toggleFabElementMenu()" title="Menu Elemen Foto">
+        🖼️
+      </button>
+    </div>
+
+    <!-- Tombol FAB Lainnya -->
+    <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">
+      🔇
+    </button>
+
+    <button class="fab-btn" onclick="openCommentModal()" title="Buku Tamu / Komentar">
+      💬
+    </button>
+
+    <button class="fab-btn" id="btnAdminUpload" style="display: none;" onclick="openAdminUploadModal()" title="Tambah Foto (Admin)">
+      📷
+    </button>
+    
+    <button class="fab-btn" id="floatingLogoutBtn" style="display: none;" onclick="adminLogout()" title="Logout Admin">
+      🔒
+    </button>
+  </div>
+
+  <div class="jukebox-container">
+    <div class="jukebox-menu" id="jukeboxMenu">
+      <div class="jukebox-header">🎵 JUKEBOX</div>
+    </div>
+
+    <button class="fab-btn jukebox-btn" id="btnJukebox" onclick="toggleJukeboxMenu()" title="Jukebox BGM">
+      📻
+    </button>
+  </div>
+
+  <div class="comment-modal-overlay" id="commentModalOverlay">
+    <div class="comment-modal">
+      <div class="modal-header">
+        <h3>Buku Tamu & Komentar</h3>
+        <button class="close-btn" onclick="closeCommentModal()">&times;</button>
+      </div>
+
+      <div class="comments-list" id="commentsList">
+        <div class="status-msg">Memuat komentar...</div>
+      </div>
+
+      <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
+        <div class="comment-user-badge" id="commentUserBadge"></div>
+
+        <textarea id="messageInput" class="comment-textarea" placeholder="Tulis komentar (maks. 160 karakter)..." maxlength="160" required oninput="updateCharCount()"></textarea>
+        
+        <div class="form-footer">
+          <span class="char-counter" id="charCounter">0 / 160</span>
+          <button type="submit" class="submit-btn" id="submitBtn">Kirim</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-upload-modal" id="adminUploadModal">
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h3>Tambah Foto (Admin)</h3>
+        <button class="close-btn" onclick="closeAdminUploadModal()">&times;</button>
+      </div>
+      <div class="admin-card-body">
+        <div class="form-group">
+          <label for="categorySelect">Kategori Target:</label>
+          <select id="categorySelect" class="form-control-select">
+            <option value="Beni & Ivon">Beni & Ivon</option>
+            <option value="Deni & Clara">Deni & Clara</option>
+            <option value="Zack & Rina">Zack & Rina</option>
+            <option value="Kenzo & Nina">Kenzo & Nina</option>
+            <option value="Nathan & Jennifer">Nathan & Jennifer</option>
+            <option value="Other">Other</option>
+            <option value="Illustration">Illustration</option>
+            <option value="Sticker">Sticker</option>
+            <option value="Etc">Etc</option>
+          </select>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <label style="font-size:0.85rem; font-weight:bold; color:#5a4234;">Pilih Foto (Maksimal 10):</label>
+          <div id="photoSlotsContainer" style="margin-top: 8px;">
+            </div>
+        </div>
+      </div>
+
+      <div class="admin-card-footer">
+        <button class="nav-btn" onclick="closeAdminUploadModal()">Batal</button>
+        <button class="btn-submit-upload" id="btnSubmitAdminUpload" onclick="uploadAdminPhotos()">Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bgmAudio" loop preload="auto">
+    <source src="bgm/Selesai Dengan Sunyi (Beni Theme - Lofi).mp3" type="audio/mpeg">
+  </audio>
+  
+<div id="cropModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; text-align:center; padding: 20px;">
+  <div style="max-width: 400px; height: 350px; margin: 20px auto; background: #000; position: relative;">
+    <img id="cropImage" src="" style="max-width: 100%; display: block;">
+  </div>
+  
+  <div style="margin-top: 15px;">
+    <button onclick="applyCropAndUpload()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Potong & Simpan</button>
+    <button onclick="closeCropModal()" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Batal</button>
+  </div>
+</div>
 
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyr7Ku-3nOZcQjPROG-ksgymCu7sMmTw6QsK3HaW_LSFQ8uufUWm5_IDsQG0PPbGGMd/exec'; 
@@ -886,14 +268,283 @@
     let activeTab = 'novel';
 
     let allChapters = [];          
+    let allSolChapters = [];       
     let currentChapterIndex = -1;  
     let rawParagraphs = [];
     let pages = [];
     let currentPage = 0;
+    
+    let albumStickerList = [];
+    let currentStickerPage = 0;
 
     const fontSizes = ['0.82rem', '0.92rem', '1.0rem', '1.1rem', '1.22rem'];
     let topZIndex = 100;
     let activeZoomedEl = null;
+
+// --- FITUR ADMIN AUTH & SHA-256 CHECK ---
+const ADMIN_HASH = "374961f303553001f5b4e05537bc655b02795ed2501866a94241caf70239e20f";
+
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Fungsi Cek Status Admin (Sudah disesuaikan dengan Eruda)
+function checkAdminStatus() {
+  const isAdmin = sessionStorage.getItem('benivon_admin_logged') === 'true';
+  
+  const uploadBtn = document.getElementById('btnAdminUpload');
+  const logoutBtn = document.getElementById('floatingLogoutBtn');
+  
+  if (uploadBtn) {
+    uploadBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+  }
+  if (logoutBtn) {
+    logoutBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+  }
+
+  // --- KONTROL ERUDA BERDASARKAN STATUS ADMIN ---
+  if (isAdmin) {
+    // Jika belum ada script Eruda di halaman, muat secara dinamis
+    if (typeof eruda === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/eruda';
+      script.onload = () => eruda.init();
+      document.head.appendChild(script);
+    } else {
+      eruda.init();
+    }
+  } else {
+    // Jika logout / bukan admin dan eruda aktif, hancurkan/sembunyikan eruda
+    if (typeof eruda !== 'undefined' && eruda._isInit) {
+      eruda.destroy();
+    }
+  }
+}
+
+// FUNGSI LOGOUT
+function adminLogout() {
+  if (confirm("Apakah kamu yakin ingin keluar dari mode Admin?")) {
+    sessionStorage.removeItem('benivon_admin_logged');
+    checkAdminStatus();
+    alert("Berhasil Logout ✨");
+    location.reload();
+  }
+}
+
+// --- FUNGSI MODAL DIALOG KUSTOM ---
+function openAdminAuthModal() {
+  const modal = document.getElementById('adminAuthModalOverlay');
+  const input = document.getElementById('adminPasswordInput');
+  const errorMsg = document.getElementById('adminAuthError');
+  
+  if (modal && input) {
+    input.value = '';
+    if (errorMsg) errorMsg.style.display = 'none';
+    modal.classList.add('active');
+    setTimeout(() => input.focus(), 100);
+  }
+}
+
+function closeAdminAuthModal() {
+  const modal = document.getElementById('adminAuthModalOverlay');
+  if (modal) modal.classList.remove('active');
+}
+
+async function verifyAdminPassword() {
+  const input = document.getElementById('adminPasswordInput');
+  const errorMsg = document.getElementById('adminAuthError');
+  const pwd = input ? input.value : '';
+
+  if (!pwd) return;
+
+  const hashed = await sha256(pwd);
+  if (hashed === ADMIN_HASH) {
+    sessionStorage.setItem('benivon_admin_logged', 'true');
+    checkAdminStatus();
+    closeAdminAuthModal();
+    alert("Akses Admin Diterima ✨");
+  } else {
+    if (errorMsg) errorMsg.style.display = 'block';
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+  }
+}
+
+// Listener Shortcut Key: ALT + A (Membuka Modal Kustom)
+document.addEventListener('keydown', (e) => {
+  if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+    e.preventDefault();
+    openAdminAuthModal();
+  }
+});
+
+// Listener Ketuk / Klik 5x khusus pada tulisan "2026 Didi Chung"
+let tapCount = 0;
+let tapTimer = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const adminTriggerEl = document.getElementById('adminTrigger');
+  
+  if (adminTriggerEl) {
+    adminTriggerEl.addEventListener('pointerdown', (e) => {
+      e.stopPropagation(); // Mencegah event merambat ke elemen lain
+
+      tapCount++;
+      clearTimeout(tapTimer);
+
+      if (tapCount === 5) {
+        tapCount = 0;
+        openAdminAuthModal();
+      } else {
+        tapTimer = setTimeout(() => {
+          tapCount = 0;
+        }, 1500);
+      }
+    });
+  }
+});
+
+    // --- UPLOAD ADMIN & CROP FOTO ---
+    function initPhotoSlots() {
+      const container = document.getElementById('photoSlotsContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        container.innerHTML += `
+          <div class="photo-slot">
+            <span>Foto ${i}:</span>
+            <input type="file" id="photoInput${i}" accept="image/*" onchange="previewSlotImage(${i})">
+            <img id="slotPreview${i}" class="preview-thumb" alt="Preview">
+            <span id="slotSize${i}" class="size-badge"></span>
+          </div>
+        `;
+      }
+    }
+
+    function openAdminUploadModal() {
+      initPhotoSlots();
+      document.getElementById('adminUploadModal').classList.add('active');
+    }
+
+    function closeAdminUploadModal() {
+      document.getElementById('adminUploadModal').classList.remove('active');
+    }
+
+    async function previewSlotImage(index) {
+      const input = document.getElementById(`photoInput${index}`);
+      const preview = document.getElementById(`slotPreview${index}`);
+      const sizeBadge = document.getElementById(`slotSize${index}`);
+
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+
+        try {
+          // Kompresi gambar terlebih dahulu untuk preview
+          const base64Webp = await processImageToWebp60(file);
+
+          // Tampilkan preview gambar hasil kompresi
+          preview.src = base64Webp;
+          preview.style.display = 'block';
+
+          // Hitung estimasi ukuran Base64 WebP dalam KB
+          // (Ukuran Base64 byte = panjang string * 3/4)
+          const bytes = Math.round((base64Webp.length * 3) / 4);
+          const fileSizeKB = (bytes / 1024).toFixed(1);
+
+          if (sizeBadge) {
+            sizeBadge.innerText = `${fileSizeKB} KB`;
+            sizeBadge.style.display = 'inline-block';
+          }
+        } catch (err) {
+          console.error("Gagal memproses preview kompresi:", err);
+        }
+      } else {
+        preview.style.display = 'none';
+        if (sizeBadge) {
+          sizeBadge.innerText = '';
+          sizeBadge.style.display = 'none';
+        }
+      }
+    }
+
+    // Fungsi Crop Center 1:1, Resizing ke 640x640 & Export WebP Quality 60%
+    function processImageToWebp60(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 640;
+          canvas.height = 640;
+          const ctx = canvas.getContext('2d');
+
+          // Hitung Crop Center 1:1
+          const minDim = Math.min(img.width, img.height);
+          const sx = (img.width - minDim) / 2;
+          const sy = (img.height - minDim) / 2;
+
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 640, 640);
+          
+          // Format WebP dengan Kualitas 0.50
+          const base64Data = canvas.toDataURL('image/webp', 0.50);
+          URL.revokeObjectURL(img.src);
+          resolve(base64Data);
+        };
+        img.onerror = (err) => reject(err);
+      });
+    }
+
+    async function uploadAdminPhotos() {
+      const category = document.getElementById('categorySelect').value;
+      const btnSubmit = document.getElementById('btnSubmitAdminUpload');
+      const processedImages = [];
+
+      for (let i = 1; i <= 10; i++) {
+        const input = document.getElementById(`photoInput${i}`);
+        if (input.files && input.files[0]) {
+          try {
+            const base64Webp = await processImageToWebp60(input.files[0]);
+            processedImages.push(base64Webp);
+          } catch (e) {
+            console.error(`Gagal memproses foto ke-${i}:`, e);
+          }
+        }
+      }
+
+      if (processedImages.length === 0) {
+        alert("Silakan pilih setidaknya 1 foto untuk diunggah!");
+        return;
+      }
+
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = "Mengunggah...";
+
+      try {
+        const payload = JSON.stringify({
+          action: 'upload_foto',
+          kategori: category,
+          images: processedImages
+        });
+
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: payload
+        });
+
+        alert("Berhasil mengunggah foto ke Google Sheets! ✨");
+        closeAdminUploadModal();
+      } catch (err) {
+        alert("Gagal mengunggah foto. Silakan coba lagi.");
+        console.error(err);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "Upload";
+      }
+    }
 
     // --- MEMUAT ILUSTRASI ---
     async function loadIllustrations() {
@@ -938,25 +589,33 @@
 
     async function submitReaderName() {
       const inputEl = document.getElementById('readerNameInput');
-      const nama = inputEl.value.trim();
-
+      const nama = inputEl ? inputEl.value.trim() : '';
       if (!nama) {
         alert('Isi nama kamu dulu yaa!');
         return;
       }
-
       currentReaderName = nama;
       localStorage.setItem('benivon_reader_name', nama);
+      const displayNameEl = document.getElementById('displayReaderName');
+      if (displayNameEl) displayNameEl.innerText = nama;
 
-      document.getElementById('displayReaderName').innerText = nama;
+      // Pindah dari Step 1 (Didi Chung) ke Step 2 (Ivon)
       document.getElementById('introStep1').style.display = 'none';
       document.getElementById('introStep2').style.display = 'block';
+
+      // Ganti gambar avatar ke Ivon untuk menyambut pembaca
+      const avatarImg = document.getElementById('introAvatarImg');
+      if (avatarImg) {
+        avatarImg.src = 'images/avatarivon.png';
+      }
 
       try {
         fetch(SCRIPT_URL, {
           method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ action: 'pembaca', nama: nama })
-        });
+        }).catch(err => console.log('Proses kirim pembaca berjalan di background'));
       } catch (err) {
         console.error('Gagal mencatat pembaca:', err);
       }
@@ -966,9 +625,7 @@
       const overlay = document.getElementById('ivonIntroOverlay');
       if (overlay) {
         overlay.classList.add('fade-out');
-        setTimeout(() => {
-          overlay.remove();
-        }, 400);
+        setTimeout(() => { overlay.remove(); }, 400);
       }
     }
 
@@ -992,39 +649,388 @@
     }
 
     // --- TAB SWITCHING ---
-    function switchTab(tab) {
-      activeTab = tab;
-      const tabNovelBtn = document.getElementById('tabNovelBtn');
-      const tabIllustBtn = document.getElementById('tabIllustBtn');
-      const bookContent = document.getElementById('bookContent');
-      const illustContent = document.getElementById('illustrationContent');
-      const sliderContainer = document.getElementById('sliderContainer');
+// Variable Declarations
+let albumPolaroidList = [];
+let currentPolaroidPage = 0;
+let wikiList = [];
+let selectedWikiChar = null;
 
-      if (tab === 'novel') {
-        tabNovelBtn.classList.add('active');
-        tabIllustBtn.classList.remove('active');
-        bookContent.style.display = 'block';
-        illustContent.style.display = 'none';
+// Combined switchTab Function
+function switchTab(tab) {
+  activeTab = tab;
+
+  // DOM Elements Selection
+  const tabNovelBtn = document.getElementById('tabNovelBtn');
+  const tabSolBtn = document.getElementById('tabSolBtn');
+  const tabWikiBtn = document.getElementById('tabWikiBtn');
+  const tabIllustBtn = document.getElementById('tabIllustBtn');
+  const tabPolaroidBtn = document.getElementById('tabPolaroidBtn');
+  const tabStickerBtn = document.getElementById('tabStickerBtn'); // <-- TAMBAHAN
+
+  const bookContent = document.getElementById('bookContent');
+  const wikiContent = document.getElementById('wikiContent');
+  const illustContent = document.getElementById('illustrationContent');
+  const polaroidContent = document.getElementById('polaroidAlbumContent');
+  const stickerContent = document.getElementById('stickerAlbumContent'); // <-- TAMBAHAN
+  const sliderContainer = document.getElementById('sliderContainer');
+
+  // Nav row elements
+  const pageIndicator = document.getElementById('pageIndicator');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const navRow = document.querySelector('.nav-row');
+
+  // Reset Active Tab States
+  if (tabNovelBtn) tabNovelBtn.classList.remove('active');
+  if (tabSolBtn) tabSolBtn.classList.remove('active');
+  if (tabWikiBtn) tabWikiBtn.classList.remove('active');
+  if (tabIllustBtn) tabIllustBtn.classList.remove('active');
+  if (tabPolaroidBtn) tabPolaroidBtn.classList.remove('active');
+  if (tabStickerBtn) tabStickerBtn.classList.remove('active'); // <-- TAMBAHAN
+
+  // Hide All Content Blocks
+  if (bookContent) bookContent.style.display = 'none';
+  if (wikiContent) wikiContent.style.display = 'none';
+  if (illustContent) illustContent.style.display = 'none';
+  if (polaroidContent) polaroidContent.style.display = 'none';
+  if (stickerContent) stickerContent.style.display = 'none'; // <-- TAMBAHAN
+  if (sliderContainer) sliderContainer.style.visibility = 'hidden';
+
+  // Pastikan tombol navigasi bawah selalu terlihat secara default
+  if (navRow) navRow.style.display = 'flex';
+
+  // Reset Book Reading State
+  currentChapterIndex = -1;
+  pages = [];
+  currentPage = 0;
+
+  // Tab Logic Execution
+  if (tab === 'novel') {
+    if (tabNovelBtn) tabNovelBtn.classList.add('active');
+    if (bookContent) bookContent.style.display = 'block';
+    renderTableOfContents();
+
+  } else if (tab === 'sol') {
+    if (tabSolBtn) tabSolBtn.classList.add('active');
+    if (bookContent) bookContent.style.display = 'block';
+
+    if (allSolChapters.length === 0) {
+      loadSol();
+    } else {
+      renderTableOfContents();
+    }
+
+  } else if (tab === 'wiki') {
+    if (tabWikiBtn) tabWikiBtn.classList.add('active');
+    if (wikiContent) wikiContent.style.display = 'block';
+
+    // RESET & SEMBUNYIKAN NAVIGASI DI TAB WIKI
+    if (pageIndicator) pageIndicator.innerText = '';
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
+    if (navRow) navRow.style.display = 'none'; // Sembunyikan baris navigasi back/next
+
+    if (wikiList.length === 0) {
+      fetchWikiData();
+    } else {
+      renderWikiView();
+    }
+
+  } else if (tab === 'illustration') {
+    if (tabIllustBtn) tabIllustBtn.classList.add('active');
+    if (illustContent) illustContent.style.display = 'block';
+
+    if (illustrations.length === 0) {
+      loadIllustrations();
+    } else {
+      renderIllustration();
+    }
+
+  } else if (tab === 'polaroid') {
+    if (tabPolaroidBtn) tabPolaroidBtn.classList.add('active');
+    if (polaroidContent) polaroidContent.style.display = 'block';
+
+    if (albumPolaroidList.length === 0) {
+      loadAlbumPolaroids();
+    } else {
+      renderPolaroidGrid();
+    }
+
+  } else if (tab === 'sticker') { // <-- TAMBAHAN BLOK STIKER
+    if (tabStickerBtn) tabStickerBtn.classList.add('active');
+    if (stickerContent) stickerContent.style.display = 'block';
+
+    if (albumStickerList.length === 0) {
+      loadAlbumStickers();
+    } else {
+      renderStickerGrid();
+    }
+  }
+}
+
+    // --- MENGAMBIL SEMUA FOTO DARI GOOGLE SHEETS (TAB FOTO) ---
+    async function loadAlbumPolaroids() {
+      const container = document.getElementById('polaroidGridContainer');
+      if (container) {
+        container.innerHTML = `<div class="status-msg">Memuat foto...</div>`;
+      }
+
+      try {
+        // Ambil semua foto dari Google Sheets
+        const res = await fetch(`${SCRIPT_URL}?action=get_all_foto`);
+        if (!res.ok) throw new Error("Gagal mengambil foto dari Google Sheets");
         
-        if (currentChapterIndex !== -1) {
-          sliderContainer.style.visibility = 'visible';
-          renderPage();
+        const photos = await res.json();
+        
+        if (Array.isArray(photos) && photos.length > 0) {
+          albumPolaroidList = photos;
         } else {
-          sliderContainer.style.visibility = 'hidden';
-          renderTableOfContents();
+          throw new Error("Foto di spreadsheet kosong");
         }
-      } else {
-        tabIllustBtn.classList.add('active');
-        tabNovelBtn.classList.remove('active');
-        bookContent.style.display = 'none';
-        illustContent.style.display = 'block';
-        sliderContainer.style.visibility = 'hidden';
+      } catch (err) {
+        console.warn("Gagal load foto Google Sheets, mencoba fallback images.json:", err);
+        
+        // Fallback jika Google Sheets gagal/kosong -> Coba images.json
+        try {
+          const resFallback = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
+          if (resFallback.ok) {
+            const localFiles = await resFallback.json();
+            albumPolaroidList = localFiles.map(f => `images/${f}`);
+          }
+        } catch (e) {
+          // Fallback terakhir jika lokal juga gagal
+          albumPolaroidList = [];
+          for (let i = 1; i <= 20; i++) {
+            albumPolaroidList.push(`images/${i}.jpeg`);
+          }
+        }
+      }
 
-        if (illustrations.length === 0) {
-          loadIllustrations();
+      currentPolaroidPage = 0;
+      renderPolaroidGrid();
+    }
+
+    async function renderPolaroidGrid() {
+      const container = document.getElementById('polaroidGridContainer');
+      if (!container) return;
+
+      const totalItems = albumPolaroidList.length;
+      if (totalItems === 0) {
+        container.innerHTML = `<div class="status-msg">Tidak ada foto polaroid.</div>`;
+        return;
+      }
+
+      const itemsPerPage = 4;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      const startIndex = currentPolaroidPage * itemsPerPage;
+      const pageItems = albumPolaroidList.slice(startIndex, startIndex + itemsPerPage);
+
+      // Cek apakah user login sebagai admin
+      const isAdmin = sessionStorage.getItem('benivon_admin_logged') === 'true';
+
+      let html = '';
+      
+      pageItems.forEach((imgSrc, idx) => {
+        const globalIndex = startIndex + idx; // Indeks foto di array albumPolaroidList
+        const randomRotate = (Math.random() * 12 - 6).toFixed(1);
+        
+        const finalSrc = (imgSrc.startsWith('data:') || imgSrc.startsWith('http') || imgSrc.startsWith('images/')) 
+          ? imgSrc 
+          : `images/${imgSrc}`;
+
+        html += `
+          <div class="album-polaroid-card" style="transform: rotate(${randomRotate}deg);" onclick="zoomAlbumPolaroid('${finalSrc}')">
+            ${isAdmin ? `
+              <button class="admin-delete-btn" title="Hapus Foto Ini" onclick="event.stopPropagation(); deletePolaroidPhoto(${globalIndex}, '${finalSrc}')">
+                🗑️
+              </button>
+            ` : ''}
+            
+            <div class="album-polaroid-img-wrapper">
+              <img src="${finalSrc}" alt="Polaroid Memory">
+            </div>
+            
+            ${isAdmin ? `<div class="admin-size-badge" id="albumSizeBadge_${idx}">...</div>` : ''}
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+
+      // Hitung ukuran KB untuk Admin
+      if (isAdmin) {
+        pageItems.forEach(async (imgSrc, idx) => {
+          const finalSrc = (imgSrc.startsWith('data:') || imgSrc.startsWith('http') || imgSrc.startsWith('images/')) 
+            ? imgSrc 
+            : `images/${imgSrc}`;
+          
+          const sizeKB = await getImageSizeKB(finalSrc);
+          const badgeEl = document.getElementById(`albumSizeBadge_${idx}`);
+          if (badgeEl) {
+            badgeEl.innerText = sizeKB ? `${sizeKB} KB` : 'N/A';
+          }
+        });
+      }
+
+      const pageIndicator = document.getElementById('pageIndicator');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      if (pageIndicator) pageIndicator.innerText = `Polaroid ${currentPolaroidPage + 1} / ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = currentPolaroidPage === 0;
+      if (nextBtn) nextBtn.disabled = currentPolaroidPage >= totalPages - 1;
+    }
+
+function zoomAlbumPolaroid(imgSrc) {
+  let tempPolaroid = document.createElement('div');
+  tempPolaroid.className = 'polaroid zoomed';
+  tempPolaroid.id = 'tempAlbumZoomed';
+  tempPolaroid.innerHTML = `<img src="${imgSrc}" alt="Zoomed Polaroid">`;
+
+  document.getElementById('deskContainer').appendChild(tempPolaroid);
+  document.getElementById('deskContainer').classList.add('blurred');
+  document.getElementById('lightboxOverlay').classList.add('active');
+
+  activeZoomedEl = tempPolaroid;
+
+  // --- PASANG EFEK 3D TILT & GLARE (MOUSE & TOUCH) ---
+  let ticking = false;
+
+  const update3DEffect = function(clientX, clientY) {
+    const rect = tempPolaroid.getBoundingClientRect();
+    
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const percentX = Math.min(Math.max((x / rect.width) * 100, 0), 100);
+    const percentY = Math.min(Math.max((y / rect.height) * 100, 0), 100);
+    
+    const rotateX = ((y - centerY) / centerY) * -16; 
+    const rotateY = ((x - centerX) / centerX) * 16;
+
+    const shadowX = rotateY * -1.5; 
+    const shadowY = (rotateX * 1.5) + 20;
+
+    tempPolaroid.style.setProperty('--rx', `${rotateX}deg`);
+    tempPolaroid.style.setProperty('--ry', `${rotateY}deg`);
+    tempPolaroid.style.setProperty('--bx', `${shadowX}px`);
+    tempPolaroid.style.setProperty('--by', `${shadowY}px`);
+    tempPolaroid.style.setProperty('--glare-x', `${percentX}%`);
+    tempPolaroid.style.setProperty('--glare-y', `${percentY}%`);
+    tempPolaroid.style.setProperty('--glare-opacity', `1`);
+  };
+
+  const reset3DEffect = function() {
+    tempPolaroid.style.setProperty('--rx', `0deg`);
+    tempPolaroid.style.setProperty('--ry', `0deg`);
+    tempPolaroid.style.setProperty('--bx', `0px`);
+    tempPolaroid.style.setProperty('--by', `20px`);
+    tempPolaroid.style.setProperty('--glare-opacity', `0`);
+  };
+
+  // Event Handlers
+  activeMouseMoveHandler = function(e) {
+    update3DEffect(e.clientX, e.clientY);
+  };
+  activeMouseLeaveHandler = reset3DEffect;
+
+  activeTouchMoveHandler = function(e) {
+    if (e.cancelable) e.preventDefault();
+    if (e.touches && e.touches.length > 0) {
+      const touch = e.touches[0];
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          update3DEffect(touch.clientX, touch.clientY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+  };
+  activeTouchEndHandler = reset3DEffect;
+
+  // Pasang Listener ke elemen tempPolaroid
+  tempPolaroid.addEventListener('mousemove', activeMouseMoveHandler);
+  tempPolaroid.addEventListener('mouseleave', activeMouseLeaveHandler);
+  tempPolaroid.addEventListener('touchmove', activeTouchMoveHandler, { passive: false });
+  tempPolaroid.addEventListener('touchend', activeTouchEndHandler);
+  tempPolaroid.addEventListener('touchcancel', activeTouchEndHandler);
+}
+
+const originalCloseZoom = closeZoomedPolaroid;
+closeZoomedPolaroid = function() {
+  const tempEl = document.getElementById('tempAlbumZoomed');
+  
+  if (tempEl) {
+    // Bersihkan listener event jika ada
+    if (activeMouseMoveHandler) {
+      tempEl.removeEventListener('mousemove', activeMouseMoveHandler);
+      tempEl.removeEventListener('mouseleave', activeMouseLeaveHandler);
+      tempEl.removeEventListener('touchmove', activeTouchMoveHandler);
+      tempEl.removeEventListener('touchend', activeTouchEndHandler);
+      tempEl.removeEventListener('touchcancel', activeTouchEndHandler);
+      
+      activeMouseMoveHandler = null;
+      activeMouseLeaveHandler = null;
+      activeTouchMoveHandler = null;
+      activeTouchEndHandler = null;
+    }
+
+    tempEl.remove();
+    document.getElementById('deskContainer').classList.remove('blurred');
+    document.getElementById('lightboxOverlay').classList.remove('active');
+    activeZoomedEl = null;
+  } else if (typeof originalCloseZoom === 'function') {
+    originalCloseZoom();
+  }
+};
+
+    async function deletePolaroidPhoto(index, photoUrl) {
+      if (!confirm("Apakah Anda yakin ingin menghapus foto ini dari Google Sheets?")) {
+        return;
+      }
+
+      // Tampilkan indikator loading sederhana atau pesan
+      const container = document.getElementById('polaroidGridContainer');
+      
+      try {
+        // Kirim request hapus ke Google Apps Script
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            'action': 'delete_foto',
+            'photoUrl': photoUrl,
+            'index': index
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.status === 'success' || data.result === 'success') {
+          alert("Foto berhasil dihapus!");
+          // Hapus dari array lokal dan render ulang grid
+          albumPolaroidList.splice(index, 1);
+          
+          // Sesuaikan halaman jika halaman saat ini jadi kosong
+          const totalPages = Math.ceil(albumPolaroidList.length / 4);
+          if (currentPolaroidPage >= totalPages && currentPolaroidPage > 0) {
+            currentPolaroidPage--;
+          }
+          
+          renderPolaroidGrid();
         } else {
-          renderIllustration();
+          alert("Gagal menghapus foto: " + (data.message || "Terjadi kesalahan"));
         }
+      } catch (err) {
+        console.error("Error deleting photo:", err);
+        // Fallback opsional jika backend belum mendukung request POST: hapus secara lokal
+        albumPolaroidList.splice(index, 1);
+        renderPolaroidGrid();
+        alert("Foto telah dihapus dari tampilan lokal.");
       }
     }
 
@@ -1050,7 +1056,7 @@
       document.getElementById('nextBtn').disabled = currentIllustIndex === illustrations.length - 1;
     }
 
-    // --- LOGIKA NOVEL GOOGLE SHEETS ("kanon") ---
+    // --- LOGIKA NOVEL GOOGLE SHEETS ("kanon" & "sol") ---
     async function loadNovel() {
       const contentDiv = document.getElementById('bookContent');
       contentDiv.innerHTML = '<div class="status-msg">Memuat daftar cerita...</div>';
@@ -1066,58 +1072,134 @@
           return;
         }
 
-        renderTableOfContents();
+        if (activeTab === 'novel') {
+          renderTableOfContents();
+        }
       } catch (err) {
         contentDiv.innerHTML = `<div class="status-msg" style="color: #a33;">Gagal memuat cerita.<br><sup>${err.message}</sup></div>`;
       }
     }
 
-    function renderTableOfContents() {
-      currentChapterIndex = -1;
-      pages = [];
-      currentPage = 0;
-
+    async function loadSol() {
       const contentDiv = document.getElementById('bookContent');
-      let html = `
-        <div class="toc-container">
-          <div class="toc-title">📖 Daftar Isi</div>
-      `;
+      contentDiv.innerHTML = '<div class="status-msg">Memuat cerita Slice of Life...</div>';
 
-      allChapters.forEach((ch, index) => {
-        html += `
-          <div class="toc-item" onclick="openChapter(${index})">
-            <span class="toc-bab">${escapeHtml(ch.bab)}</span>
+      try {
+        const response = await fetch(`${SCRIPT_URL}?action=get_sol`);
+        if (!response.ok) throw new Error('Gagal terhubung ke server');
+        
+        allSolChapters = await response.json();
+
+        if (allSolChapters.length === 0) {
+          contentDiv.innerHTML = '<div class="status-msg">Belum ada cerita di tab Slice of Life.</div>';
+          return;
+        }
+
+        if (activeTab === 'sol') {
+          renderTableOfContents();
+        }
+      } catch (err) {
+        contentDiv.innerHTML = `<div class="status-msg" style="color: #a33;">Gagal memuat cerita Slice of Life.<br><sup>${err.message}</sup></div>`;
+      }
+    }
+
+function renderTableOfContents() {
+  currentChapterIndex = -1;
+  pages = [];
+  currentPage = 0;
+
+  const contentDiv = document.getElementById('bookContent');
+  const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
+  const titleIcon = (activeTab === 'sol') ? '🌱' : '📖';
+  const titleText = (activeTab === 'sol') ? 'Slice of Life' : 'Daftar Isi';
+
+  let html = `
+    <div class="toc-container">
+      <div class="toc-title">${titleIcon} ${titleText}</div>
+  `;
+
+  if (activeData.length === 0) {
+    html += `<div class="status-msg">Belum ada cerita.</div>`;
+  } else {
+    activeData.forEach((ch, index) => {
+      // Subjek dalam kurung dan cetak miring
+      const subjekHtml = ch.subjek 
+        ? `<div class="toc-subjek" style="font-style: italic; font-size: 0.85em; opacity: 0.8; margin-top: 2px;">(${escapeHtml(ch.subjek)})</div>` 
+        : '';
+
+      html += `
+        <div class="toc-item" onclick="openChapter(${index})">
+          <div class="toc-judul-box">
             <span class="toc-judul">${escapeHtml(ch.judul)}</span>
           </div>
-        `;
-      });
+          ${subjekHtml}
+        </div>
+      `;
+    });
+  }
 
-      html += `</div>`;
-      contentDiv.innerHTML = html;
+  html += `</div>`;
+  contentDiv.innerHTML = html;
 
-      document.getElementById('pageIndicator').innerText = `Daftar Isi`;
-      document.getElementById('prevBtn').disabled = true;
-      document.getElementById('nextBtn').disabled = true;
-      document.getElementById('sliderContainer').style.visibility = 'hidden';
+  document.getElementById('pageIndicator').innerText = titleText;
+  document.getElementById('prevBtn').disabled = true;
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('sliderContainer').style.visibility = 'hidden';
+}
+
+function openChapter(index) {
+  const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
+  if (index < 0 || index >= activeData.length) return;
+
+  currentChapterIndex = index;
+  currentPage = 0;
+  const ch = activeData[index];
+
+  // --- AMBIL FOTO DINAMIS UNTUK POLAROID (BERLAKU KANON & SOL) ---
+  if ((activeTab === 'novel' || activeTab === 'sol') && ch.subjek) {
+    loadPolaroidsBySubjek(ch.subjek);
+  }
+
+  const fullText = ch.isi || '';
+  rawParagraphs = fullText.split(/\r?\n/).filter(p => p.trim() !== '');
+
+  rawParagraphs.unshift(`TITLE::${ch.judul}`);
+
+  document.getElementById('sliderContainer').style.visibility = 'visible';
+  recalculatePagination();
+}
+async function loadPolaroidsBySubjek(subjek) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=get_foto_by_subjek&subjek=${encodeURIComponent(subjek)}`);
+    if (!res.ok) return;
+    
+    let fetchedPhotos = await res.json();
+    
+    // Jika tidak ada foto di spreadsheet untuk subjek ini, batalkan/abaikan
+    if (!fetchedPhotos || fetchedPhotos.length === 0) return;
+
+    // Acak foto yang didapat
+    for (let i = fetchedPhotos.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [fetchedPhotos[i], fetchedPhotos[j]] = [fetchedPhotos[j], fetchedPhotos[i]];
     }
 
-    function openChapter(index) {
-      if (index < 0 || index >= allChapters.length) return;
-
-      currentChapterIndex = index;
-      currentPage = 0;
-      const ch = allChapters[index];
-
-      const fullText = ch.isi || '';
-      rawParagraphs = fullText.split(/\r?\n/).filter(p => p.trim() !== '');
-
-      // FIX 2: Tandai judul dengan penanda khusus 'TITLE::'
-      rawParagraphs.unshift(`TITLE::${ch.judul}`);
-
-      document.getElementById('sliderContainer').style.visibility = 'visible';
-      recalculatePagination();
+    // Pasang ke 7 Polaroid
+    for (let i = 1; i <= 7; i++) {
+      const el = document.getElementById(`polaroid${i}`);
+      if (el) {
+        const imgEl = el.querySelector("img");
+        if (imgEl) {
+          // Mengambil foto acak berurutan dari daftar foto fetchedPhotos
+          const selectedPhoto = fetchedPhotos[(i - 1) % fetchedPhotos.length];
+          imgEl.src = selectedPhoto;
+        }
+      }
     }
-
+  } catch (err) {
+    console.error("Gagal mengambil foto subjek dari spreadsheet:", err);
+  }
+}
     function recalculatePagination() {
       if (rawParagraphs.length === 0 || currentChapterIndex === -1) return;
 
@@ -1149,7 +1231,6 @@
       for (let pIndex = 0; pIndex < rawParagraphs.length; pIndex++) {
         const fullText = rawParagraphs[pIndex];
 
-        // FIX 2: Penanganan khusus untuk judul
         if (fullText.startsWith('TITLE::')) {
           const titleText = fullText.replace('TITLE::', '');
           let titleElem = document.createElement('p');
@@ -1213,7 +1294,7 @@
         currentPage = Math.max(0, pages.length - 1);
       }
 
-      if (activeTab === 'novel') {
+      if (activeTab === 'novel' || activeTab === 'sol') {
         renderPage();
       }
     }        
@@ -1233,7 +1314,6 @@
 
       contentDiv.innerHTML = pages[currentPage];
 
-      // FIX 1: Terapkan Dropcap hanya di halaman pertama (halaman yang berisi judul bab)
       if (currentPage === 0) {
         let firstP = contentDiv.querySelector('p:not(.chapter-title):not(.continuation)');
         if (!firstP) {
@@ -1251,45 +1331,48 @@
       nextBtn.disabled = currentPage === pages.length - 1;
     }
 
-    function handlePrevNav() {
-      if (activeTab === 'novel') {
-        if (currentChapterIndex !== -1) {
-          if (currentPage > 0) {
-            currentPage--;
-            renderPage();
-          } else {
-            renderTableOfContents();
-          }
-        }
-      } else {
-        if (currentIllustIndex > 0) {
-          currentIllustIndex--;
-          renderIllustration();
-        }
-      }
+function handlePrevNav() {
+  if (activeTab === 'novel' || activeTab === 'sol') {
+    if (currentChapterIndex !== -1) {
+      if (currentPage > 0) { currentPage--; renderPage(); }
+      else { renderTableOfContents(); }
     }
+  } else if (activeTab === 'illustration') {
+    if (currentIllustIndex > 0) { currentIllustIndex--; renderIllustration(); }
+  } else if (activeTab === 'polaroid') {
+    if (currentPolaroidPage > 0) { currentPolaroidPage--; renderPolaroidGrid(); }
+  } else if (activeTab === 'sticker') { // <--- TAMBAHAN UNTUK STIKER
+    if (currentStickerPage > 0) { currentStickerPage--; renderStickerGrid(); }
+  }
+}
 
-    function handleNextNav() {
-      if (activeTab === 'novel') {
-        if (currentChapterIndex !== -1) {
-          if (currentPage < pages.length - 1) {
-            currentPage++;
-            renderPage();
-          }
-        }
-      } else {
-        if (currentIllustIndex < illustrations.length - 1) {
-          currentIllustIndex++;
-          renderIllustration();
-        }
-      }
+function handleNextNav() {
+  if (activeTab === 'novel' || activeTab === 'sol') {
+    if (currentChapterIndex !== -1 && currentPage < pages.length - 1) {
+      currentPage++; renderPage();
     }
+  } else if (activeTab === 'illustration') {
+    if (currentIllustIndex < illustrations.length - 1) {
+      currentIllustIndex++; renderIllustration();
+    }
+  } else if (activeTab === 'polaroid') {
+    const totalPages = Math.ceil(albumPolaroidList.length / 4);
+    if (currentPolaroidPage < totalPages - 1) {
+      currentPolaroidPage++; renderPolaroidGrid();
+    }
+  } else if (activeTab === 'sticker') { // <--- TAMBAHAN UNTUK STIKER
+    const totalPages = Math.ceil(albumStickerList.length / 4); // sesuaikan pembagi (4) dengan isi per halaman stiker kamu
+    if (currentStickerPage < totalPages - 1) {
+      currentStickerPage++; renderStickerGrid();
+    }
+  }
+}
 
     function changeFontSize(val) {
       recalculatePagination();
     }
 
-    // --- POLAROID RANDOMIZER ---
+    // --- POLAROID RANDOMIZER (MENGAMBIL SEMUA FOTO DARI GOOGLE SHEETS) ---
     async function randomizePolaroids() {
       const isMobile = window.innerWidth <= 768;
       const screenW = window.innerWidth;
@@ -1326,37 +1409,64 @@
       }
 
       let foundImages = [];
+      
+      // 1. Coba ambil semua foto dari Google Sheets
       try {
-        const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP Status: ${res.status}`);
-        const files = await res.json();
-        if (Array.isArray(files)) {
-          foundImages = files;
+        const res = await fetch(`${SCRIPT_URL}?action=get_all_foto`);
+        if (res.ok) {
+          const sheetsPhotos = await res.json();
+          if (Array.isArray(sheetsPhotos) && sheetsPhotos.length > 0) {
+            foundImages = sheetsPhotos;
+          }
         }
       } catch (err) {
-        console.error("Gagal membaca images.json, menggunakan fallback:", err);
+        console.warn("Gagal mengambil foto dari Google Sheets, mencoba fallback images.json:", err);
       }
 
+      // 2. Jika Google Sheets kosong/gagal, fallback ke images.json
       if (foundImages.length === 0) {
-        for (let i = 1; i <= 20; i++) {
-          foundImages.push(`${i}.jpeg`);
-          foundImages.push(`foto${i}.jpeg`);
+        try {
+          const res = await fetch(`images.json?v=${Date.now()}`, { cache: "no-store" });
+          if (res.ok) {
+            const files = await res.json();
+            if (Array.isArray(files)) {
+              foundImages = files.map(f => `images/${f}`);
+            }
+          }
+        } catch (err) {
+          console.error("Gagal membaca images.json:", err);
         }
       }
 
+      // 3. Jika masih kosong, gunakan nama file lokal fallback
+      if (foundImages.length === 0) {
+        for (let i = 1; i <= 20; i++) {
+          foundImages.push(`images/${i}.jpeg`);
+        }
+      }
+
+      // Acak urutan foto
       for (let i = foundImages.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [foundImages[i], foundImages[j]] = [foundImages[j], foundImages[i]];
       }
 
+      // Pasang gambar dan posisi ke 7 elemen polaroid
       polaroidConfigs.forEach((config, index) => {
         const el = document.getElementById(config.id);
         if (!el) return;
         const imgEl = el.querySelector("img");
+        
         const selectedImg = foundImages[index % foundImages.length];
-        imgEl.src = `images/${selectedImg}?v=${Date.now()}`;
+        
+        // Jika link berupa base64 atau URL luar dari Apps Script, gunakan langsung.
+        // Jika nama file relatif lokal, tambahkan cache buster jika perlu.
+        imgEl.src = selectedImg.startsWith('data:') || selectedImg.startsWith('http')
+          ? selectedImg 
+          : `${selectedImg}?v=${Date.now()}`;
+
         imgEl.onerror = () => {
-          console.warn("Gagal memuat gambar:", selectedImg);
+          console.warn("Gagal memuat gambar polaroid:", selectedImg);
         };
 
         const minX = config.area.x[0];
@@ -1375,112 +1485,249 @@
       });
     }
 
-    // --- DRAG & ZOOM POLAROID ---
-    function makeElementDraggableAndZoomable(el) {
-      if (el.dataset.initialized) return;
-      el.dataset.initialized = "1";
+// --- DRAG & ZOOM POLAROID (TILT DINAMIS + ORIENTASI BARU SAAT DILEPAS) ---
+function makeElementDraggableAndZoomable(el) {
+  if (el.dataset.initialized) return;
+  el.dataset.initialized = "1";
 
-      let isDragging = false;
-      let startX = 0, startY = 0;
-      let moveDistance = 0;
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let moveDistance = 0;
 
-      function onStart(e) {
-        if (el.classList.contains('zoomed')) return;
+  function onStart(e) {
+    if (el.classList.contains('zoomed')) return;
 
-        isDragging = true;
-        moveDistance = 0;
-        topZIndex++;
-        el.style.zIndex = topZIndex;
+    isDragging = true;
+    moveDistance = 0;
+    topZIndex++;
+    el.style.zIndex = topZIndex;
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+    // Matikan transisi sebentar agar gerakan drag mengikuti kursor secara instan (tanpa lag)
+    el.style.transition = 'none';
 
-        const currentX = parseFloat(el.dataset.x) || 0;
-        const currentY = parseFloat(el.dataset.y) || 0;
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        startX = clientX - currentX;
-        startY = clientY - currentY;
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
 
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onEnd);
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', onEnd);
-      }
+    startX = clientX - currentX;
+    startY = clientY - currentY;
 
-      function onMove(e) {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault();
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+  function onMove(e) {
+    if (!isDragging) return;
+    if (e.cancelable) e.preventDefault();
 
-        const newX = clientX - startX;
-        const newY = clientY - startY;
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        const currentX = parseFloat(el.dataset.x) || 0;
-        const currentY = parseFloat(el.dataset.y) || 0;
+    const newX = clientX - startX;
+    const newY = clientY - startY;
 
-        moveDistance += Math.abs(newX - currentX) + Math.abs(newY - currentY);
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
 
-        el.dataset.x = newX;
-        el.dataset.y = newY;
+    // Hitung perubahan posisi X (kecepatan pergerakan horizontal)
+    const deltaX = newX - currentX;
 
-        const rotate = parseFloat(el.dataset.rotate) || 0;
-        el.style.transform = `translate(${newX}px, ${newY}px) rotate(${rotate}deg)`;
-      }
+    moveDistance += Math.abs(deltaX) + Math.abs(newY - currentY);
 
-      function onEnd() {
-        isDragging = false;
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onEnd);
-        document.removeEventListener('touchmove', onMove);
-        document.removeEventListener('touchend', onEnd);
+    el.dataset.x = newX;
+    el.dataset.y = newY;
 
-        if (moveDistance < 5) {
-          toggleZoomPolaroid(el);
+    const baseRotate = parseFloat(el.dataset.rotate) || 0;
+
+    // Tilt dinamis saat ditarik (miring ikutan gerak kursor, maks -12 s/d +12 derajat)
+    const dynamicTilt = Math.min(Math.max(deltaX * 0.8, -12), 12);
+    const currentRotate = baseRotate + dynamicTilt;
+
+    el.style.transform = `translate(${newX}px, ${newY}px) rotate(${currentRotate}deg)`;
+  }
+
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+
+    // Berikan efek transisi jatuh/melepas yang mulus
+    el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
+
+    if (moveDistance < 5) {
+      // Jika hanya klik biasa (tanpa geser), jalankan mode Zoom
+      toggleZoomPolaroid(el);
+    } else {
+      // BIKIN ORIENTASI BARU YANG JAUH BERBEDA:
+      // Rotasi acak baru antara -25 deg sampai +25 deg
+      const newRandomRotate = Math.floor(Math.random() * 50) - 25;
+
+      // Update data rotate agar acakan baru ini disimpan sebagai orientasi permanen
+      el.dataset.rotate = newRandomRotate;
+
+      // Pasang posisi dan orientasi rotasi baru
+      el.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${newRandomRotate}deg)`;
+    }
+  }
+
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+}  
+
+let activeMouseMoveHandler = null;
+let activeMouseLeaveHandler = null;
+let activeTouchMoveHandler = null;
+let activeTouchEndHandler = null;
+
+function toggleZoomPolaroid(el) {
+  if (el.classList.contains('zoomed')) {
+    closeZoomedPolaroid();
+  } else {
+    if (activeZoomedEl) closeZoomedPolaroid();
+
+    activeZoomedEl = el;
+    el.classList.add('zoomed');
+
+    document.getElementById('deskContainer').classList.add('blurred');
+    document.getElementById('lightboxOverlay').classList.add('active');
+
+    let ticking = false;
+
+    // --- Core Logic Perhitungan 3D Tilt & Glare ---
+    const update3DEffect = function(clientX, clientY) {
+      const rect = el.getBoundingClientRect();
+      
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const percentX = Math.min(Math.max((x / rect.width) * 100, 0), 100);
+      const percentY = Math.min(Math.max((y / rect.height) * 100, 0), 100);
+      
+      const rotateX = ((y - centerY) / centerY) * -16; 
+      const rotateY = ((x - centerX) / centerX) * 16;
+
+      const shadowX = rotateY * -1.5; 
+      const shadowY = (rotateX * 1.5) + 20;
+
+      el.style.setProperty('--rx', `${rotateX}deg`);
+      el.style.setProperty('--ry', `${rotateY}deg`);
+      el.style.setProperty('--bx', `${shadowX}px`);
+      el.style.setProperty('--by', `${shadowY}px`);
+      el.style.setProperty('--glare-x', `${percentX}%`);
+      el.style.setProperty('--glare-y', `${percentY}%`);
+      el.style.setProperty('--glare-opacity', `1`);
+    };
+
+    const reset3DEffect = function() {
+      el.style.setProperty('--rx', `0deg`);
+      el.style.setProperty('--ry', `0deg`);
+      el.style.setProperty('--bx', `0px`);
+      el.style.setProperty('--by', `20px`);
+      el.style.setProperty('--glare-opacity', `0`);
+    };
+
+    // 1. MOUSE (Laptop / PC)
+    activeMouseMoveHandler = function(e) {
+      update3DEffect(e.clientX, e.clientY);
+    };
+    activeMouseLeaveHandler = reset3DEffect;
+
+    // 2. TOUCH (HP / Tablet)
+    activeTouchMoveHandler = function(e) {
+      // CEGAH BROWSER SCROLL agar event touch terus berjalan
+      if (e.cancelable) e.preventDefault(); 
+
+      if (e.touches && e.touches.length > 0) {
+        const touch = e.touches[0];
+        
+        // Optimasi frame rate layar HP
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            update3DEffect(touch.clientX, touch.clientY);
+            ticking = false;
+          });
+          ticking = true;
         }
       }
+    };
 
-      el.addEventListener('mousedown', onStart);
-      el.addEventListener('touchstart', onStart, { passive: false });
-    }
+    activeTouchEndHandler = function(e) {
+      reset3DEffect();
+    };
 
-    function toggleZoomPolaroid(el) {
-      if (el.classList.contains('zoomed')) {
-        closeZoomedPolaroid();
-      } else {
-        if (activeZoomedEl) closeZoomedPolaroid();
+    // Pasang Listener Mouse
+    el.addEventListener('mousemove', activeMouseMoveHandler);
+    el.addEventListener('mouseleave', activeMouseLeaveHandler);
 
-        activeZoomedEl = el;
-        el.classList.add('zoomed');
+    // Pasang Listener Touch (Penting: passive HARUS false agar e.preventDefault() jalan)
+    el.addEventListener('touchmove', activeTouchMoveHandler, { passive: false });
+    el.addEventListener('touchend', activeTouchEndHandler);
+    el.addEventListener('touchcancel', activeTouchEndHandler);
+  }
+}
 
-        document.getElementById('deskContainer').classList.add('blurred');
-        document.getElementById('lightboxOverlay').classList.add('active');
-      }
-    }
+function closeZoomedPolaroid() {
+  if (!activeZoomedEl) return;
 
-    function closeZoomedPolaroid() {
-      if (!activeZoomedEl) return;
+  const el = activeZoomedEl;
+  const initialX = parseFloat(el.dataset.x) || 0;
+  const initialY = parseFloat(el.dataset.y) || 0;
+  const rotate = parseFloat(el.dataset.rotate) || 0;
 
-      const el = activeZoomedEl;
-      const initialX = parseFloat(el.dataset.x) || 0;
-      const initialY = parseFloat(el.dataset.y) || 0;
-      const rotate = parseFloat(el.dataset.rotate) || 0;
+  // Bersihkan semua event listener
+  if (activeMouseMoveHandler) {
+    el.removeEventListener('mousemove', activeMouseMoveHandler);
+    el.removeEventListener('mouseleave', activeMouseLeaveHandler);
+    el.removeEventListener('touchmove', activeTouchMoveHandler);
+    el.removeEventListener('touchend', activeTouchEndHandler);
+    el.removeEventListener('touchcancel', activeTouchEndHandler);
+    
+    activeMouseMoveHandler = null;
+    activeMouseLeaveHandler = null;
+    activeTouchMoveHandler = null;
+    activeTouchEndHandler = null;
+  }
 
-      el.classList.remove('zoomed');
-      el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
+  // Reset CSS Variables
+  el.style.removeProperty('--rx');
+  el.style.removeProperty('--ry');
+  el.style.removeProperty('--bx');
+  el.style.removeProperty('--by');
+  el.style.removeProperty('--glare-x');
+  el.style.removeProperty('--glare-y');
+  el.style.removeProperty('--glare-opacity');
+  
+  el.classList.remove('zoomed');
+  
+  el.style.transform = `translate(${initialX}px, ${initialY}px) rotate(${rotate}deg)`;
 
-      document.getElementById('deskContainer').classList.remove('blurred');
-      document.getElementById('lightboxOverlay').classList.remove('active');
+  document.getElementById('deskContainer').classList.remove('blurred');
+  document.getElementById('lightboxOverlay').classList.remove('active');
 
-      activeZoomedEl = null;
-    }
+  activeZoomedEl = null;
+}
 
     window.addEventListener('DOMContentLoaded', () => {
       checkIntroStatus();
+      checkAdminStatus();
       randomizePolaroids();
       loadNovel();
       loadIllustrations();
+      loadJukeboxTracks();
     });
 
     window.addEventListener('resize', () => {
@@ -1599,68 +1846,644 @@
       randomizePolaroids();
     }
     
-    // --- PEMUTAR MUSIK BGM ---
-    function toggleBgm() {
-      const audio = document.getElementById('bgmAudio');
-      const bgmBtn = document.getElementById('btnBgmToggle');
+// --- PEMUTAR MUSIK BGM ---
+let noteStreamInterval = null;
 
-      if (audio.paused) {
-        audio.play().then(() => {
-          bgmBtn.innerText = '🎵';
-          bgmBtn.setAttribute('title', 'Matikan Musik');
-        }).catch(err => {
-          console.error("Gagal memutar audio:", err);
-          alert("Gagal memutar audio. Pastikan file 'bgm/bgm.mp3' tersedia!");
+// Fungsi untuk membuat & melepaskan not balok melayang
+function spawnMusicNote() {
+  const jukeboxBtn = document.getElementById('btnJukebox');
+  if (!jukeboxBtn) return;
+
+  const rect = jukeboxBtn.getBoundingClientRect();
+  const notes = ['🎵', '🎶', '🎼', '♩', '♪', '♫'];
+  const randomNote = notes[Math.floor(Math.random() * notes.length)];
+
+  const noteEl = document.createElement('div');
+  noteEl.className = 'floating-note';
+  noteEl.innerText = randomNote;
+
+  const randomOffsetX = (Math.random() * 20) - 10; 
+  const posX = rect.left + (rect.width / 2) + randomOffsetX;
+  const posY = rect.top - 10;
+
+  noteEl.style.left = `${posX}px`;
+  noteEl.style.top = `${posY}px`;
+
+  document.body.appendChild(noteEl);
+
+  setTimeout(() => {
+    noteEl.remove();
+  }, 2000);
+}
+
+// Fungsi Utama Pengontrol Efek Visual
+function updateJukeboxVisualEffects(isPlaying) {
+  const jukeboxBtn = document.getElementById('btnJukebox');
+  
+  // MATIKAN INTERVAL YANG LAMA TERLEBIH DAHULU (Pencegahan penumpukan interval)
+  if (noteStreamInterval) {
+    clearInterval(noteStreamInterval);
+    noteStreamInterval = null;
+  }
+
+  if (isPlaying) {
+    if (jukeboxBtn) jukeboxBtn.classList.add('pulsing');
+    // Jalankan pembuat not balok baru
+    noteStreamInterval = setInterval(spawnMusicNote, 400);
+  } else {
+    if (jukeboxBtn) jukeboxBtn.classList.remove('pulsing');
+  }
+}
+
+// --- OTOMATISASI VIA EVENT LISTENER AUDIO (WAJIB DITAMBAHKAN) ---
+document.addEventListener('DOMContentLoaded', () => {
+  const audio = document.getElementById('bgmAudio');
+  if (!audio) return;
+
+  // Saat audio diputar (play / resume / ganti lagu)
+  audio.addEventListener('play', () => {
+    updateJukeboxVisualEffects(true);
+  });
+
+  // Saat audio di-pause
+  audio.addEventListener('pause', () => {
+    updateJukeboxVisualEffects(false);
+  });
+
+  // Saat audio selesai/habis
+  audio.addEventListener('ended', () => {
+    updateJukeboxVisualEffects(false);
+  });
+});
+
+// --- FUNGSI TOGGLE BGM (LEBIH SIMPEL) ---
+function toggleBgm() {
+  const audio = document.getElementById('bgmAudio');
+  const bgmBtn = document.getElementById('btnBgmToggle');
+
+  if (!audio) return;
+
+  if (audio.paused) {
+    audio.play().then(() => {
+      if (bgmBtn) {
+        bgmBtn.innerText = '🎵';
+        bgmBtn.setAttribute('title', 'Matikan Musik');
+      }
+    }).catch(err => {
+      console.error("Gagal memutar audio:", err);
+    });
+  } else {
+    audio.pause();
+    if (bgmBtn) {
+      bgmBtn.innerText = '🔇';
+      bgmBtn.setAttribute('title', 'Putar Musik');
+    }
+  }
+}
+
+    function toggleJukeboxMenu() {
+      const menu = document.getElementById('jukeboxMenu');
+      menu.classList.toggle('show');
+    }
+
+    document.addEventListener('click', function(e) {
+      const jukeboxContainer = document.querySelector('.jukebox-container');
+      if (jukeboxContainer && !jukeboxContainer.contains(e.target)) {
+        document.getElementById('jukeboxMenu')?.classList.remove('show');
+      }
+    });
+
+    function playJukeboxTrack(srcPath, title, element) {
+  const audio = document.getElementById('bgmAudio');
+  const btnToggle = document.getElementById('btnBgmToggle');
+
+  document.querySelectorAll('.vinyl-item').forEach(item => item.classList.remove('active'));
+  if (element) element.classList.add('active');
+
+  audio.src = srcPath;
+  audio.load();
+
+  audio.play().then(() => {
+    if (btnToggle) btnToggle.innerText = '🎵';
+    
+    // Aktifkan Efek Jukebox
+    updateJukeboxVisualEffects(true);
+  }).catch(err => {
+    console.log("Autoplay ditahan browser:", err);
+  });
+}
+
+    async function loadJukeboxTracks() {
+      const menuContainer = document.getElementById('jukeboxMenu');
+      if (!menuContainer) return;
+
+      try {
+        const response = await fetch(`bgm.json?v=${Date.now()}`);
+        if (!response.ok) throw new Error('Gagal memuat bgm.json');
+
+        const tracks = await response.json();
+
+        menuContainer.innerHTML = '<div class="jukebox-header">🎵 JUKEBOX</div>';
+
+        if (tracks.length === 0) {
+          menuContainer.innerHTML += '<div style="color:#a89379; font-size:0.75rem; text-align:center; padding:8px;">Tidak ada lagu.</div>';
+          return;
+        }
+
+        tracks.forEach((track, index) => {
+          const vinylItem = document.createElement('div');
+          vinylItem.className = `vinyl-item ${index === 0 ? 'active' : ''}`;
+          
+          vinylItem.onclick = function () {
+            playJukeboxTrack(`bgm/${track.file}`, track.title, this);
+          };
+
+          vinylItem.innerHTML = `
+            <div class="vinyl-disc"></div>
+            <div class="vinyl-info">
+              <span class="vinyl-title">${escapeHtml(track.title || 'Unknown Track')}</span>
+            </div>
+          `;
+
+          menuContainer.appendChild(vinylItem);
         });
-      } else {
-        audio.pause();
-        bgmBtn.innerText = '🔇';
-        bgmBtn.setAttribute('title', 'Putar Musik');
+
+      } catch (err) {
+        console.warn('Gagal memuat bgm.json:', err);
+        menuContainer.innerHTML += '<div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
       }
     }
-  </script>
+        function getImageSizeKB(src) {
+      return new Promise((resolve) => {
+        if (!src) return resolve(null);
 
-  <audio id="bgmAudio" loop preload="auto">
-    <source src="bgm/bgm.mp3" type="audio/mpeg">
-  </audio>
+        // Jika gambar berupa data Base64
+        if (src.startsWith('data:')) {
+          const base64Str = src.split(',')[1] || '';
+          const bytes = Math.round((base64Str.length * 3) / 4);
+          return resolve((bytes / 1024).toFixed(1));
+        }
 
-  <div class="fab-container">
-    <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">
-      🔄
-    </button>
+        // Jika gambar berupa URL biasa / path lokal
+        fetch(src, { method: 'HEAD' })
+          .then(res => {
+            const length = res.headers.get('content-length');
+            if (length) {
+              resolve((parseInt(length, 10) / 1024).toFixed(1));
+            } else {
+              resolve(null);
+            }
+          })
+          .catch(() => resolve(null));
+      });
+    }
 
-    <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">
-      🔇
-    </button>
+// Fetch data dari Apps Script
+async function fetchWikiData() {
+  const wikiContainer = document.getElementById('wikiContent');
+  wikiContainer.innerHTML = `<div class="status-msg">Memuat data wiki...</div>`;
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=get_wiki`);
+    wikiList = await res.json();
+    renderWikiView();
+  } catch (err) {
+    console.error("Gagal memuat wiki:", err);
+    wikiContainer.innerHTML = `<div class="status-msg" style="color:#a33;">Gagal memuat data wiki.</div>`;
+  }
+}
 
-    <button class="fab-btn" onclick="openCommentModal()" title="Buku Tamu / Komentar">
-      💬
-    </button>
-  </div>
+// Render Tampilan List atau Detail Karakter Wiki
+function renderWikiView() {
+  const wikiContainer = document.getElementById('wikiContent');
+  let fileInputHtml = `<input type="file" id="wikiFileInput" accept="image/*" style="display: none;" onchange="handleWikiPhotoSelect(event)">`;
 
-  <div class="comment-modal-overlay" id="commentModalOverlay">
-    <div class="comment-modal">
-      <div class="modal-header">
-        <h3>Buku Tamu & Komentar</h3>
-        <button class="close-btn" onclick="closeCommentModal()">&times;</button>
-      </div>
+  // Bersihkan teks indikator dan sembunyikan baris navigasi
+  const pageIndicator = document.getElementById('pageIndicator');
+  const navRow = document.querySelector('.nav-row');
+  if (pageIndicator) pageIndicator.innerText = '';
+  if (navRow) navRow.style.display = 'none';
 
-      <div class="comments-list" id="commentsList">
-        <div class="status-msg">Memuat komentar...</div>
-      </div>
+  if (!selectedWikiChar) {
+    if (wikiList.length === 0) {
+      wikiContainer.innerHTML = fileInputHtml + `<div class="status-msg">Belum ada data karakter.</div>`;
+      return;
+    }
 
-      <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
-        <div class="comment-user-badge" id="commentUserBadge"></div>
-
-        <textarea id="messageInput" class="comment-textarea" placeholder="Tulis komentar (maks. 160 karakter)..." maxlength="160" required oninput="updateCharCount()"></textarea>
-        
-        <div class="form-footer">
-          <span class="char-counter" id="charCounter">0 / 160</span>
-          <button type="submit" class="submit-btn" id="submitBtn">Kirim</button>
+    let html = fileInputHtml + `<div class="toc-container"><div class="toc-title">📂 ENSIKLOPEDIA KARAKTER</div>`;
+    wikiList.forEach((char, index) => {
+      html += `
+        <div class="toc-item" onclick="selectWikiChar(${index})">
+          <div class="toc-judul">${escapeHtml(char.nama)}</div>
+          <div class="toc-bab" style="font-style: italic;">${char.nick ? '("'+escapeHtml(char.nick)+'")' : ''}</div>
         </div>
-      </form>
-    </div>
-  </div>
+      `;
+    });
+    html += `</div>`;
+    wikiContainer.innerHTML = html;
+  } else {
+    const c = selectedWikiChar;
+    const isAdmin = sessionStorage.getItem('benivon_admin_logged') === 'true';
+    const photoSrc = c.foto ? c.foto : 'https://via.placeholder.com/150?text=No+Image';
 
+    let html = fileInputHtml + `
+      <div class="wiki-detail-container">
+        <button class="nav-btn" style="margin-bottom: 10px; padding: 4px 10px; font-size: 0.75rem; align-self: flex-start;" onclick="backToWikiList()">← Kembali ke Daftar</button>
+        
+        <div class="wiki-avatar-container">
+          <div class="wiki-avatar-wrapper ${isAdmin ? 'is-admin' : ''}" 
+               onclick="${isAdmin ? 'triggerWikiPhotoUpload()' : ''}" 
+               title="${isAdmin ? 'Klik untuk mengganti foto karakter (Admin)' : ''}">
+            
+            <img id="wikiAvatarImg" src="${photoSrc}" alt="${escapeHtml(c.nama)}" class="wiki-avatar-img">
+            ${isAdmin ? `<div class="wiki-avatar-overlay">📷 Ubah</div>` : ''}
+          </div>
+
+          ${isAdmin ? `<div class="admin-size-badge" id="wikiSizeBadge">...</div>` : ''}
+        </div>
+        
+        <h3 class="wiki-char-name">${escapeHtml(c.nama)}</h3>
+        ${c.nick ? `<div class="wiki-char-nick">Panggilan: <span>${escapeHtml(c.nick)}</span></div>` : ''}
+        ${c.ttl ? `<div class="wiki-field"><strong>TTL / Usia:</strong> <p>${escapeHtml(c.ttl)}</p></div>` : ''}
+        ${c.profil ? `<div class="wiki-field"><strong>Profil Ringkas:</strong> <p>${escapeHtml(c.profil)}</p></div>` : ''}
+        ${c.wajah ? `<div class="wiki-field"><strong>Ciri Wajah:</strong> <p>${escapeHtml(c.wajah)}</p></div>` : ''}
+        ${c.postur ? `<div class="wiki-field"><strong>Postur / Fisik:</strong> <p>${escapeHtml(c.postur)}</p></div>` : ''}
+        ${c.properti ? `<div class="wiki-field"><strong>Ciri khas / Properti:</strong> <p>${escapeHtml(c.properti)}</p></div>` : ''}
+        ${c.hubungan ? `<div class="wiki-field"><strong>Hubungan / Relasi:</strong> <p>${escapeHtml(c.hubungan)}</p></div>` : ''}
+        ${c.deskripsi ? `<div class="wiki-field"><strong>Deskripsi Lengkap:</strong> <p>${escapeHtml(c.deskripsi)}</p></div>` : ''}
+      </div>
+    `;
+    wikiContainer.innerHTML = html;
+
+    // LANGSUNG PANGGUL INI AGAR BADGE "..." LANGSUNG TERISI DENGAN UKURAN KB
+    if (isAdmin) {
+      updateWikiBadgeSize(c.foto);
+    }
+  }
+}
+
+// Buka file picker
+function triggerWikiPhotoUpload() {
+  const fileInput = document.getElementById('wikiFileInput');
+  if (fileInput) fileInput.click();
+}
+
+// Fungsi memperbarui badge ukuran KB menggunakan getImageSizeKB yang sudah ada
+function updateWikiBadgeSize(src) {
+  const badge = document.getElementById('wikiSizeBadge');
+  if (!badge) return;
+
+  if (!src || src === 'https://via.placeholder.com/150?text=No+Image') {
+    badge.textContent = '0 KB';
+    return;
+  }
+
+  if (typeof getImageSizeKB === 'function') {
+    getImageSizeKB(src).then(kb => {
+      badge.textContent = kb ? `${kb} KB` : '0 KB';
+    }).catch(() => {
+      badge.textContent = 'N/A';
+    });
+  } else if (src.startsWith('data:')) {
+    const base64Str = src.split(',')[1] || '';
+    const bytes = Math.round((base64Str.length * 3) / 4);
+    badge.textContent = `${(bytes / 1024).toFixed(1)} KB`;
+  }
+}
+
+// Variable Global untuk Manajemen Crop
+let cropState = {
+  imgElement: null,
+  scale: 1,
+  posX: 0,
+  posY: 0,
+  isDragging: false,
+  startX: 0,
+  startY: 0
+};
+
+let cropperInstance = null;
+
+// 1. Saat file dipilih, inisialisasi Cropper.js
+function handleWikiPhotoSelect(event) {
+  const file = event.target.files[0];
+  if (!file || !selectedWikiChar) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const cropImg = document.getElementById('cropImage');
+    cropImg.src = e.target.result;
+    
+    // Tampilkan modal
+    document.getElementById('cropModal').style.display = 'block';
+
+    // Hancurkan instance lama jika ada
+    if (cropperInstance) {
+      cropperInstance.destroy();
+    }
+
+    // Inisialisasi Cropper.js dengan fitur Pan & Pinch Zoom aktif secara default
+    cropperInstance = new Cropper(cropImg, {
+      aspectRatio: 1,            // Rasio 1:1 (Persegi)
+      viewMode: 1,               // Gambar tidak keluar dari batas frame
+      dragMode: 'move',          // Memungkinkan geser/pan gambar
+      autoCropArea: 1,           // Area potong maksimal
+      restore: false,
+      guides: true,
+      center: true,
+      highlight: false,
+      cropBoxMovable: false,     // Frame potong tetap diam di tengah
+      cropBoxResizable: false,   // Frame potong tidak diubah ukurannya
+      toggleDragModeOnDblclick: false,
+      zoomable: true,            // Bisa Zoom via scroll / pinch touch
+      scalable: true
+    });
+  };
+  
+  reader.readAsDataURL(file);
+  event.target.value = ''; // Reset file input
+}
+
+function closeCropModal() {
+  document.getElementById('cropModal').style.display = 'none';
+  if (cropperInstance) {
+    cropperInstance.destroy();
+    cropperInstance = null;
+  }
+}
+
+// 2. Ambil hasil potong presisi & kirim ke Google Apps Script
+async function applyCropAndUpload() {
+  if (!cropperInstance) return;
+
+  // Mendapatkan Canvas hasil crop presisi ukuran 400x400 px
+  const canvas = cropperInstance.getCroppedCanvas({
+    width: 400,
+    height: 400,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high'
+  });
+
+  // Konversi Canvas ke Base64 format WebP kualitas 60%
+  const compressedBase64 = canvas.toDataURL('image/webp', 0.6);
+
+  // Tutup Modal
+  closeCropModal();
+
+  // Tampilkan pratinjau di UI
+  const avatarImg = document.getElementById('wikiAvatarImg');
+  if (avatarImg) avatarImg.src = compressedBase64;
+
+  // Konfirmasi Pengguna
+  const confirmUpload = confirm(`Simpan foto baru untuk ${selectedWikiChar.nama}?`);
+  if (!confirmUpload) return;
+
+  // Kirim data ke Google Apps Script
+  try {
+    const payloadData = JSON.stringify({
+      action: 'update_wiki_foto',
+      nama: selectedWikiChar.nama,
+      foto: compressedBase64
+    });
+
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({ postData: payloadData })
+    });
+
+    const resData = await response.json();
+
+    if (resData.status === 'success') {
+      alert('Foto karakter berhasil diperbarui!');
+      selectedWikiChar.foto = compressedBase64;
+      updateWikiBadgeSize(compressedBase64);
+    } else {
+      alert('Gagal memperbarui foto: ' + (resData.message || 'Error tidak diketahui'));
+    }
+  } catch (err) {
+    console.error("Upload Error:", err);
+    alert('Terjadi kesalahan saat mengunggah foto.');
+  }
+}
+
+
+// Buka file picker saat foto diklik oleh Admin
+function triggerWikiPhotoUpload() {
+  const fileInput = document.getElementById('wikiFileInput');
+  if (fileInput) fileInput.click();
+}
+
+function selectWikiChar(index) {
+  selectedWikiChar = wikiList[index];
+  renderWikiView();
+}
+
+function backToWikiList() {
+  selectedWikiChar = null;
+  renderWikiView();
+}
+
+async function loadAlbumStickers() {
+  const container = document.getElementById('stickerGridContainer');
+  if (container) {
+    container.innerHTML = `<div class="status-msg">Memuat stiker...</div>`;
+  }
+
+  try {
+    // Memanggil action get_stickers yang baru ditambahkan ke Google Apps Script
+    const res = await fetch(`${SCRIPT_URL}?action=get_stickers`);
+    const data = await res.json();
+
+    if (Array.isArray(data) && data.length > 0) {
+      albumStickerList = data;
+      currentStickerPage = 0;
+      renderStickerGrid();
+    } else {
+      if (container) container.innerHTML = `<div class="status-msg">Belum ada stiker di kolom H.</div>`;
+    }
+  } catch (err) {
+    console.error("Error loading stickers:", err);
+    if (container) {
+      container.innerHTML = `<div class="status-msg" style="color: #a33;">Gagal memuat stiker.</div>`;
+    }
+  }
+}
+
+function renderStickerGrid() {
+  const container = document.getElementById('stickerGridContainer');
+  if (!container) return;
+
+  const totalItems = albumStickerList.length;
+  if (totalItems === 0) {
+    container.innerHTML = `<div class="status-msg">Tidak ada stiker.</div>`;
+    return;
+  }
+
+  const itemsPerPage = 4;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = currentStickerPage * itemsPerPage;
+  const pageItems = albumStickerList.slice(startIndex, startIndex + itemsPerPage);
+
+  let html = '';
+
+  pageItems.forEach((imgSrc) => {
+    // Memberi sedikit variasi rotasi acak agar terlihat alami seperti stiker fisik yang ditempel
+    const randomRotate = (Math.random() * 14 - 7).toFixed(1);
+    const finalSrc = (imgSrc.startsWith('data:') || imgSrc.startsWith('http') || imgSrc.startsWith('images/')) 
+      ? imgSrc 
+      : `images/${imgSrc}`;
+
+    html += `
+      <div class="sticker-item-card" style="transform: rotate(${randomRotate}deg);" onclick="spawnSticker('${finalSrc}')">
+        <img src="${finalSrc}" alt="Stiker PNG" class="sticker-png-img">
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  // Navigasi Bawah
+  const pageIndicator = document.getElementById('pageIndicator');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  if (pageIndicator) pageIndicator.innerText = `Stiker ${currentStickerPage + 1} / ${totalPages}`;
+  if (prevBtn) prevBtn.disabled = currentStickerPage === 0;
+  if (nextBtn) nextBtn.disabled = currentStickerPage >= totalPages - 1;
+}
+// Fungsi spawn stiker baru dari Katalog
+function spawnSticker(imgSrc, event) {
+  const sticker = document.createElement('img');
+  sticker.src = imgSrc;
+  sticker.classList.add('floating-sticker');
+  
+  // Set ukuran default stiker melayang
+  sticker.style.width = '120px'; 
+  
+  // Posisi awal di tempat kursor klik atau pertengahan layar
+  const startX = event ? event.clientX - 60 : window.innerWidth / 2 - 60;
+  const startY = event ? event.clientY - 60 : window.innerHeight / 2 - 60;
+  
+  sticker.style.left = `${startX}px`;
+  sticker.style.top = `${startY}px`;
+
+  document.body.appendChild(sticker);
+
+  // Inisialisasi Fitur Drag & Return
+  makeDraggableAndReturnable(sticker);
+}
+
+// Logic Drag and Drop & Klik untuk Mengembalikan
+function makeDraggableAndReturnable(elmnt) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  let isDragging = false;
+
+  elmnt.onmousedown = dragMouseDown;
+  elmnt.ontouchstart = dragMouseDown;
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    isDragging = false;
+    
+    // Ambil posisi awal kursor/sentuhan
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    pos3 = clientX;
+    pos4 = clientY;
+
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+    document.ontouchend = closeDragElement;
+    document.ontouchmove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    isDragging = true; // Jika kursor bergerak, berarti sedang di-drag
+    e = e || window.event;
+    
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    pos1 = pos3 - clientX;
+    pos2 = pos4 - clientY;
+    pos3 = clientX;
+    pos4 = clientY;
+
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+    document.ontouchend = null;
+    document.ontouchmove = null;
+
+    // Jika TIDAK di-drag (hanya klik biasa), kembalikan stiker ke buku/hilangkan
+    if (!isDragging) {
+      elmnt.classList.add('returning');
+      setTimeout(() => {
+        elmnt.remove();
+      }, 200); // Tunggu animasi rampung
+    }
+  }
+}
+// --- KONTROL FAB ELEMENT & TOGGLE POLAROID ---
+let isPolaroidOn = true;
+
+// Toggle Menu Popover FAB Element
+function toggleFabElementMenu() {
+  const subMenu = document.getElementById('fabElementSubMenu');
+  const btnFab = document.getElementById('btnFabElement');
+  
+  if (subMenu) {
+    subMenu.classList.toggle('show');
+  }
+  if (btnFab) {
+    btnFab.classList.toggle('spin-icon');
+    setTimeout(() => btnFab.classList.remove('spin-icon'), 300);
+  }
+}
+
+// Toggle On/Off Tampilan Polaroid (Sebar vs Masuk Buku)
+function togglePolaroidScatter() {
+  isPolaroidOn = !isPolaroidOn;
+  const toggleBtn = document.getElementById('btnTogglePolaroid');
+
+  for (let i = 1; i <= 7; i++) {
+    const pol = document.getElementById(`polaroid${i}`);
+    if (pol) {
+      if (isPolaroidOn) {
+        // Mode ON: Kembalikan polaroid ke meja
+        pol.classList.remove('hide-in-book');
+      } else {
+        // Mode OFF: Polaroid masuk ke dalam buku & menghilang
+        pol.classList.add('hide-in-book');
+      }
+    }
+  }
+
+  // Update Ikon Sub-FAB
+  if (toggleBtn) {
+    toggleBtn.innerText = isPolaroidOn ? '🎴' : '📖';
+    toggleBtn.title = isPolaroidOn ? 'Sembunyikan ke Buku' : 'Sebarkan Polaroid';
+  }
+}
+
+// Menutup Popover FAB Element jika area luar diklik
+document.addEventListener('click', (e) => {
+  const wrapper = document.querySelector('.fab-wrapper');
+  const subMenu = document.getElementById('fabElementSubMenu');
+  if (wrapper && !wrapper.contains(e.target) && subMenu && subMenu.classList.contains('show')) {
+    subMenu.classList.remove('show');
+  }
+});
+
+  </script>
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
 </body>
 </html>
