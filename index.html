@@ -274,6 +274,9 @@
     <button class="fab-btn fab-btn-bg" onclick="changeBackground('dark-wood')" title="Dark Wood">
       <span class="bg-preview bg-dark-wood"></span>
     </button>
+        <button class="fab-btn fab-btn-bg" onclick="changeBackground('noisy-grid')" title="Noisy Grid">
+      <span class="bg-preview bg-noisy-grid"></span>
+    </button>
   </div>
   <button class="fab-btn" id="btnFabBg" onclick="toggleFabBgMenu()" title="Ganti Background">🎨</button>
 </div>
@@ -2732,7 +2735,7 @@ function toggleFabBgMenu() {
 // Fungsi Mengganti Background & Simpan ke LocalStorage
 function changeBackground(themeName) {
   // Hapus class background lama
-  document.body.classList.remove('bg-purty-wood', 'bg-retina-wood', 'bg-wood-pattern', 'bg-dark-wood');
+  document.body.classList.remove('bg-purty-wood', 'bg-retina-wood', 'bg-wood-pattern', 'bg-dark-wood', 'bg-noisy-grid');
   
   // Pasang class background baru
   document.body.classList.add(`bg-${themeName}`);

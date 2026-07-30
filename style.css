@@ -1936,11 +1936,15 @@ body.bg-dark-wood {
 .bg-dark-wood {
   background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
 }
-
+.bg-noisy-grid {
+  background-color: #1b4d2e;
+  background-image: url('https://www.transparenttextures.com/patterns/noisy-grid.png');
+}
 /* Penerapan ke seluruh halaman saat aktif */
 body.bg-purty-wood,
 body.bg-retina-wood,
 body.bg-wood-pattern,
-body.bg-dark-wood {
+body.bg-dark-wood,
+body.bg-noisy-grid {
   background-repeat: repeat;
 }
