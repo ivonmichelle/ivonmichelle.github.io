@@ -313,7 +313,7 @@
     </div>
   </div>
 
-  <audio id="bgmAudio" loop preload="auto">
+  <audio id="bgmAudio" preload="auto">
     <source src="bgm/Selesai Dengan Sunyi (Beni Theme - Lofi).mp3" type="audio/mpeg">
   </audio>
   
@@ -1796,150 +1796,247 @@
       randomizePolaroids();
     }
     
-    let noteStreamInterval = null;
+let noteStreamInterval = null;
+let isPlayAll = false; // Status mode: false = Repeat (default), true = Play All
+let jukeboxPlaylist = []; // Penampung daftar lagu
+let currentTrackIndex = 0; // Indeks lagu aktif
 
-    function spawnMusicNote() {
-      const jukeboxBtn = document.getElementById('btnJukebox');
-      if (!jukeboxBtn) return;
+function spawnMusicNote() {
+  const jukeboxBtn = document.getElementById('btnJukebox');
+  if (!jukeboxBtn) return;
 
-      const rect = jukeboxBtn.getBoundingClientRect();
-      const notes = ['🎵', '🎶', '🎼', '♩', '♪', '♫'];
-      const randomNote = notes[Math.floor(Math.random() * notes.length)];
+  const rect = jukeboxBtn.getBoundingClientRect();
+  const notes = ['🎵', '🎶', '🎼', '♩', '♪', '♫'];
+  const randomNote = notes[Math.floor(Math.random() * notes.length)];
 
-      const noteEl = document.createElement('div');
-      noteEl.className = 'floating-note';
-      noteEl.innerText = randomNote;
+  const noteEl = document.createElement('div');
+  noteEl.className = 'floating-note';
+  noteEl.innerText = randomNote;
 
-      const randomOffsetX = (Math.random() * 20) - 10; 
-      const posX = rect.left + (rect.width / 2) + randomOffsetX;
-      const posY = rect.top - 10;
+  const randomOffsetX = (Math.random() * 20) - 10; 
+  const posX = rect.left + (rect.width / 2) + randomOffsetX;
+  const posY = rect.top - 10;
 
-      noteEl.style.left = `${posX}px`;
-      noteEl.style.top = `${posY}px`;
+  noteEl.style.left = `${posX}px`;
+  noteEl.style.top = `${posY}px`;
 
-      document.body.appendChild(noteEl);
+  document.body.appendChild(noteEl);
 
-      setTimeout(() => { noteEl.remove(); }, 2000);
+  setTimeout(() => { noteEl.remove(); }, 2000);
+}
+
+function updateJukeboxVisualEffects(isPlaying) {
+  const jukeboxBtn = document.getElementById('btnJukebox');
+  
+  if (noteStreamInterval) {
+    clearInterval(noteStreamInterval);
+    noteStreamInterval = null;
+  }
+
+  if (isPlaying) {
+    if (jukeboxBtn) jukeboxBtn.classList.add('pulsing');
+    noteStreamInterval = setInterval(spawnMusicNote, 400);
+  } else {
+    if (jukeboxBtn) jukeboxBtn.classList.remove('pulsing');
+  }
+}
+
+// Fungsi untuk berganti mode Play All <-> Repeat Single
+function togglePlayMode() {
+  isPlayAll = !isPlayAll;
+  const modeBtn = document.getElementById('btnJukeboxMode');
+  if (modeBtn) {
+    modeBtn.innerText = isPlayAll ? '🔁 Putar Semua' : '🔂 Ulangi Lagu';
+    modeBtn.title = isPlayAll ? 'Mode: Putar Semua Lagu' : 'Mode: Ulangi Lagu Ini';
+  }
+}
+
+// Fungsi memutar lagu berdasarkan indeks (digunakan oleh Play All)
+function playTrackByIndex(index) {
+  if (!jukeboxPlaylist.length || index < 0 || index >= jukeboxPlaylist.length) return;
+  
+  currentTrackIndex = index;
+  const track = jukeboxPlaylist[index];
+  
+  // Update tampilan active card pada UI
+  const vinylItems = document.querySelectorAll('.vinyl-item');
+  vinylItems.forEach((item, idx) => {
+    if (idx === index) {
+      item.classList.add('active');
+      item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      item.classList.remove('active');
     }
+  });
 
-    function updateJukeboxVisualEffects(isPlaying) {
-      const jukeboxBtn = document.getElementById('btnJukebox');
-      
-      if (noteStreamInterval) {
-        clearInterval(noteStreamInterval);
-        noteStreamInterval = null;
-      }
+  playJukeboxTrack(`bgm/${track.file}`, track.title, vinylItems[index], false);
+}
 
-      if (isPlaying) {
-        if (jukeboxBtn) jukeboxBtn.classList.add('pulsing');
-        noteStreamInterval = setInterval(spawnMusicNote, 400);
-      } else {
-        if (jukeboxBtn) jukeboxBtn.classList.remove('pulsing');
-      }
+function playJukeboxTrack(srcPath, title, element, updateIndex = true) {
+  const audio = document.getElementById('bgmAudio');
+  const btnToggle = document.getElementById('btnBgmToggle');
+
+  if (updateIndex && element) {
+    // Cari index berdasarkan elemen yang diklik
+    const allItems = Array.from(document.querySelectorAll('.vinyl-item'));
+    const clickedIndex = allItems.indexOf(element);
+    if (clickedIndex !== -1) currentTrackIndex = clickedIndex;
+  }
+
+  document.querySelectorAll('.vinyl-item').forEach(item => item.classList.remove('active'));
+  if (element) element.classList.add('active');
+
+  audio.src = srcPath;
+  audio.load();
+
+  audio.play().then(() => {
+    if (btnToggle) btnToggle.innerText = '🎵';
+    updateJukeboxVisualEffects(true);
+  }).catch(err => {
+    console.log("Autoplay ditahan browser:", err);
+  });
+}
+
+// Event Listeners Audio
+document.addEventListener('DOMContentLoaded', () => {
+  const audio = document.getElementById('bgmAudio');
+  if (!audio) return;
+
+  audio.addEventListener('play', () => { updateJukeboxVisualEffects(true); });
+  audio.addEventListener('pause', () => { updateJukeboxVisualEffects(false); });
+  
+  // PENANGANAN ENDED LOGIC (REPEAT VS PLAY ALL)
+  audio.addEventListener('ended', () => {
+    if (isPlayAll) {
+      // Pindah ke lagu berikutnya (Looping album)
+      const nextIndex = (currentTrackIndex + 1) % jukeboxPlaylist.length;
+      playTrackByIndex(nextIndex);
+    } else {
+      // Repeat lagu yang sama
+      audio.currentTime = 0;
+      audio.play().catch(err => console.log("Gagal repeat:", err));
     }
+  });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const audio = document.getElementById('bgmAudio');
-      if (!audio) return;
+  // Muat playlist saat halaman siap
+  loadJukeboxTracks();
+});
 
-      audio.addEventListener('play', () => { updateJukeboxVisualEffects(true); });
-      audio.addEventListener('pause', () => { updateJukeboxVisualEffects(false); });
-      audio.addEventListener('ended', () => { updateJukeboxVisualEffects(false); });
+function toggleBgm() {
+  const audio = document.getElementById('bgmAudio');
+  const bgmBtn = document.getElementById('btnBgmToggle');
+
+  if (!audio) return;
+
+  if (audio.paused) {
+    audio.play().then(() => {
+      if (bgmBtn) {
+        bgmBtn.innerText = '🎵';
+        bgmBtn.setAttribute('title', 'Matikan Musik');
+      }
+    }).catch(err => {
+      console.error("Gagal memutar audio:", err);
     });
+  } else {
+    audio.pause();
+    if (bgmBtn) {
+      bgmBtn.innerText = '🔇';
+      bgmBtn.setAttribute('title', 'Putar Musik');
+    }
+  }
+}
 
-    function toggleBgm() {
-      const audio = document.getElementById('bgmAudio');
-      const bgmBtn = document.getElementById('btnBgmToggle');
+function toggleJukeboxMenu() {
+  const menu = document.getElementById('jukeboxMenu');
+  menu.classList.toggle('show');
+}
 
-      if (!audio) return;
+document.addEventListener('click', function(e) {
+  const jukeboxContainer = document.querySelector('.jukebox-container');
+  if (jukeboxContainer && !jukeboxContainer.contains(e.target)) {
+    document.getElementById('jukeboxMenu')?.classList.remove('show');
+  }
+});
 
-      if (audio.paused) {
-        audio.play().then(() => {
-          if (bgmBtn) {
-            bgmBtn.innerText = '🎵';
-            bgmBtn.setAttribute('title', 'Matikan Musik');
-          }
-        }).catch(err => {
-          console.error("Gagal memutar audio:", err);
-        });
-      } else {
-        audio.pause();
-        if (bgmBtn) {
-          bgmBtn.innerText = '🔇';
-          bgmBtn.setAttribute('title', 'Putar Musik');
-        }
-      }
+async function loadJukeboxTracks() {
+  const menuContainer = document.getElementById('jukeboxMenu');
+  const audio = document.getElementById('bgmAudio');
+  if (!menuContainer) return;
+
+  try {
+    const response = await fetch(`bgm.json?v=${Date.now()}`);
+    if (!response.ok) throw new Error('Gagal memuat bgm.json');
+
+    jukeboxPlaylist = await response.json();
+    
+    // Header & Button Switcher Mode
+    menuContainer.innerHTML = `
+      <div class="jukebox-header">
+        <span>🎵 JUKEBOX</span>
+        <button class="jukebox-mode-btn" id="btnJukeboxMode" onclick="togglePlayMode()">
+          ${isPlayAll ? 'Mode: 🔁 Semua' : 'Mode: 🔂 1 Lagu'}
+        </button>
+      </div>
+    `;
+
+    if (jukeboxPlaylist.length === 0) {
+      menuContainer.innerHTML += '<div style="color:#a89379; font-size:0.75rem; text-align:center; padding:8px;">Tidak ada lagu.</div>';
+      return;
     }
 
-    function toggleJukeboxMenu() {
-      const menu = document.getElementById('jukeboxMenu');
-      menu.classList.toggle('show');
-    }
+    // ============================================================
+    // DETEKSI OTOMATIS: Pencocokan Lagu HTML Default ke JSON
+    // ============================================================
+    if (audio && audio.src) {
+      // Ambil nama file lagu yang terpasang di <audio> HTML (di-decode untuk spasi/karakter khusus)
+      const currentFileName = decodeURIComponent(audio.src.split('/').pop());
 
-    document.addEventListener('click', function(e) {
-      const jukeboxContainer = document.querySelector('.jukebox-container');
-      if (jukeboxContainer && !jukeboxContainer.contains(e.target)) {
-        document.getElementById('jukeboxMenu')?.classList.remove('show');
-      }
-    });
-
-    function playJukeboxTrack(srcPath, title, element) {
-      const audio = document.getElementById('bgmAudio');
-      const btnToggle = document.getElementById('btnBgmToggle');
-
-      document.querySelectorAll('.vinyl-item').forEach(item => item.classList.remove('active'));
-      if (element) element.classList.add('active');
-
-      audio.src = srcPath;
-      audio.load();
-
-      audio.play().then(() => {
-        if (btnToggle) btnToggle.innerText = '🎵';
-        updateJukeboxVisualEffects(true);
-      }).catch(err => {
-        console.log("Autoplay ditahan browser:", err);
+      // Cari indeks file lagu tersebut di dalam bgm.json
+      const matchIndex = jukeboxPlaylist.findIndex(track => {
+        return track.file === currentFileName || encodeURIComponent(track.file) === currentFileName;
       });
-    }
 
-    async function loadJukeboxTracks() {
-      const menuContainer = document.getElementById('jukeboxMenu');
-      if (!menuContainer) return;
-
-      try {
-        const response = await fetch(`bgm.json?v=${Date.now()}`);
-        if (!response.ok) throw new Error('Gagal memuat bgm.json');
-
-        const tracks = await response.json();
-        menuContainer.innerHTML = '<div class="jukebox-header">🎵 JUKEBOX</div>';
-
-        if (tracks.length === 0) {
-          menuContainer.innerHTML += '<div style="color:#a89379; font-size:0.75rem; text-align:center; padding:8px;">Tidak ada lagu.</div>';
-          return;
-        }
-
-        tracks.forEach((track, index) => {
-          const vinylItem = document.createElement('div');
-          vinylItem.className = `vinyl-item ${index === 0 ? 'active' : ''}`;
-          
-          vinylItem.onclick = function () {
-            playJukeboxTrack(`bgm/${track.file}`, track.title, this);
-          };
-
-          vinylItem.innerHTML = `
-            <div class="vinyl-disc"></div>
-            <div class="vinyl-info">
-              <span class="vinyl-title">${escapeHtml(track.title || 'Unknown Track')}</span>
-            </div>
-          `;
-
-          menuContainer.appendChild(vinylItem);
-        });
-
-      } catch (err) {
-        console.warn('Gagal memuat bgm.json:', err);
-        menuContainer.innerHTML += '<div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
+      if (matchIndex !== -1) {
+        // Jika ketemu, set pointer indeks lagu aktif saat ini sesuai urutan di JSON
+        currentTrackIndex = matchIndex;
+      } else {
+        // Jika tidak ketemu di JSON (misal file berbeda), set lagu pertama di JSON ke <audio>
+        currentTrackIndex = 0;
+        audio.src = `bgm/${jukeboxPlaylist[0].file}`;
       }
     }
+
+    // Render daftar lagu ke menu UI
+    jukeboxPlaylist.forEach((track, index) => {
+      const vinylItem = document.createElement('div');
+      
+      // Tandai lagu yang sedang aktif di player
+      vinylItem.className = `vinyl-item ${index === currentTrackIndex ? 'active' : ''}`;
+      
+      vinylItem.onclick = function () {
+        playJukeboxTrack(`bgm/${track.file}`, track.title, this);
+      };
+
+      vinylItem.innerHTML = `
+        <div class="vinyl-disc"></div>
+        <div class="vinyl-info">
+          <span class="vinyl-title">${escapeHtml(track.title || 'Unknown Track')}</span>
+        </div>
+      `;
+
+      menuContainer.appendChild(vinylItem);
+    });
+
+  } catch (err) {
+    console.warn('Gagal memuat bgm.json:', err);
+    menuContainer.innerHTML += '<div style="color:#e74c3c; font-size:0.75rem; text-align:center; padding:8px;">Gagal memuat playlist.</div>';
+  }
+}
+
+function escapeHtml(text) {
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
 
     function getImageSizeKB(src) {
       return new Promise((resolve) => {

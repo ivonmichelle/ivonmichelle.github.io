@@ -1733,3 +1733,34 @@ body {
   opacity: 0 !important;
   pointer-events: none !important;
 }
+/* Styling Header Jukebox agar fleksibel menyamping */
+.jukebox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #e2c08d;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(139, 90, 43, 0.4);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+/* Tombol Mode Play All / Repeat */
+.jukebox-mode-btn {
+  background: rgba(139, 90, 43, 0.4);
+  border: 1px solid #8b5a2b;
+  color: #e2c08d;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.jukebox-mode-btn:hover {
+  background: rgba(226, 192, 141, 0.2);
+  border-color: #e2c08d;
+  color: #fff;
+}
