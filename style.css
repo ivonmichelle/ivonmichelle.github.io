@@ -1444,8 +1444,7 @@ body {
 }
 
 /* --- LAYOUT TAB 2 BARIS UNTUK PONSEL --- */
-@media screen and (max-width: 600px) {
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   .book-tabs {
     left: 10px !important;
     right: 10px !important;
