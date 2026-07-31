@@ -1482,15 +1482,6 @@ body {
     border-radius: 6px 6px 0 0;
     box-sizing: border-box;
   }
-  .fab-container{
-  position: fixed;
-  bottom: 50px;
-  right: 50px;
-  display: flex;
-  flex-direction: row;
-  gap: 6px; !important;
-  z-index: 99999;
-  }
 }
 
 /* Styling Polaroid saat Zoomed */
