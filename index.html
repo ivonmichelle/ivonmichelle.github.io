@@ -282,6 +282,9 @@
     </button>
     <button class="fab-btn fab-btn-bg" onclick="changeBackground('dark-wood')" title="Dark Wood">
       <span class="bg-preview bg-dark-wood"></span>
+      </button>
+     <button class="fab-btn fab-btn-bg" onclick="changeBackground('skulls')" title="skulls">
+      <span class="bg-preview bg-skulls"></span>
     </button>
         <button class="fab-btn fab-btn-bg" onclick="changeBackground('noisy-grid')" title="Noisy Grid">
       <span class="bg-preview bg-noisy-grid"></span>
@@ -2802,7 +2805,7 @@ function toggleFabBgMenu() {
 // Fungsi Mengganti Background & Simpan ke LocalStorage
 function changeBackground(themeName) {
   // Hapus class background lama
-  document.body.classList.remove('bg-dimension', 'bg-debut-light', 'bg-escheresque-dark', 'bg-retina-wood', 'bg-asfalt-light', 'bg-dark-wood', 'bg-noisy-grid');
+  document.body.classList.remove('bg-dimension', 'bg-debut-light', 'bg-escheresque-dark', 'bg-retina-wood', 'bg-asfalt-light', 'bg-dark-wood', 'bg-skulls', 'bg-noisy-grid');
   
   // Pasang class background baru
   document.body.classList.add(`bg-${themeName}`);
@@ -2874,7 +2877,7 @@ function playAmbient(key) {
   ambientAudio.src = ambientTracks[key];
   
   // ATUR VOLUME LEBIH PELAN DARIPADA JUKEBOX (Contoh: 25%)
-  ambientAudio.volume = 0.45; 
+  ambientAudio.volume = 0.35; 
   
   ambientAudio.play().then(() => {
     document.getElementById('btnFabAmbient').classList.add('pulsing');

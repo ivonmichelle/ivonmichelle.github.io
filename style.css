@@ -1867,7 +1867,13 @@ body {
 }
 
 /* Preset Tema Background Meja */
-body.bg-purty-wood {
+body.bg-dimension {
+  background-image: url('https://www.transparenttextures.com/patterns/dimension.png');
+}
+body.bg-debut-light {
+  background-image: url('https://www.transparenttextures.com/patterns/debut-light.png');
+}
+body.bg-eschereque-dark {
   background-image: url('https://www.transparenttextures.com/patterns/escheresque-dark.png.png');
 }
 body.bg-retina-wood {
@@ -1878,6 +1884,12 @@ body.bg-asfalt-light {
 }
 body.bg-dark-wood {
   background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+}
+body.bg-skulls {
+  background-image: url('https://www.transparenttextures.com/patterns/skulls.png');
+}
+body.bg-noisy-grid {
+  background-image: url('https://www.transparenttextures.com/patterns/noisy-grid.png');
 }
 /* Styling tombol khusus sub-FAB background */
 .fab-btn-bg {
@@ -1922,6 +1934,10 @@ body.bg-dark-wood {
 .bg-dark-wood {
   background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
 }
+.bg-skulls {
+  background-color: #523a34;
+  background-image: url('https://www.transparenttextures.com/patterns/skulls.png');
+}
 .bg-noisy-grid {
   background-color: #1b4d2e;
   background-image: url('https://www.transparenttextures.com/patterns/noisy-grid.png');
@@ -1933,6 +1949,7 @@ body.bg-escheresque-dark,
 body.bg-retina-wood,
 body.bg-asfalt-light,
 body.bg-dark-wood,
+body.bg-skulls,
 body.bg-noisy-grid {
   background-repeat: repeat;
 }
