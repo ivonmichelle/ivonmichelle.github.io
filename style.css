@@ -1669,9 +1669,15 @@ body {
 }
 
 /* Animasi saat stiker diklik untuk kembali/menghilang */
+/* Animasi saat stiker diklik untuk kembali/menghilang */
 .floating-sticker.returning {
-  transform: scale(0) rotate(-20deg);
-  opacity: 0;
+  /* Pakai durasi 0.2s (200ms) agar pas dengan setTimeout di JS */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1) !important, 
+              opacity 0.2s ease-out !important;
+              
+  transform: scale(0) rotate(-20deg) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* Keadaan Awal (Dekat Mata Pembaca / Sumbu Z Tinggi) */
