@@ -183,6 +183,21 @@
     <div class="polaroid" id="polaroid7"><img src="" alt="Foto 7"></div>
 
     <div class="book-page">
+        <!-- ========================================= -->
+    <!-- ELEMEN COVER BUKU BARU (Tambahkan Ini) -->
+    <!-- ========================================= -->
+    <div class="book-cover-overlay" active" id="bookCoverOverlay" onclick="openBookView()">
+      <div class="cover-content">
+        <div class="cover-title-box">
+          <h1 class="cover-main-title">BenivoN</h1>
+          <p class="cover-sub-title"><em>(Story & Memories)</em></p>
+        </div>
+        <div class="cover-author"><em>by: Didi Chung</em></div>
+      </div>
+      <!-- Pola Tekstur Paper-Pulp untuk memperkuat efek cover -->
+      <div class="cover-texture-pulp"></div>
+    </div>
+    <!-- ========================================= -->
       <div class="book-tabs">
         <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
         <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
@@ -263,6 +278,7 @@
   </div>
 
   <div class="fab-container">
+  <button class="fab-btn" onclick="closeBookView()" title="Tutup Buku & Lihat Cover">📕</button>
     <!-- FAB PARENT: ELEMEN FOTO (ASLI) -->
     <div class="fab-wrapper">
       <div class="fab-sub-menu" id="fabElementSubMenu">
@@ -2035,6 +2051,7 @@ function updateModalLightingUI() {
 
 // Jalankan sistem saat halaman selesai dimuat
 document.addEventListener('DOMContentLoaded', () => {
+  closeBookView();
   updateLightingSystem();
 });
 
@@ -3322,6 +3339,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+
+// =========================================
+// === LOGIKA BUKA / TUTUP BUKU BARU ===
+// =========================================
+// Variable untuk menyimpan tab terakhir yang dibuka
+let lastActiveTab = 'novel';
+
+// FUNGSI MENUTUP BUKU
+function closeBookView() {
+  const bookPage = document.querySelector('.book-page');
+  const coverOverlay = document.getElementById('bookCoverOverlay');
+  const tabsContainer = document.querySelector('.book-tabs');
+  const footerContainer = document.querySelector('.book-footer');
+  const disclaimerContainer = document.getElementById('disclaimerContent');
+
+  // Simpan tab yang sedang aktif sebelum ditutup
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (activeBtn) {
+    const onclickAttr = activeBtn.getAttribute('onclick');
+    if (onclickAttr) {
+      const match = onclickAttr.match(/'([^']+)'/);
+      if (match) lastActiveTab = match[1];
+    }
+  }
+
+  // 1. Sembunyikan semua kontainer konten di dalam buku
+  document.querySelectorAll('.book-content').forEach(el => el.style.display = 'none');
+  if (disclaimerContainer) disclaimerContainer.style.display = 'none';
+
+  // 2. Sembunyikan Tab Navigasi & Footer
+  if (tabsContainer) tabsContainer.style.display = 'none';
+  if (footerContainer) footerContainer.style.display = 'none';
+
+  // 3. Ubah Tampilan .book-page ke Mode Tertutup
+  if (bookPage) bookPage.classList.add('book-closed');
+
+  // 4. Tampilkan Overlay Cover
+  if (coverOverlay) coverOverlay.classList.add('active');
+
+  console.log("[Book] Buku berhasil ditutup.");
+}
+
+// FUNGSI MEMBUKA BUKU (Dipanggil saat Cover Diklik)
+function openBookView() {
+  const bookPage = document.querySelector('.book-page');
+  const coverOverlay = document.getElementById('bookCoverOverlay');
+  const tabsContainer = document.querySelector('.book-tabs');
+  const footerContainer = document.querySelector('.book-footer');
+
+  // 1. Sembunyikan Overlay Cover
+  if (coverOverlay) coverOverlay.classList.remove('active');
+
+  // 2. Kembalikan Tampilan Asli .book-page
+  if (bookPage) bookPage.classList.remove('book-closed');
+
+  // 3. Tampilkan Kembali Tab & Footer
+  if (tabsContainer) tabsContainer.style.display = 'flex';
+  if (footerContainer) footerContainer.style.display = 'flex';
+
+  // 4. Buka Kembali Tab Terakhir
+  if (typeof switchTab === 'function') {
+    switchTab(lastActiveTab || 'novel');
+  }
+
+  console.log("[Book] Buku berhasil dibuka kembali.");
+}
 
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
