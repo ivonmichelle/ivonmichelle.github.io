@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
   <style>
     /* --- CSS SYSTEM LOADING SCREEN & BLUR OVERLAY --- */
     #appLoadingOverlay {
@@ -186,7 +185,7 @@
         <!-- ========================================= -->
     <!-- ELEMEN COVER BUKU BARU (Tambahkan Ini) -->
     <!-- ========================================= -->
-    <div class="book-cover-overlay" active" id="bookCoverOverlay" onclick="openBookView()">
+    <div class="book-cover-overlay" active" id="bookCoverOverlay" onclick="openBookView()" style="background-color: #4f3815;">
       <div class="cover-content">
         <div class="cover-title-box">
           <h1 class="cover-main-title">BenivoN</h1>
@@ -198,7 +197,7 @@
       <div class="cover-texture-pulp"></div>
     </div>
     <!-- ========================================= -->
-      <div class="book-tabs">
+      <div class="book-tabs" style="display: none;">
         <button class="tab-btn active" id="tabNovelBtn" onclick="switchTab('novel')">📖 Kanon</button>
         <button class="tab-btn" id="tabSolBtn" onclick="switchTab('sol')">🌱 SoL</button>
         <button class="tab-btn" id="tabWikiBtn" onclick="switchTab('wiki')">👤 Wiki</button>
@@ -257,7 +256,7 @@
   </div>
 </div>
 
-      <div class="book-footer">
+      <div class="book-footer" style="display: none;">
         <div class="font-slider-container" id="sliderContainer">
           <span>A-</span>
           <input type="range" id="fontSizeSlider" min="1" max="5" value="2" step="1" onchange="changeFontSize(this.value)">
@@ -1601,8 +1600,13 @@ function renderTableOfContentsKanon() {
       prevBtn.disabled = false;
       nextBtn.disabled = currentPage === pages.length - 1;
     }
-
+const pageTurnSfx = new Audio('sfx/pageturn.mp3');
+pageTurnSfx.volume = 0.7; 
     function handlePrevNav() {
+    pageTurnSfx.currentTime = 0;
+  pageTurnSfx.play().catch(error => {
+    console.log("SFX Play Error:", error);
+  });
       if (activeTab === 'novel' || activeTab === 'sol') {
         if (currentChapterIndex !== -1) {
           if (currentPage > 0) { currentPage--; renderPage(); }
@@ -1618,6 +1622,10 @@ function renderTableOfContentsKanon() {
     }
 
     function handleNextNav() {
+    pageTurnSfx.currentTime = 0;
+  pageTurnSfx.play().catch(error => {
+    console.log("SFX Play Error:", error);
+  });
       if (activeTab === 'novel' || activeTab === 'sol') {
         if (currentChapterIndex !== -1 && currentPage < pages.length - 1) {
           currentPage++; renderPage();
@@ -2048,6 +2056,28 @@ function updateModalLightingUI() {
     }
   }
 }
+// Buat daftar ID overlay lighting kamu
+const lightingOverlays = [
+  document.getElementById('daytimeOverlay'),
+  document.getElementById('sunsetOverlay'),
+  document.getElementById('midnightOverlay'),
+  document.getElementById('nighttimeOverlay')
+];
+
+function switchLightingMode(activeOverlayId) {
+  // 1. Matikan semua overlay & hapus class 'active'
+  lightingOverlays.forEach(overlay => {
+    if (overlay) {
+      overlay.classList.remove('active');
+    }
+  });
+
+  // 2. Aktifkan HANYA overlay yang dipanggil
+  const targetOverlay = document.getElementById(activeOverlayId);
+  if (targetOverlay) {
+    targetOverlay.classList.add('active');
+  }
+}
 
 // Jalankan sistem saat halaman selesai dimuat
 document.addEventListener('DOMContentLoaded', () => {
@@ -2059,7 +2089,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('DOMContentLoaded', () => {
       checkIntroStatus();
       checkAdminStatus();
-      updateLightingSystem(); 
       // randomizePolaroids() DIHAPUS dari sini agar tidak menimpa posisi tersimpan!
       
       // MENJALANKAN ALL-IN-ONE PRELOADER DENGAN MODAL BLUR
@@ -3345,9 +3374,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // =========================================
 // Variable untuk menyimpan tab terakhir yang dibuka
 let lastActiveTab = 'novel';
+const closeBookSfx = new Audio('sfx/closebook.mp3');
+closeBookSfx.volume = 0.7; 
 
 // FUNGSI MENUTUP BUKU
 function closeBookView() {
+closeBookSfx.currentTime = 0; // Reset durasi ke detik 0 (supaya kalau diklik cepat tidak delay)
+  closeBookSfx.play().catch(error => {
+    console.log("SFX Play Error:", error);
+  });
   const bookPage = document.querySelector('.book-page');
   const coverOverlay = document.getElementById('bookCoverOverlay');
   const tabsContainer = document.querySelector('.book-tabs');
