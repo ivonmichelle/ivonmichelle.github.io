@@ -2804,6 +2804,7 @@ function makeDraggableAndReturnable(elmnt) {
 
     // Kembalikan transisi CSS bawaan agar animasi show/hide & return berfungsi
     elmnt.style.transition = '';
+    void elmnt.offsetWidth;
 
     try {
       elmnt.releasePointerCapture(e.pointerId);
