@@ -819,31 +819,7 @@ body {
     }
 
     @media (max-width: 768px) {
-      .polaroid {
-        width: 80px !important;
-        padding: 5px 5px 10px 5px !important;
-      }
-      .polaroid img {
-        height: 70px !important;
-      }
-      .ivon-intro-card {
-        width: 90%;
-      }
-      .ivon-speech-bubble {
-        font-size: 0.82rem;
-        padding: 14px 16px;
-      }
-      .ivon-avatar-img {
-        width: 90px;
-        height: 90px;
-      }
-      .book-tabs {
-        right: 10px;
-      }
-      .tab-btn {
-        padding: 5px 10px 3px 10px;
-        font-size: 0.72rem;
-      }
+
     }
 /* --- VIEW ALBUM POLAROID (GRID 2x2) --- */
 .polaroid-grid-view {
@@ -1443,8 +1419,31 @@ body {
   filter: drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.35));
 }
 
-/* --- LAYOUT TAB 2 BARIS UNTUK PONSEL --- */
+/* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
+	.polaroid {
+        width: 80px !important;
+        padding: 5px 5px 10px 5px !important;
+      }
+      .polaroid img {
+        height: 70px !important;
+      }
+      .ivon-intro-card {
+        width: 90%;
+      }
+      .ivon-speech-bubble {
+        font-size: 0.82rem;
+        padding: 14px 16px;
+      }
+      .ivon-avatar-img {
+        width: 90px;
+        height: 90px;
+      }
+      .tab-btn {
+        padding: 5px 10px 3px 10px;
+        font-size: 0.72rem;
+      }
+	/* 2 Baris di ponsek */
   .book-tabs {
     left: 10px !important;
     right: 10px !important;
