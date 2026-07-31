@@ -1485,6 +1485,9 @@ body {
     border-radius: 6px 6px 0 0;
     box-sizing: border-box;
   }
+	.fab-container {
+	gap: 4px;
+	}
 }
 /* Styling Polaroid saat Zoomed */
 .polaroid.zoomed {
