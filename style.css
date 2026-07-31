@@ -456,7 +456,7 @@ body {
     }
 
     .polaroid.zoomed {
-      z-index: 10000 !important;
+      z-index: 20001 !important;
       cursor: pointer;
       box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.2) !important;
       transform: translate(-50%, -50%) scale(3.2) rotate(0deg) !important;
@@ -1504,7 +1504,7 @@ body {
   box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
 
   transition: transform 0.08s ease-out, box-shadow 0.08s ease-out !important;
-  z-index: 10001 !important;
+  z-index: 20001 !important;
   cursor: pointer;
   overflow: hidden; /* Biar glare tidak meluber keluar bingkai */
 }
@@ -1995,7 +1995,7 @@ body.bg-noisy-grid {
   width: 100%;
   height: 100%;
   pointer-events: none; /* PENTING: Klik tembus ke elemen di bawahnya */
-  z-index: 19000; /* Di atas meja kayu, tetapi di bawah Polaroid (100) & Buku (10) */
+  z-index: 19000; /* Di atas meja kayu, tetapi di bawah Polaroid (20000) & Buku (10) */
   opacity: 0; /* Default: Sembunyi */
   transition: opacity 1.5s ease-in-out; /* Transisi halus saat pergantian waktu */
 }
