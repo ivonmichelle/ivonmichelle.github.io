@@ -1634,20 +1634,38 @@ body {
   transform: scale(1.1) rotate(3deg);
 }
 
-/* Stiker yang sedang melayang di Layar (Instance Baru) */
+/* Styling stiker kamu yang sudah dirapikan */
 .floating-sticker {
-  position: absolute; /* Diubah ke absolute agar ikut scroll/area buku */
-  z-index: 20;        /* Di atas buku (10), di BUKAN 9999 agar tidak menimpa polaroid & menu */
+  position: absolute;
+  z-index: 999;
+  width: 110px;
   cursor: grab;
   user-select: none;
   touch-action: none;
   filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.3));
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  
+  /* Samakan transisi 100% dengan Polaroid agar saat SHOW bergerak dari pusat buku */
+  transition: 
+    transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
+    opacity 0.4s ease, 
+    top 0.5s ease, 
+    left 0.5s ease, 
+    box-shadow 0.3s ease, 
+    filter 0.4s ease;
 }
 
 .floating-sticker:active {
   cursor: grabbing;
-  transform: scale(1.05);
+  transition: none !important;
+}
+
+/* ANIMASI KETIKA MASUK KE BUKU (Sama seperti Polaroid) */
+.floating-sticker.hide-in-book {
+  top: 52% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) scale(0.05) rotate(0deg) !important; 
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* Animasi saat stiker diklik untuk kembali/menghilang */
@@ -1655,6 +1673,14 @@ body {
   transform: scale(0) rotate(-20deg);
   opacity: 0;
 }
+
+/* Keadaan Awal (Dekat Mata Pembaca / Sumbu Z Tinggi) */
+.sticker-z-drop {
+  opacity: 0;
+  filter: blur(8px); /* Efek blur dekat mata */
+  pointer-events: none;
+}
+
 /* --- ANIMASI DENYUTAN (PULSING JUKEBOX) --- */
 @keyframes jukeboxPulse {
   0% {
@@ -1963,7 +1989,7 @@ body.bg-noisy-grid {
   width: 100%;
   height: 100%;
   pointer-events: none; /* PENTING: Klik tembus ke elemen di bawahnya */
-  z-index: 1000; /* Di atas meja kayu, tetapi di bawah Polaroid (100) & Buku (10) */
+  z-index: 19000; /* Di atas meja kayu, tetapi di bawah Polaroid (100) & Buku (10) */
   opacity: 0; /* Default: Sembunyi */
   transition: opacity 1.5s ease-in-out; /* Transisi halus saat pergantian waktu */
 }
@@ -2160,7 +2186,6 @@ body.time-pagi .daytime-sunlight-overlay {
     transform: rotate(-19.5deg) skewX(-9.5deg) translate(8px, -6px) scale(1.11);
   }
 }
-
 
 /* =========================================================
    === OVERRIDE SAAT EFEK CAHAYA DIMATIKAN MANUALLY ===

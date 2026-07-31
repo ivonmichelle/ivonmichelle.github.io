@@ -298,6 +298,7 @@
       <div class="fab-sub-menu" id="fabElementSubMenu">
         <button class="fab-btn" id="btnLighting" onclick="toggleLightingEffect()" title="Matikan/Hidupkan Efek Cahaya">💡</button>
         <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">🔄</button>
+        <button class="fab-btn" id="btnScatterStickers" onclick="scatterRandomStickers()" title="Sebar Stiker ke Webpage">🏷️</button>
         <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">🎴</button>
       </div>
       <button class="fab-btn" id="btnFabElement" onclick="toggleFabElementMenu()" title="Menu Elemen Foto">🖼️</button>
@@ -422,7 +423,8 @@
     let currentStickerPage = 0;
 
     const fontSizes = ['0.82rem', '0.92rem', '1.0rem', '1.1rem', '1.22rem'];
-    let topZIndex = 100;
+    let topZIndex = 18500;
+    window.topZIndex = 18500;
     let activeZoomedEl = null;
 
     // --- LOGIKA ALL-IN-ONE BACKGROUND PRELOADER ---
@@ -1630,8 +1632,8 @@ function renderTableOfContentsKanon() {
 
         isDragging = true;
         moveDistance = 0;
-        topZIndex++;
-        el.style.zIndex = topZIndex;
+        window.topZIndex++;
+        el.style.zIndex = window.topZIndex;
 
         el.style.transition = 'none';
 
@@ -1679,7 +1681,7 @@ function renderTableOfContentsKanon() {
       function onEnd() {
         if (!isDragging) return;
         isDragging = false;
-
+        
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onEnd);
         document.removeEventListener('touchmove', onMove);
@@ -2704,45 +2706,70 @@ function escapeHtml(text) {
       if (nextBtn) nextBtn.disabled = currentStickerPage >= totalPages - 1;
     }
 
-    function spawnSticker(imgSrc, event) {
-      const sticker = document.createElement('img');
-      sticker.src = imgSrc;
-      sticker.classList.add('floating-sticker');
-      sticker.style.width = '120px'; 
-      
-      const startX = event ? event.clientX - 60 : window.innerWidth / 2 - 60;
-      const startY = event ? event.clientY - 60 : window.innerHeight / 2 - 60;
-      
-      sticker.style.left = `${startX}px`;
-      sticker.style.top = `${startY}px`;
+function spawnSticker(imgSrc, event) {
+  const sticker = document.createElement('img');
+  sticker.src = imgSrc;
+  // Tambahkan class 'floating-sticker' dan class status awal animasi 'sticker-z-drop'
+  sticker.classList.add('floating-sticker', 'sticker-z-drop');
+  sticker.style.width = '120px'; 
+  
+  // Tentukan koordinat target di meja berdasarkan klik/tap atau tengah layar
+  const startX = event ? event.clientX - 60 : window.innerWidth / 2 - 60;
+  const startY = event ? event.clientY - 60 : window.innerHeight / 2 - 60;
+  
+  // Rotasi acak sedikit agar stiker tampak natural saat mendarat
+  const randomRotate = Math.floor(Math.random() * 40) - 20;
 
-      document.body.appendChild(sticker);
-      makeDraggableAndReturnable(sticker);
-    }
+  sticker.style.left = `${startX}px`;
+  sticker.style.top = `${startY}px`;
+
+  // STATE AWAL (Melayang dekat mata pembaca):
+  // Dibuat besar (scale 2.8) dan sedikit berputar
+  sticker.style.transform = `scale(2.8) rotate(${randomRotate + 15}deg)`;
+
+  document.body.appendChild(sticker);
+
+  // MENDARAT (Proses jatuh ke meja):
+  // Menggunakan double requestAnimationFrame agar browser sempat merender state awal
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      sticker.classList.remove('sticker-z-drop');
+      // Kembalikan ke ukuran normal (scale 1) dan rotasi target
+      sticker.style.transform = `scale(1) rotate(${randomRotate}deg)`;
+    });
+  });
+
+  makeDraggableAndReturnable(sticker);
+}
 
 function makeDraggableAndReturnable(elmnt) {
   let isDragging = false;
   let startX = 0, startY = 0;
-  let initialLeft = 0, initialTop = 0;
-  let hasMoved = false; // Memastikan apakah benar-benar digeser atau sekadar diklik
+  let moveDistance = 0;
 
-  // Gunakan Pointer Events agar mouse, trackpad, dan touch diperlakukan sama
   elmnt.onpointerdown = dragPointerDown;
 
   function dragPointerDown(e) {
-    e.preventDefault(); // Mencegah seleksi teks / drag gambar bawaan browser
+    e.preventDefault();
     
     isDragging = true;
-    hasMoved = false;
+    moveDistance = 0;
 
-    // Menjaga agar kursor tetap "mengunci" stiker meskipun kursor bergerak sangat cepat
+    elmnt.style.zIndex = window.topZIndex;
+
+    // Matikan transisi saat jari/mouse menggeser agar tidak lag
+    elmnt.style.transition = 'none';
+
     elmnt.setPointerCapture(e.pointerId);
 
-    startX = e.clientX;
-    startY = e.clientY;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
 
-    initialLeft = elmnt.offsetLeft;
-    initialTop = elmnt.offsetTop;
+    const currentX = parseFloat(elmnt.dataset.x) || 0;
+    const currentY = parseFloat(elmnt.dataset.y) || 0;
+
+    startX = clientX - currentX;
+    startY = clientY - currentY;
 
     elmnt.onpointermove = elementPointerMove;
     elmnt.onpointerup = closePointerElement;
@@ -2752,37 +2779,42 @@ function makeDraggableAndReturnable(elmnt) {
   function elementPointerMove(e) {
     if (!isDragging) return;
 
-    const deltaX = e.clientX - startX;
-    const deltaY = e.clientY - startY;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
 
-    // Ambang batas (threshold) 3px untuk membedakan antara "Klik/Tap" dan "Menggeser (Drag)"
-    if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
-      hasMoved = true;
-    }
+    const newX = clientX - startX;
+    const newY = clientY - startY;
 
-    if (hasMoved) {
-      elmnt.style.left = (initialLeft + deltaX) + "px";
-      elmnt.style.top = (initialTop + deltaY) + "px";
-    }
+    const currentX = parseFloat(elmnt.dataset.x) || 0;
+    const currentY = parseFloat(elmnt.dataset.y) || 0;
+
+    const deltaX = newX - currentX;
+    moveDistance += Math.abs(deltaX) + Math.abs(newY - currentY);
+
+    elmnt.dataset.x = newX;
+    elmnt.dataset.y = newY;
+
+    // Gunakan translate seperti polaroid!
+    elmnt.style.transform = `translate(${newX}px, ${newY}px)`;
   }
 
   function closePointerElement(e) {
     if (!isDragging) return;
     isDragging = false;
 
-    // Lepaskan kuncian pointer
+    // Kembalikan transisi CSS bawaan agar animasi show/hide & return berfungsi
+    elmnt.style.transition = '';
+
     try {
       elmnt.releasePointerCapture(e.pointerId);
-    } catch (err) {
-      // Ignore jika pointer capture sudah lepas
-    }
+    } catch (err) {}
 
     elmnt.onpointermove = null;
     elmnt.onpointerup = null;
     elmnt.onpointercancel = null;
 
-    // Jika stiker TIDAK digeser (hanya diklik/ditap sekali), hapus/kembalikan stiker
-    if (!hasMoved) {
+    // Jika tidak di-drag (cuma diklik/tap), kembalikan stiker ke katalog
+    if (moveDistance < 5) {
       elmnt.classList.add('returning');
       setTimeout(() => { 
         if (elmnt.parentNode) elmnt.remove(); 
@@ -2804,26 +2836,42 @@ function makeDraggableAndReturnable(elmnt) {
       }
     }
 
-    function togglePolaroidScatter() {
-      isPolaroidOn = !isPolaroidOn;
-      const toggleBtn = document.getElementById('btnTogglePolaroid');
+function togglePolaroidScatter() {
+  isPolaroidOn = !isPolaroidOn;
+  const toggleBtn = document.getElementById('btnTogglePolaroid');
 
-      for (let i = 1; i <= 7; i++) {
-        const pol = document.getElementById(`polaroid${i}`);
-        if (pol) {
-          if (isPolaroidOn) {
-            pol.classList.remove('hide-in-book');
-          } else {
-            pol.classList.add('hide-in-book');
-          }
-        }
-      }
-
-      if (toggleBtn) {
-        toggleBtn.innerText = isPolaroidOn ? '🎴' : '📖';
-        toggleBtn.title = isPolaroidOn ? 'Sembunyikan ke Buku' : 'Sebarkan Polaroid';
+  // 1. ANIMASI SHOW / HIDE POLAROID
+  for (let i = 1; i <= 7; i++) {
+    const pol = document.getElementById(`polaroid${i}`);
+    if (pol) {
+      if (isPolaroidOn) {
+        pol.classList.remove('hide-in-book');
+      } else {
+        pol.classList.add('hide-in-book');
       }
     }
+  }
+
+  // 2. ANIMASI SHOW / HIDE STIKER
+  const floatingStickers = document.querySelectorAll('.floating-sticker');
+  floatingStickers.forEach(sticker => {
+    if (isPolaroidOn) {
+      sticker.classList.remove('hide-in-book');
+    } else {
+      sticker.classList.add('hide-in-book');
+    }
+  });
+
+  // 3. UPDATE TOMBOL TOGGLE
+  if (toggleBtn) {
+    toggleBtn.innerText = isPolaroidOn ? '🎴' : '📖';
+    toggleBtn.title = isPolaroidOn ? 'Sembunyikan ke Buku' : 'Sebarkan Elemen';
+  }
+
+  if (typeof saveAppState === 'function') {
+    saveAppState();
+  }
+}
     
     // Toggle Buka/Tutup Menu Background FAB
 function toggleFabBgMenu() {
@@ -2943,7 +2991,92 @@ function toggleFabAmbientMenu() {
   const subMenu = document.getElementById('fabAmbientSubMenu');
   if (subMenu) subMenu.classList.toggle('show');
 }
+async function scatterRandomStickers() {
+  const btn = document.getElementById('btnScatterStickers');
+  if (btn) {
+    btn.classList.add('spin-icon');
+    setTimeout(() => btn.classList.remove('spin-icon'), 500);
+  }
 
+  // 1. Ambil/pastikan data stiker tersedia
+  let availableStickers = [...albumStickerList];
+
+  if (availableStickers.length === 0) {
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=get_stickers`);
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        albumStickerList = data;
+        availableStickers = [...data];
+      }
+    } catch (err) {
+      console.warn("Gagal mengambil stiker dari Sheets, menggunakan fallback.", err);
+    }
+  }
+
+  // Fallback default jika data stiker kosong
+  if (availableStickers.length === 0) {
+    for (let i = 1; i <= 7; i++) {
+      availableStickers.push(`images/sticker${i}.png`);
+    }
+  }
+
+  // 2. Properti posisi
+  const stickersToSpawn = 7;
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+  const margin = 80;
+
+  // 3. Render stiker satu-persatu jatuh dari perspektif mata (Sumbu Z)
+  for (let i = 0; i < stickersToSpawn; i++) {
+    setTimeout(() => {
+      // Pilih stiker acak
+      const randomIndex = Math.floor(Math.random() * availableStickers.length);
+      const rawSrc = availableStickers[randomIndex];
+      const finalSrc = (rawSrc.startsWith('data:') || rawSrc.startsWith('http') || rawSrc.startsWith('images/')) 
+        ? rawSrc 
+        : `images/${rawSrc}`;
+
+      // Posisi Koordinat di atas Meja
+      const finalX = Math.floor(Math.random() * (screenW - margin * 2)) + margin / 2;
+      const finalY = Math.floor(Math.random() * (screenH - margin * 2)) + margin / 2;
+      const randomRotate = Math.floor(Math.random() * 40) - 20;
+
+      // Buat elemen stiker
+      const sticker = document.createElement('img');
+      sticker.src = finalSrc;
+      sticker.classList.add('floating-sticker', 'sticker-z-drop');
+
+      // Tentukan lokasi meja (X, Y)
+      sticker.style.left = `${finalX}px`;
+      sticker.style.top = `${finalY}px`;
+
+      // Posisi Awal Sumbu Z: Sangat Dekat Mata (Scale 2.8x & Rotasi Awal)
+      sticker.style.transform = `scale(2.8) rotate(${randomRotate + 15}deg)`;
+
+      document.body.appendChild(sticker);
+
+      // Trigger Animasi Mendarat ke Meja (Sumbu Z -> 0)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          sticker.classList.remove('sticker-z-drop');
+          // Posisi Akhir: Mendarat pas di permukaan meja (Scale 1x & Rotasi Target)
+          sticker.style.transform = `scale(1) rotate(${randomRotate}deg)`;
+        });
+      });
+
+      // Pasang fitur drag & hapus jika fungsi tersebut ada
+      if (typeof makeDraggableAndReturnable === 'function') {
+        makeDraggableAndReturnable(sticker);
+      }
+
+      // Simpan kondisi state pada stiker terakhir
+      if (i === stickersToSpawn - 1 && typeof saveAppState === 'function') {
+        setTimeout(saveAppState, 500);
+      }
+    }, i * 200); // Jeda 200ms antar jatuhnya tiap stiker
+  }
+}
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
