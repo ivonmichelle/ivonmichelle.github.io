@@ -572,77 +572,108 @@
       document.getElementById('adminUploadModal').classList.remove('active');
     }
 
-    async function previewSlotImage(index) {
-      const input = document.getElementById(`photoInput${index}`);
-      const preview = document.getElementById(`slotPreview${index}`);
-      const sizeBadge = document.getElementById(`slotSize${index}`);
+async function previewSlotImage(index) {
+  const input = document.getElementById(`photoInput${index}`);
+  const preview = document.getElementById(`slotPreview${index}`);
+  const sizeBadge = document.getElementById(`slotSize${index}`);
+  
+  // Ambil nilai kategori saat ini
+  const category = document.getElementById('categorySelect')?.value || '';
 
-      if (input.files && input.files[0]) {
-        const file = input.files[0];
-        try {
-          const base64Webp = await processImageToWebp60(file);
-          preview.src = base64Webp;
-          preview.style.display = 'block';
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    try {
+      // Masukkan parameter category
+      const base64Webp = await processImageToWebp60(file, category);
+      preview.src = base64Webp;
+      preview.style.display = 'block';
 
-          const bytes = Math.round((base64Webp.length * 3) / 4);
-          const fileSizeKB = (bytes / 1024).toFixed(1);
+      const bytes = Math.round((base64Webp.length * 3) / 4);
+      const fileSizeKB = (bytes / 1024).toFixed(1);
 
-          if (sizeBadge) {
-            sizeBadge.innerText = `${fileSizeKB} KB`;
-            sizeBadge.style.display = 'inline-block';
+      if (sizeBadge) {
+        sizeBadge.innerText = `${fileSizeKB} KB`;
+        sizeBadge.style.display = 'inline-block';
+      }
+    } catch (err) {
+      console.error("Gagal memproses preview kompresi:", err);
+    }
+  } else {
+    preview.style.display = 'none';
+    if (sizeBadge) {
+      sizeBadge.innerText = '';
+      sizeBadge.style.display = 'none';
+    }
+  }
+}
+
+function processImageToWebp60(file, category = '') {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (category === 'Illustration') {
+        // --- LOGIKA UNTUK ILLUSTRATION (Rasio Asli, Max Sisi Terpanjang 640px) ---
+        let targetWidth = img.width;
+        let targetHeight = img.height;
+        const maxDimension = 520;
+
+        if (img.width > maxDimension || img.height > maxDimension) {
+          if (img.width >= img.height) {
+            targetWidth = maxDimension;
+            targetHeight = Math.round((img.height * maxDimension) / img.width);
+          } else {
+            targetHeight = maxDimension;
+            targetWidth = Math.round((img.width * maxDimension) / img.height);
           }
-        } catch (err) {
-          console.error("Gagal memproses preview kompresi:", err);
         }
+
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        // Draw penuh tanpa cropping
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
       } else {
-        preview.style.display = 'none';
-        if (sizeBadge) {
-          sizeBadge.innerText = '';
-          sizeBadge.style.display = 'none';
-        }
+        // --- LOGIKA DEFAULT / KATEGORI LAIN (Crop Square 640x640) ---
+        canvas.width = 640;
+        canvas.height = 640;
+
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 640, 640);
+      }
+
+      const base64Data = canvas.toDataURL('image/webp', 0.50);
+      URL.revokeObjectURL(img.src);
+      resolve(base64Data);
+    };
+    img.onerror = (err) => reject(err);
+  });
+}
+
+async function uploadAdminPhotos() {
+  const category = document.getElementById('categorySelect').value;
+  const btnSubmit = document.getElementById('btnSubmitAdminUpload');
+  const processedImages = [];
+
+  for (let i = 1; i <= 10; i++) {
+    const input = document.getElementById(`photoInput${i}`);
+    if (input.files && input.files[0]) {
+      try {
+        // Masukkan parameter category
+        const base64Webp = await processImageToWebp60(input.files[0], category);
+        processedImages.push(base64Webp);
+      } catch (e) {
+        console.error(`Gagal memproses foto ke-${i}:`, e);
       }
     }
-
-    function processImageToWebp60(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = 640;
-          canvas.height = 640;
-          const ctx = canvas.getContext('2d');
-
-          const minDim = Math.min(img.width, img.height);
-          const sx = (img.width - minDim) / 2;
-          const sy = (img.height - minDim) / 2;
-
-          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 640, 640);
-          
-          const base64Data = canvas.toDataURL('image/webp', 0.50);
-          URL.revokeObjectURL(img.src);
-          resolve(base64Data);
-        };
-        img.onerror = (err) => reject(err);
-      });
-    }
-
-    async function uploadAdminPhotos() {
-      const category = document.getElementById('categorySelect').value;
-      const btnSubmit = document.getElementById('btnSubmitAdminUpload');
-      const processedImages = [];
-
-      for (let i = 1; i <= 10; i++) {
-        const input = document.getElementById(`photoInput${i}`);
-        if (input.files && input.files[0]) {
-          try {
-            const base64Webp = await processImageToWebp60(input.files[0]);
-            processedImages.push(base64Webp);
-          } catch (e) {
-            console.error(`Gagal memproses foto ke-${i}:`, e);
-          }
-        }
-      }
+  }
 
       if (processedImages.length === 0) {
         alert("Silakan pilih setidaknya 1 foto untuk diunggah!");
@@ -675,32 +706,42 @@
       }
     }
 
-    async function loadIllustrations() {
-      try {
-        const response = await fetch(`ilustrasi.json?v=${Date.now()}`);
-        if (!response.ok) throw new Error('File ilustrasi.json tidak ditemukan');
-        
-        const data = await response.json();
-        
-        illustrations = data.map(item => ({
-          src: `ilustrasi/${item.file}`,
-          caption: item.caption || item.file
-        }));
+async function loadIllustrations() {
+  try {
+    // SCRIPT_URL adalah variabel URL Web App Google Apps Script milikmu
+    const response = await fetch(`${SCRIPT_URL}?action=get_illustrations`);
+    if (!response.ok) throw new Error('Gagal mengambil data dari Google Sheets');
+    
+    const data = await response.json(); // Mengembalikan array string base64/URL foto
+    
+    illustrations = data.map(base64Str => ({
+      src: base64Str,
+      caption: 'Illustration'
+    }));
 
-        if (illustrations.length > 0) {
-          renderIllustration();
-        } else {
-          document.getElementById('illustrationContent').innerHTML = `
-            <div class="status-msg">Belum ada gambar di folder ilustrasi.</div>
-          `;
-        }
-      } catch (err) {
-        console.warn('Gagal memuat ilustrasi.json:', err);
-        document.getElementById('illustrationContent').innerHTML = `
-          <div class="status-msg" style="color: #a33;">Gagal memuat gambar ilustrasi.</div>
-        `;
-      }
+    if (illustrations.length > 0) {
+      renderIllustration();
+    } else {
+      document.getElementById('illustrationContent').innerHTML = `
+        <div class="status-msg">Belum ada gambar di folder/kolom ilustrasi.</div>
+      `;
     }
+  } catch (err) {
+    console.warn('Gagal memuat ilustrasi:', err);
+    document.getElementById('illustrationContent').innerHTML = `
+      <div class="status-msg" style="color: #a33;">Gagal memuat gambar ilustrasi.</div>
+    `;
+  }
+}
+
+document.getElementById('categorySelect').addEventListener('change', () => {
+  for (let i = 1; i <= 10; i++) {
+    const input = document.getElementById(`photoInput${i}`);
+    if (input && input.files && input.files[0]) {
+      previewSlotImage(i);
+    }
+  }
+});
 
     let currentReaderName = localStorage.getItem('benivon_reader_name') || '';
 
