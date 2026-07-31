@@ -1475,7 +1475,6 @@ body {
     flex: 0 0 calc(25% - 1px) !important;
     max-width: calc(25% - 1px) !important;
   }
-}
 
   .tab-btn {
     /* Lebar ~31% membuat 3 tab pas di baris pertama, dan 3 tab di baris kedua */
