@@ -170,6 +170,7 @@
   <div class="desk-container initial-blur" id="deskContainer">
   <div class="daytime-sunlight-overlay" id="daytimeOverlay"></div>
     <div class="sunset-shadow-overlay" id="sunsetOverlay"></div>
+    <div class="midnight-shadow-overlay" id="midnightOverlay"></div>
     <div class="nighttime-spotlight-overlay" id="nighttimeOverlay"></div>
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
 
@@ -391,39 +392,50 @@
   </div>
 
   <!-- Group Radio Option Mode Waktu -->
-  <div class="lighting-mode-options" id="lightingModeGroup">
-    <label class="lighting-radio-card">
-      <input type="radio" name="lightingMode" value="realtime" onclick="setLightingMode('realtime')">
-      <div class="card-content">
-        <span class="icon">⏰</span>
-        <span class="label">Realtime</span>
-      </div>
-    </label>
+<!-- Group Radio Option Mode Waktu di Modal Settings -->
+<div class="lighting-mode-options" id="lightingModeGroup">
+  <label class="lighting-radio-card">
+    <input type="radio" name="lightingMode" value="realtime" onclick="setLightingMode('realtime')">
+    <div class="card-content">
+      <span class="icon">⏰</span>
+      <span class="label">Realtime</span>
+    </div>
+  </label>
 
-    <label class="lighting-radio-card">
-      <input type="radio" name="lightingMode" value="pagi" onclick="setLightingMode('pagi')">
-      <div class="card-content">
-        <span class="icon">🌅</span>
-        <span class="label">Pagi/Siang</span>
-      </div>
-    </label>
+  <label class="lighting-radio-card">
+    <input type="radio" name="lightingMode" value="pagi" onclick="setLightingMode('pagi')">
+    <div class="card-content">
+      <span class="icon">🌅</span>
+      <span class="label">Pagi/Siang</span>
+    </div>
+  </label>
 
-    <label class="lighting-radio-card">
-      <input type="radio" name="lightingMode" value="sore" onclick="setLightingMode('sore')">
-      <div class="card-content">
-        <span class="icon">🌇</span>
-        <span class="label">Sore</span>
-      </div>
-    </label>
+  <label class="lighting-radio-card">
+    <input type="radio" name="lightingMode" value="sore" onclick="setLightingMode('sore')">
+    <div class="card-content">
+      <span class="icon">🌇</span>
+      <span class="label">Sore</span>
+    </div>
+  </label>
 
-    <label class="lighting-radio-card">
-      <input type="radio" name="lightingMode" value="malam" onclick="setLightingMode('malam')">
-      <div class="card-content">
-        <span class="icon">🌙</span>
-        <span class="label">Malam</span>
-      </div>
-    </label>
-  </div>
+  <!-- TOMBOL MODAL MIDNIGHT BARU -->
+  <label class="lighting-radio-card">
+    <input type="radio" name="lightingMode" value="midnight" onclick="setLightingMode('midnight')">
+    <div class="card-content">
+      <span class="icon">🌌</span>
+      <span class="label">Midnight</span>
+    </div>
+  </label>
+
+  <label class="lighting-radio-card">
+    <input type="radio" name="lightingMode" value="malam" onclick="setLightingMode('malam')">
+    <div class="card-content">
+      <span class="icon">🌙</span>
+      <span class="label">Malam</span>
+    </div>
+  </label>
+</div>
+
 </div>
 
       </div>
@@ -1925,11 +1937,10 @@ function renderTableOfContentsKanon() {
 // =========================================================
 // LIGHTING SYSTEM CONFIG & LOGIC
 // =========================================================
-// Opsi Mode: 'realtime' | 'pagi' | 'sore' | 'malam'
+// Opsi Mode: 'realtime' | 'pagi' | 'sore' | 'midnight' | 'malam'
 let currentLightingMode = localStorage.getItem('benivon_lighting_mode') || 'realtime';
-let isLightingEnabled = localStorage.getItem('benivon_lighting_enabled') !== 'false'; // Default true
+let isLightingEnabled = localStorage.getItem('benivon_lighting_enabled') !== 'false';
 
-// 1. Fungsi Utama Update Lighting
 function updateLightingSystem() {
   const bodyEl = document.body;
   const iconFab = document.getElementById('iconLighting');
@@ -1938,34 +1949,41 @@ function updateLightingSystem() {
   if (!isLightingEnabled) {
     bodyEl.classList.add('lighting-disabled');
     if (iconFab) iconFab.className = 'fas fa-lightbulb-slash';
-    updateModalLightingUI(); // Sync tampilan UI di modal
+    updateModalLightingUI();
     return;
   } else {
     bodyEl.classList.remove('lighting-disabled');
   }
 
-  // B. Tentukan Jam berdasarkan Mode Pilihan
-  let hours;
+  // B. Tentukan Jam / Mode Pilihan
+  let modeToApply = currentLightingMode;
+
   if (currentLightingMode === 'realtime') {
-    hours = new Date().getHours();
-  } else if (currentLightingMode === 'pagi') {
-    hours = 9;  // Pagi (5 - 14)
-  } else if (currentLightingMode === 'sore') {
-    hours = 17; // Sore (15 - 18)
-  } else if (currentLightingMode === 'malam') {
-    hours = 22; // Malam (19 - 4)
+    const hours = new Date().getHours();
+    if (hours >= 5 && hours < 15) {
+      modeToApply = 'pagi';
+    } else if (hours >= 15 && hours < 18) {
+      modeToApply = 'sore';
+    } else if (hours >= 18 && hours < 23) {
+      modeToApply = 'malam'; // Lampu sorot meja
+    } else {
+      modeToApply = 'midnight'; // Tengah malam (23:00 - 04:59)
+    }
   }
 
   // C. Terapkan Class Waktu ke <body>
-  bodyEl.classList.remove('time-pagi', 'time-sore', 'time-malam');
+  bodyEl.classList.remove('time-pagi', 'time-sore', 'time-midnight', 'time-malam');
 
-  if (hours >= 5 && hours < 15) {
+  if (modeToApply === 'pagi') {
     bodyEl.classList.add('time-pagi');
     if (iconFab) iconFab.className = 'fas fa-sun';
-  } else if (hours >= 15 && hours < 19) {
+  } else if (modeToApply === 'sore') {
     bodyEl.classList.add('time-sore');
     if (iconFab) iconFab.className = 'fas fa-cloud-sun';
-  } else {
+  } else if (modeToApply === 'midnight') {
+    bodyEl.classList.add('time-midnight');
+    if (iconFab) iconFab.className = 'fas fa-user-astronaut'; // Atau fa-stars / fa-moon
+  } else if (modeToApply === 'malam') {
     bodyEl.classList.add('time-malam');
     if (iconFab) iconFab.className = 'fas fa-moon';
   }
@@ -2900,7 +2918,7 @@ function makeDraggableAndReturnable(elmnt) {
     
     isDragging = true;
     moveDistance = 0;
-
+    window.topZIndex++;
     elmnt.style.zIndex = window.topZIndex;
 
     // Matikan transisi saat jari/mouse menggeser agar tidak lag
