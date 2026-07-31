@@ -71,7 +71,7 @@ body {
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
-      z-index: 9000;
+      z-index: 19000;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s ease;
@@ -454,13 +454,51 @@ body {
     .polaroid:active {
       cursor: grabbing;
     }
-
-    .polaroid.zoomed {
-      z-index: 20001 !important;
+.polaroid.zoomed {
+	  z-index: 20001 !important;
       cursor: pointer;
       box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.2) !important;
       transform: translate(-50%, -50%) scale(3.2) rotate(0deg) !important;
-    }
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out !important;
+      overflow: hidden; /* Biar glare tidak meluber keluar bingkai */
+      touch-action: none !important;
+	
+  --rx: 0deg;
+  --ry: 0deg;
+  --bx: 0px;
+  --by: 20px;
+  --glare-x: 50%;
+  --glare-y: 50%;
+  --glare-opacity: 0;
+
+  /* Jarak perspektif diperdekat (600px) agar efek kedalaman 3D makin tajam & nyata */
+  perspective: 600px !important;
+  
+  /* Ukuran jumbo scale(3.5) gabung dengan 3D tilt */
+  transform: translate(-50%, -50%) scale(3.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
+
+  /* Dynamic 3D Box Shadow: Bayangan ikut jatuh ke arah berlawanan dari tilting */
+  box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Efek Kilatan Cahaya Dinamis (Dynamic Glare/Shine) */
+.polaroid.zoomed::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  /* Radial gradient yang titik apinya bergerak ngikutin kursor */
+  background: radial-gradient(
+    circle at var(--glare-x) var(--glare-y),
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(0, 0, 0, 0.15) 90%
+  );
+  pointer-events: none;
+  opacity: var(--glare-opacity);
+  transition: opacity 0.15s ease;
+  mix-blend-mode: overlay; /* Bikin kilatan menyatu alami dengan warna foto */
+}
 
     .polaroid img {
       width: 100%;
@@ -1484,53 +1522,6 @@ body {
   }
 }
 
-/* Styling Polaroid saat Zoomed */
-.polaroid.zoomed {
-  --rx: 0deg;
-  --ry: 0deg;
-  --bx: 0px;
-  --by: 20px;
-  --glare-x: 50%;
-  --glare-y: 50%;
-  --glare-opacity: 0;
-
-  /* Jarak perspektif diperdekat (600px) agar efek kedalaman 3D makin tajam & nyata */
-  perspective: 600px !important;
-  
-  /* Ukuran jumbo scale(3.5) gabung dengan 3D tilt */
-  transform: translate(-50%, -50%) scale(3.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
-
-  /* Dynamic 3D Box Shadow: Bayangan ikut jatuh ke arah berlawanan dari tilting */
-  box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
-
-  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out !important;
-  z-index: 20001 !important;
-  cursor: pointer;
-  overflow: hidden; /* Biar glare tidak meluber keluar bingkai */
-}
-
-/* Efek Kilatan Cahaya Dinamis (Dynamic Glare/Shine) */
-.polaroid.zoomed::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: inherit;
-  /* Radial gradient yang titik apinya bergerak ngikutin kursor */
-  background: radial-gradient(
-    circle at var(--glare-x) var(--glare-y),
-    rgba(255, 255, 255, 0.6) 0%,
-    rgba(255, 255, 255, 0.1) 40%,
-    rgba(0, 0, 0, 0.15) 90%
-  );
-  pointer-events: none;
-  opacity: var(--glare-opacity);
-  transition: opacity 0.15s ease;
-  mix-blend-mode: overlay; /* Bikin kilatan menyatu alami dengan warna foto */
-}
-.polaroid.zoomed {
-  /* Mencegah browser mengambil alih gerakan sentuhan jari */
-  touch-action: none !important;
-}
 /* Modal Passcode Admin Kustom */
 .admin-auth-modal-overlay {
   position: fixed;
@@ -2209,4 +2200,295 @@ body.lighting-disabled .nighttime-spotlight-overlay {
 #btnFabElement.disabled-state {
   opacity: 0.6;
   filter: grayscale(80%);
+}
+
+/* ==========================================
+   SETTINGS MODAL OVERLAY & CARD
+   ========================================== */
+.settings-modal-overlay {
+  position: fixed;
+  top: -20;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(28, 19, 10, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.settings-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.settings-modal {
+  background: #fbf7ef;
+  border: 2px solid #5c3a21;
+  border-radius: 16px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(92, 58, 33, 0.05);
+  font-family: 'Georgia', serif;
+  transform: scale(0.85);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.settings-modal-overlay.active .settings-modal {
+  transform: scale(1);
+}
+
+.settings-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed rgba(92, 58, 33, 0.25);
+  padding-bottom: 10px;
+}
+
+/* Tombol Tutup X */
+.settings-modal-header .close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #5c3a21;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.settings-modal-header .close-btn:hover {
+  transform: scale(1.2) rotate(90deg);
+  color: #a33;
+}
+
+/* ==========================================
+   GRID PREVIEW BACKGROUND SELECTION
+   ========================================== */
+/* Container Grid */
+.bg-grid-select {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 Kolom */
+  gap: 12px;
+  justify-items: center; /* Memaksa tombol tetap di tengah */
+  align-items: center;
+  padding: 10px 0;
+}
+
+/* Tombol Preview Lingkaran */
+.bg-grid-select .fab-btn-bg {
+  width: 56px;           /* Ukuran fixed agar tidak ditarik gepeng */
+  height: 56px;          /* Harus sama dengan width */
+  aspect-ratio: 1 / 1;   /* Memastikan rasio selalu 1:1 */
+  border-radius: 50%;    /* Bikin lingkaran sempurna */
+  border: 2px solid #b8a288;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #eee;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.bg-grid-select .fab-btn-bg:hover {
+  transform: scale(1.1);
+  border-color: #5c3a21;
+}
+
+/* Gambar Preview Tekstur */
+.bg-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Kelas Gambar Preview Background */
+.bg-dimension { background-image: url('https://www.transparenttextures.com/patterns/dimension.png'); }
+.bg-debut-light { background-image: url('https://www.transparenttextures.com/patterns/debut-light.png'); }
+.bg-escheresque-dark { background-image: url('https://www.transparenttextures.com/patterns/escheresque-dark.png'); }
+.bg-retina-wood { background-image: url('https://www.transparenttextures.com/patterns/retina-wood.png'); }
+.bg-asfalt-light { background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png'); }
+.bg-dark-wood { background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
+.bg-skulls { background-image: url('https://www.transparenttextures.com/patterns/skulls.png'); }
+.bg-noisy-grid { background-image: url('https://www.transparenttextures.com/patterns/noisy-grid.png'); }
+
+/* ==========================================
+   STYLING RANGE SLIDER VOLUME
+   ========================================== */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e3d8c8;
+  height: 6px;
+  border-radius: 5px;
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #5c3a21;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s ease;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #8c532b;
+}
+/* ==========================================
+   STYLING MODAL LIGHTING CONTROL
+   ========================================== */
+.settings-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed rgba(92, 58, 33, 0.2);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  color: #5c3a21;
+  margin-bottom: 12px;
+}
+
+/* Grid Tombol Pilihan (4 Kolom) */
+.lighting-mode-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  transition: opacity 0.3s ease;
+}
+
+/* Keadaan ketika Lighting di-OFF kan */
+.lighting-mode-options.disabled-group {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Styling Radio Card */
+.lighting-radio-card {
+  cursor: pointer;
+}
+
+.lighting-radio-card input[type="radio"] {
+  display: none; /* Sembunyikan radio bawaan browser */
+}
+
+.lighting-radio-card .card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  background: #efe6d5;
+  border: 2px solid #b8a288;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  color: #5c3a21;
+}
+
+.lighting-radio-card .card-content .icon {
+  font-size: 1.2rem;
+  margin-bottom: 2px;
+}
+
+.lighting-radio-card input[type="radio"]:checked + .card-content {
+  background: #5c3a21;
+  color: #fbf7ef;
+  border-color: #3d2413;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.lighting-radio-card .card-content:hover {
+  border-color: #5c3a21;
+}
+
+/* TOGGLE SWITCH STYLING */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .3s;
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+}
+
+input:checked + .slider {
+  background-color: #5c3a21;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+/* Styling Tombol Ambient Icon */
+.ambient-btn {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 1.4rem;
+  background-color: #f3ebd9;
+  border: 2px solid #d4c3a3;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ambient-btn:hover {
+  background-color: #e6d7bc;
+  transform: translateY(-2px);
+}
+
+/* Style saat tombol ambient aktif */
+.ambient-btn.active {
+  background-color: #5c3a21;
+  border-color: #3d2413;
+  box-shadow: 0 0 8px rgba(92, 58, 33, 0.4);
 }

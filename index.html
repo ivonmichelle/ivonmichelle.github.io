@@ -262,37 +262,6 @@
   </div>
 
   <div class="fab-container">
-<!-- FAB PARENT: BACKGROUND -->
-<div class="fab-wrapper">
-  <div class="fab-sub-menu" id="fabBgSubMenu">
-      <button class="fab-btn fab-btn-bg" onclick="changeBackground('dimension')" title="Dimension">
-      <span class="bg-preview bg-dimension"></span>
-    </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('debut-light')" title="Debut Light">
-      <span class="bg-preview bg-debut-light"></span>
-    </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('escheresque-dark')" title="Escheresque Dark">
-      <span class="bg-preview bg-escheresque-dark"></span>
-    </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('retina-wood')" title="Retina Wood">
-      <span class="bg-preview bg-retina-wood"></span>
-    </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('asfalt-light')" title="Asfalt Light">
-      <span class="bg-preview bg-asfalt-light"></span>
-    </button>
-    <button class="fab-btn fab-btn-bg" onclick="changeBackground('dark-wood')" title="Dark Wood">
-      <span class="bg-preview bg-dark-wood"></span>
-      </button>
-     <button class="fab-btn fab-btn-bg" onclick="changeBackground('skulls')" title="skulls">
-      <span class="bg-preview bg-skulls"></span>
-    </button>
-        <button class="fab-btn fab-btn-bg" onclick="changeBackground('noisy-grid')" title="Noisy Grid">
-      <span class="bg-preview bg-noisy-grid"></span>
-    </button>
-  </div>
-  <button class="fab-btn" id="btnFabBg" onclick="toggleFabBgMenu()" title="Ganti Background">🎨</button>
-</div>
-
     <!-- FAB PARENT: ELEMEN FOTO (ASLI) -->
     <div class="fab-wrapper">
       <div class="fab-sub-menu" id="fabElementSubMenu">
@@ -305,20 +274,8 @@
     </div>
 <!-- Tag Audio Khusus Ambient SFX -->
 <audio id="ambientAudio" loop preload="auto"></audio>
-
-<!-- FAB Button / Menu Pilihan Ambient -->
-<div class="fab-wrapper">
-  <div class="fab-sub-menu" id="fabAmbientSubMenu">
-    <button class="fab-btn" onclick="playAmbient('rain')" title="Suara Hujan">🌧️</button>
-    <button class="fab-btn" onclick="playAmbient('thunder')" title="Hujan & Petir">🌩️</button>
-    <button class="fab-btn" onclick="playAmbient('crickets')" title="Suara Jangkrik Malam">🦗</button>
-    <button class="fab-btn" onclick="playAmbient('cafe')" title="Suara Kafe">☕</button>
-    <button class="fab-btn" onclick="stopAmbient()" title="Matikan Ambient">🚫</button>
-  </div>
-  <button class="fab-btn" id="btnFabAmbient" onclick="toggleFabAmbientMenu()" title="Suara Suasana (Ambient SFX)">🎧</button>
-</div>
-
     <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">🔇</button>
+    <button class="fab-btn" onclick="openSettingsModal()" title="Pengaturan Tampilan & Suara">⚙️</button>
     <button class="fab-btn" onclick="openCommentModal()" title="Buku Tamu / Komentar">💬</button>
     <button class="fab-btn" id="btnAdminUpload" style="display: none;" onclick="openAdminUploadModal()" title="Tambah Foto (Admin)">📷</button>
     <button class="fab-btn" id="floatingLogoutBtn" style="display: none;" onclick="adminLogout()" title="Logout Admin">🔒</button>
@@ -331,6 +288,149 @@
 
     <button class="fab-btn jukebox-btn" id="btnJukebox" onclick="toggleJukeboxMenu()" title="Jukebox BGM">📻</button>
   </div>
+
+<!-- MODAL SETTINGS -->
+<div class="settings-modal-overlay" id="settingsModalOverlay" style="z-index: 21000;">
+  <!-- 1. Tambahkan max-height, display flex, dan overflow hidden di container modal -->
+  <div class="settings-modal" style="max-width: 440px; padding: 20px; max-height: 75vh; display: flex; flex-direction: column; overflow: hidden;">
+    
+    <!-- Modal Header (Tetap Diam / Sticky di Atas) -->
+    <div class="settings-modal-header" style="margin-bottom: 15px; flex-shrink: 0;">
+      <h3 style="margin: 0; font-size: 1.2rem; color: #5c3a21; display: flex; align-items: center; gap: 8px;">
+        ⚙️ Pengaturan Tampilan & Suara
+      </h3>
+      <button class="close-btn" onclick="closeSettingsModal()">&times;</button>
+    </div>
+
+    <!-- Modal Body (Hanya Bagian Ini yang BIsa Di-scroll) -->
+    <div class="settings-modal-body" style="display: flex; flex-direction: column; gap: 20px; padding: 5px; overflow-y: auto; flex: 1;">
+      
+      <!-- 1. SEKSI BACKGROUND MEJA -->
+      <div class="settings-section">
+        <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 12px;">
+          🎨 Tema / Background Meja:
+        </label>
+        
+        <!-- Grid Tombol Background dengan Padding & Gap Rapi -->
+        <div class="bg-grid-select" style="
+          display: grid; 
+          grid-template-columns: repeat(4, 1fr); 
+          gap: 12px; 
+          padding: 8px; 
+          background: rgba(0, 0, 0, 0.04); 
+          border-radius: 10px;
+          box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        ">
+          <button class="fab-btn fab-btn-bg" onclick="changeBackground('dimension')" title="Dimension" style="margin: 0;"><span class="bg-preview bg-dimension"></span></button>
+          <button class="fab-btn fab-btn-bg" onclick="changeBackground('debut-light')" title="Debut Light" style="margin: 0;"><span class="bg-preview bg-debut-light"></span></button>
+          <button class="fab-btn fab-btn-bg" onclick="changeBackground('escheresque-dark')" title="Escheresque Dark" style="margin: 0;"><span class="bg-preview bg-escheresque-dark"></span></button>
+          <button class="fab-btn fab-btn-bg" onclick="changeBackground('retina-wood')" title="Retina Wood" style="margin: 0;"><span class="bg-preview bg-retina-wood"></span></button>
+          <button class="fab-btn fab-btn-bg" onclick="changeBackground('asfalt-light')" title="Asfalt Light" style="margin: 0;"><span class="bg-preview bg-asfalt-light"></span></button>
+          <button class="fab-btn fab-btn-bg" onclick="changeBackground('dark-wood')" title="Dark Wood" style="margin: 0;"><span class="bg-preview bg-dark-wood"></span></button>
+          <button class="fab-btn fab-btn-bg" onclick="changeBackground('skulls')" title="Skulls" style="margin: 0;"><span class="bg-preview bg-skulls"></span></button>
+          <button class="fab-btn fab-btn-bg" onclick="changeBackground('noisy-grid')" title="Noisy Grid" style="margin: 0;"><span class="bg-preview bg-noisy-grid"></span></button>
+        </div>
+      </div>
+            <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
+<div>
+        <label style="font-weight: bold; color: #5c3a21; margin-bottom: 8px; display: block;">Suara Suasana (Ambient):</label>
+        <div class="ambient-options" style="display: flex; gap: 10px; justify-content: space-between;">
+          <button class="ambient-btn" data-ambient="rain" onclick="playAmbient('rain')" title="Hujan">
+            🌧️
+          </button>
+          <button class="ambient-btn" data-ambient="thunder" onclick="playAmbient('thunder')" title="Hujan & Petir">
+            ⛈️
+          </button>
+          <button class="ambient-btn" data-ambient="crickets" onclick="playAmbient('crickets')" title="Malam / Jangkrik">
+            🦗
+          </button>
+          <button class="ambient-btn" data-ambient="cafe" onclick="playAmbient('cafe')" title="Kafe">
+            ☕
+          </button>
+          <button class="ambient-btn" data-ambient="off" onclick="stopAmbient()" title="Matikan Ambient">
+            🚫
+          </button>
+
+        </div>
+      </div>
+
+      <!-- 2. SEKSI VOLUME KONTROL -->
+      <div class="settings-section" style="display: flex; flex-direction: column; gap: 14px;">
+        
+        <!-- Slider Volume Musik (BGM) -->
+        <div style="background: rgba(255, 255, 255, 0.5); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.05);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: #5c3a21; display: flex; align-items: center; gap: 6px;">
+              🎵 Volume Lagu (BGM)
+            </label>
+            <span id="bgmVolumeText" style="font-size: 0.8rem; font-weight: bold; color: #8c532b;">100%</span>
+          </div>
+          <input type="range" id="bgmVolumeSlider" min="0" max="1" step="0.05" value="1" style="width: 100%; cursor: pointer;" oninput="adjustBgmVolume(this.value)">
+        </div>
+
+        <!-- Slider Volume Ambiance (SFX) -->
+        <div style="background: rgba(255, 255, 255, 0.5); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.05);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="font-weight: 600; font-size: 0.85rem; color: #5c3a21; display: flex; align-items: center; gap: 6px;">
+              🎧 Volume Ambiance (SFX)
+            </label>
+            <span id="ambientVolumeText" style="font-size: 0.8rem; font-weight: bold; color: #8c532b;">100%</span>
+          </div>
+          <input type="range" id="ambientVolumeSlider" min="0" max="1" step="0.05" value="1" style="width: 100%; cursor: pointer;" oninput="adjustAmbientVolume(this.value)">
+        </div>
+
+<!-- SETTING PENCAHAYAAN MEJA -->
+<div class="settings-section">
+  <div class="section-header">
+    <span>💡 Efek Pencahayaan Meja</span>
+    <!-- Switch ON / OFF -->
+    <label class="switch">
+      <input type="checkbox" id="lightingToggleCheckbox" onchange="toggleLightingEffect(this.checked)">
+      <span class="slider round"></span>
+    </label>
+  </div>
+
+  <!-- Group Radio Option Mode Waktu -->
+  <div class="lighting-mode-options" id="lightingModeGroup">
+    <label class="lighting-radio-card">
+      <input type="radio" name="lightingMode" value="realtime" onclick="setLightingMode('realtime')">
+      <div class="card-content">
+        <span class="icon">⏰</span>
+        <span class="label">Realtime</span>
+      </div>
+    </label>
+
+    <label class="lighting-radio-card">
+      <input type="radio" name="lightingMode" value="pagi" onclick="setLightingMode('pagi')">
+      <div class="card-content">
+        <span class="icon">🌅</span>
+        <span class="label">Pagi/Siang</span>
+      </div>
+    </label>
+
+    <label class="lighting-radio-card">
+      <input type="radio" name="lightingMode" value="sore" onclick="setLightingMode('sore')">
+      <div class="card-content">
+        <span class="icon">🌇</span>
+        <span class="label">Sore</span>
+      </div>
+    </label>
+
+    <label class="lighting-radio-card">
+      <input type="radio" name="lightingMode" value="malam" onclick="setLightingMode('malam')">
+      <div class="card-content">
+        <span class="icon">🌙</span>
+        <span class="label">Malam</span>
+      </div>
+    </label>
+  </div>
+</div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
 
   <div class="comment-modal-overlay" id="commentModalOverlay">
     <div class="comment-modal">
@@ -1823,56 +1923,102 @@ function renderTableOfContentsKanon() {
       activeZoomedEl = null;
     }
 // =========================================================
-// 1. LETAKKAN FUNGSI GLOBAL DI LUAR / DI ATAS LISTENER
+// LIGHTING SYSTEM CONFIG & LOGIC
 // =========================================================
-let isLightingEnabled = true;
+// Opsi Mode: 'realtime' | 'pagi' | 'sore' | 'malam'
+let currentLightingMode = localStorage.getItem('benivon_lighting_mode') || 'realtime';
+let isLightingEnabled = localStorage.getItem('benivon_lighting_enabled') !== 'false'; // Default true
 
+// 1. Fungsi Utama Update Lighting
 function updateLightingSystem() {
   const bodyEl = document.body;
-  const btnFab = document.getElementById('btnFabElement');
   const iconFab = document.getElementById('iconLighting');
   
-  const savedState = localStorage.getItem('benivon_lighting_enabled');
-  if (savedState !== null) {
-    isLightingEnabled = (savedState === 'true');
-  }
-
-  // Cek Status Toggle
+  // A. Cek Status Toggle ON / OFF
   if (!isLightingEnabled) {
     bodyEl.classList.add('lighting-disabled');
-    if (btnFab) btnFab.classList.add('disabled-state');
     if (iconFab) iconFab.className = 'fas fa-lightbulb-slash';
+    updateModalLightingUI(); // Sync tampilan UI di modal
+    return;
   } else {
     bodyEl.classList.remove('lighting-disabled');
-    if (btnFab) btnFab.classList.remove('disabled-state');
   }
 
-  // Hitung Waktu & Terapkan Class
-  const now = new Date();
-  const hours = now.getHours();
-  // const hours = 17
-  
+  // B. Tentukan Jam berdasarkan Mode Pilihan
+  let hours;
+  if (currentLightingMode === 'realtime') {
+    hours = new Date().getHours();
+  } else if (currentLightingMode === 'pagi') {
+    hours = 9;  // Pagi (5 - 14)
+  } else if (currentLightingMode === 'sore') {
+    hours = 17; // Sore (15 - 18)
+  } else if (currentLightingMode === 'malam') {
+    hours = 22; // Malam (19 - 4)
+  }
+
+  // C. Terapkan Class Waktu ke <body>
   bodyEl.classList.remove('time-pagi', 'time-sore', 'time-malam');
 
   if (hours >= 5 && hours < 15) {
     bodyEl.classList.add('time-pagi');
-    if (isLightingEnabled && iconFab) iconFab.className = 'fas fa-sun';
+    if (iconFab) iconFab.className = 'fas fa-sun';
   } else if (hours >= 15 && hours < 19) {
     bodyEl.classList.add('time-sore');
-    if (isLightingEnabled && iconFab) iconFab.className = 'fas fa-cloud-sun';
+    if (iconFab) iconFab.className = 'fas fa-cloud-sun';
   } else {
     bodyEl.classList.add('time-malam');
-    if (isLightingEnabled && iconFab) iconFab.className = 'fas fa-moon';
+    if (iconFab) iconFab.className = 'fas fa-moon';
+  }
+
+  // D. Sync Tampilan UI di Modal Settings
+  updateModalLightingUI();
+}
+
+// 2. Fungsi Mengubah Mode Waktu (Dipanggil saat Radio Button di klik)
+function setLightingMode(mode) {
+  currentLightingMode = mode;
+  localStorage.setItem('benivon_lighting_mode', mode);
+  updateLightingSystem();
+  console.log(`[BenivoN-Time] Mode Cahaya diubah ke: ${mode.toUpperCase()}`);
+}
+
+// 3. Fungsi Toggle ON/OFF Lighting
+function toggleLightingEffect(forceState = null) {
+  if (forceState !== null) {
+    isLightingEnabled = forceState;
+  } else {
+    isLightingEnabled = !isLightingEnabled;
+  }
+  
+  localStorage.setItem('benivon_lighting_enabled', isLightingEnabled);
+  updateLightingSystem();
+}
+
+// 4. Update Indikator UI Modal Settings
+function updateModalLightingUI() {
+  // Update Radio Button Status
+  const radioBtn = document.querySelector(`input[name="lightingMode"][value="${currentLightingMode}"]`);
+  if (radioBtn) radioBtn.checked = true;
+
+  // Update Checkbox Toggle Status
+  const toggleCheckbox = document.getElementById('lightingToggleCheckbox');
+  if (toggleCheckbox) toggleCheckbox.checked = isLightingEnabled;
+
+  // Disable/Enable Opsi Mode Jika Lighting Dimatikan
+  const modeGroup = document.getElementById('lightingModeGroup');
+  if (modeGroup) {
+    if (isLightingEnabled) {
+      modeGroup.classList.remove('disabled-group');
+    } else {
+      modeGroup.classList.add('disabled-group');
+    }
   }
 }
 
-// Fungsi ini harus global agar onclick="toggleLightingEffect()" di HTML bisa membacanya
-function toggleLightingEffect() {
-  isLightingEnabled = !isLightingEnabled;
-  localStorage.setItem('benivon_lighting_enabled', isLightingEnabled);
+// Jalankan sistem saat halaman selesai dimuat
+document.addEventListener('DOMContentLoaded', () => {
   updateLightingSystem();
-  console.log(`[BenivoN-Time] Efek Cahaya Meja: ${isLightingEnabled ? 'AKTIF' : 'NON-AKTIF'}`);
-}
+});
 
     // --- INISIALISASI UTAMA WEBSITE ---
     window.addEventListener('DOMContentLoaded', () => {
@@ -2943,7 +3089,6 @@ document.addEventListener('click', (e) => {
 // --- MANAJEMEN AMBIENT SOUND EFFECT (SFX) ---
 const ambientAudio = document.getElementById('ambientAudio');
 
-// Path daftar file ambient (simpan file mp3 ini di folder sfx/ atau bgm/)
 const ambientTracks = {
   rain: 'sfx/rain_loop.mp3',
   thunder: 'sfx/thunder_rain_loop.mp3',
@@ -2953,27 +3098,25 @@ const ambientTracks = {
 
 let currentAmbientKey = null;
 
+// Toggle Sub-menu FAB (Jika masih dipakai di UI)
+function toggleFabAmbientMenu() {
+  const subMenu = document.getElementById('fabAmbientSubMenu');
+  if (subMenu) subMenu.classList.toggle('show');
+}
+
 // Fungsi untuk Memutar Ambient
 function playAmbient(key) {
   if (!ambientTracks[key]) return;
 
-  // Jika tombol yang sama diklik lagi, matikan ambient
-  if (currentAmbientKey === key && !ambientAudio.paused) {
-    stopAmbient();
-    return;
-  }
-
   currentAmbientKey = key;
   ambientAudio.src = ambientTracks[key];
-  
-  // ATUR VOLUME LEBIH PELAN DARIPADA JUKEBOX (Contoh: 25%)
-  ambientAudio.volume = 0.35; 
+  ambientAudio.volume = 0.35;
   
   ambientAudio.play().then(() => {
-    document.getElementById('btnFabAmbient').classList.add('pulsing');
+    updateAmbientUI();
   }).catch(err => console.log("Gagal memutar ambient:", err));
 
-  toggleFabAmbientMenu(); // Tutup sub-menu setelah memilih
+  toggleFabAmbientMenu();
 }
 
 // Fungsi Mematikan Ambient
@@ -2982,9 +3125,30 @@ function stopAmbient() {
     ambientAudio.pause();
     ambientAudio.currentTime = 0;
     currentAmbientKey = null;
-    document.getElementById('btnFabAmbient').classList.remove('pulsing');
+    updateAmbientUI();
   }
   toggleFabAmbientMenu();
+}
+
+// Fungsi Update Status Tampilan Tombol
+function updateAmbientUI() {
+  // Update status pulsing pada FAB (jika ada)
+  const fabBtn = document.getElementById('btnFabAmbient');
+  if (fabBtn) {
+    if (currentAmbientKey) fabBtn.classList.add('pulsing');
+    else fabBtn.classList.remove('pulsing');
+  }
+
+  // Update status tombol aktif di Modal Settings
+  const ambientBtns = document.querySelectorAll('.ambient-btn');
+  ambientBtns.forEach(btn => {
+    const key = btn.getAttribute('data-ambient');
+    if ((key === 'off' && !currentAmbientKey) || key === currentAmbientKey) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
 }
 
 // Toggle Menu FAB Ambient
@@ -3078,6 +3242,69 @@ async function scatterRandomStickers() {
     }, i * 200); // Jeda 200ms antar jatuhnya tiap stiker
   }
 }
+
+/* ==========================================
+   LOGIKA MODAL SETTINGS & SUARA
+   ========================================== */
+function openSettingsModal() {
+  const modal = document.getElementById('settingsModalOverlay');
+  if (modal) modal.classList.add('active');
+}
+
+function closeSettingsModal() {
+  const modal = document.getElementById('settingsModalOverlay');
+  if (modal) modal.classList.remove('active');
+}
+
+// --- LOGIKA KONTROL VOLUME BGM & AMBIENCE ---
+function adjustBgmVolume(val) {
+  const bgmAudio = document.getElementById('bgmAudio');
+  const volText = document.getElementById('bgmVolumeText');
+  if (bgmAudio) {
+    bgmAudio.volume = val;
+  }
+  if (volText) {
+    volText.innerText = Math.round(val * 100) + '%';
+  }
+  // Simpan preferensi volume
+  localStorage.setItem('benivon_bgm_volume', val);
+}
+
+function adjustAmbientVolume(val) {
+  const ambientAudio = document.getElementById('ambientAudio');
+  const volText = document.getElementById('ambientVolumeText');
+  if (ambientAudio) {
+    ambientAudio.volume = val;
+  }
+  if (volText) {
+    volText.innerText = Math.round(val * 100) + '%';
+  }
+  // Simpan preferensi volume
+  localStorage.setItem('benivon_ambient_volume', val);
+}
+
+// RESTORE VOLUME SAAT HALAMAN DIBUKA
+document.addEventListener('DOMContentLoaded', () => {
+  const savedBgmVol = localStorage.getItem('benivon_bgm_volume');
+  const savedAmbientVol = localStorage.getItem('benivon_ambient_volume');
+
+  if (savedBgmVol !== null) {
+    const bgmSlider = document.getElementById('bgmVolumeSlider');
+    if (bgmSlider) {
+      bgmSlider.value = savedBgmVol;
+      adjustBgmVolume(savedBgmVol);
+    }
+  }
+
+  if (savedAmbientVol !== null) {
+    const ambientSlider = document.getElementById('ambientVolumeSlider');
+    if (ambientSlider) {
+      ambientSlider.value = savedAmbientVol;
+      adjustAmbientVolume(savedAmbientVol);
+    }
+  }
+});
+
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
