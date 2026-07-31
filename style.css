@@ -1418,6 +1418,34 @@ body {
 
 /* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
+	 .fab-container {
+    /* Merapatkan posisi kontainer utama ke pojok kanan bawah */
+    position: fixed;
+    bottom: 12px;           /* Dikurangi agar tidak terlalu naik */
+    right: 12px;            /* Dikurangi agar lebih rapat ke pinggir kanan */
+    
+    /* Mengatur tata letak & jarak antartombol FAB */
+    display: flex;
+    flex-direction: column; /* Menata tombol secara vertikal */
+    align-items: flex-end;  /* Rata kanan secara presisi */
+    gap: 8px;               /* Jarak antar ikon FAB dibuat rapat (8px) */
+    z-index: 9999;          /* Memastikan posisi di atas elemen meja/polaroid */
+  }
+
+  /* Mengecilkan ukuran tombol FAB sedikit agar pas dengan jempol & layar HP */
+  .fab-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+    margin: 0;              /* Menghilangkan margin bawaan jika ada */
+  }
+
+  /* Mengatur arah submenu FAB agar muncul rapi ke atas tanpa menutupi tombol sebelah */
+  .fab-sub-menu {
+    bottom: 50px;           /* Menyesuaikan posisi kemunculan pop-up submenu */
+    right: 0;
+    gap: 6px;
+  }
 	.polaroid {
         width: 80px !important;
         padding: 5px 5px 10px 5px !important;
