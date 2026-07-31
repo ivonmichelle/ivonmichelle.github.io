@@ -1,0 +1,52 @@
+name: Generate Music JSON
+
+on:
+  push:
+    paths:
+      - 'bgm/**'
+  workflow_dispatch:
+
+jobs:
+  build-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate bgm.json
+        run: |
+          python -c '
+          import os
+          import json
+
+          bgm_dir = "bgm"
+          bgm_list = []
+
+          if os.path.exists(bgm_dir):
+              # Ambil semua file audio .mp3 di dalam folder bgm
+              files = sorted([f for f in os.listdir(bgm_dir) if f.lower().endswith(".mp3")])
+              for file in files:
+                  # Title otomatis disesuaikan dengan nama file tanpa ekstensi
+                  title = os.path.splitext(file)[0]
+                  bgm_list.append({
+                      "file": file,
+                      "title": title
+                  })
+
+          # Simpan hasil bgm.json di root folder (sejajar dengan index.html)
+          with open("bgm.json", "w", encoding="utf-8") as f:
+              json.dump(bgm_list, f, indent=2, ensure_ascii=False)
+
+          print("Successfully generated bgm.json with", len(bgm_list), "entries.")
+          '
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "auto: update bgm.json from bgm/ folder"
+          file_pattern: "bgm.json"
