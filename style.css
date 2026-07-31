@@ -1482,9 +1482,6 @@ body {
     border-radius: 6px 6px 0 0;
     box-sizing: border-box;
   }
-  .fab-sub-menu{
-	  gap: 5px;
-  }	
 }
 
 /* Styling Polaroid saat Zoomed */
@@ -1713,7 +1710,7 @@ body {
   right: 20px;
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 6px;
   z-index: 20000;
 }
 
@@ -2093,7 +2090,7 @@ body.time-pagi .daytime-sunlight-overlay {
   overflow: hidden;
 }
 
-/* CONTAINER ANIMASI UTAMA */
+/* CONTAINER ANIMASI UTAMA: Berisi Kusen Jendela + Siluet Bayangan Daun */
 .daytime-sunlight-overlay::after {
   content: '';
   position: absolute;
@@ -2103,41 +2100,48 @@ body.time-pagi .daytime-sunlight-overlay {
   height: 180%;
   pointer-events: none;
 
-  /* Menjaga agar efek menyatu halus dengan warna konten tanpa menutupi */
-  mix-blend-mode: soft-light; 
-
+  /* 
+    GABUNGAN MULTI-LAYER GRADIENT:
+    1. Garis Kusen Jendela
+    2. Bintik-bintik Gelap (Gumpalan Bayangan Daun & Dahan)
+    3. Sorot Cahaya Terang (Sinar Matahari Pagi murni)
+  */
   background-image: 
-    /* --- LAYER A: KUSEN JENDELA (Opasitas diturunkan) --- */
+    /* --- LAYER A: KUSEN JENDELA --- */
     linear-gradient(
       to bottom,
-      transparent 0%, transparent 46%,
-      rgba(25, 18, 12, 0.15) 45%, rgba(25, 18, 12, 0.2) 51%,
+      transparent 0%, transparent 45%,
+      rgba(25, 18, 12, 0.35) 45%, rgba(25, 18, 12, 0.35) 51%,
       transparent 51%, transparent 100%
     ),
     linear-gradient(
       to right,
-      transparent 0%, transparent 45%,
-      rgba(25, 18, 12, 0.15) 46%, rgba(25, 18, 12, 0.2) 51%,
+      transparent 0%, transparent 46%,
+      rgba(25, 18, 12, 0.35) 46%, rgba(25, 18, 12, 0.35) 51%,
       transparent 51%, transparent 100%
     ),
 
-    /* --- LAYER B: CLUSTER BAYANGAN DAUN (Dibuat jauh lebih tipis) --- */
-    radial-gradient(ellipse at 20% 30%, rgba(15, 10, 5, 0.18) 0%, transparent 40%),
-    radial-gradient(ellipse at 35% 60%, rgba(15, 10, 5, 0.20) 0%, transparent 35%),
-    radial-gradient(ellipse at 65% 25%, rgba(15, 10, 5, 0.18) 0%, transparent 45%),
-    radial-gradient(ellipse at 75% 70%, rgba(15, 10, 5, 0.22) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 85%, rgba(15, 10, 5, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 20%, rgba(15, 10, 5, 0.20) 0%, transparent 35%),
+    /* --- LAYER B: CLUSTER BAYANGAN DAUN/DAHAN (Gelap Pekat) --- */
+    radial-gradient(ellipse at 20% 30%, rgba(15, 10, 5, 0.35) 0%, transparent 40%),
+    radial-gradient(ellipse at 35% 60%, rgba(15, 10, 5, 0.30) 0%, transparent 35%),
+    radial-gradient(ellipse at 65% 25%, rgba(15, 10, 5, 0.35) 0%, transparent 45%),
+    radial-gradient(ellipse at 75% 70%, rgba(15, 10, 5, 0.35) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 85%, rgba(15, 10, 5, 0.30) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(15, 10, 5, 0.30) 0%, transparent 35%),
 
-    /* --- LAYER C: SINAR MATAHARI (Dibuat sedikit lebih hidup) --- */
-    radial-gradient(circle at 28% 42%, rgba(255, 250, 220, 0.5) 0%, transparent 20%),
-    radial-gradient(circle at 55% 30%, rgba(255, 250, 220, 0.45) 0%, transparent 25%),
-    radial-gradient(circle at 45% 72%, rgba(255, 250, 220, 0.5) 0%, transparent 18%),
-    radial-gradient(circle at 70% 50%, rgba(255, 250, 220, 0.4) 0%, transparent 22%);
+    /* --- LAYER C: BINTIK SINAR MATAHARI MENEROBOS (Cahaya Hangat) --- */
+    radial-gradient(circle at 28% 42%, rgba(255, 250, 210, 0.4) 0%, transparent 20%),
+    radial-gradient(circle at 55% 30%, rgba(255, 250, 210, 0.35) 0%, transparent 25%),
+    radial-gradient(circle at 45% 72%, rgba(255, 250, 210, 0.4) 0%, transparent 18%),
+    radial-gradient(circle at 70% 50%, rgba(255, 250, 210, 0.3) 0%, transparent 22%);
 
-  filter: blur(12px); /* Penambahan blur sedikit agar transisi bayangan lebih mulus */
+  /* Blur halus agar bentuknya terlihat alami seperti terproyeksi dari jauh */
+  filter: blur(10px);
 
+  /* Kemiringan sudut cahaya matahari pagi */
   transform: rotate(-20deg) skewX(-10deg) scale(1.1);
+
+  /* Animasi goyangan daun ditiup angin */
   animation: leafKomorebiSway 9s ease-in-out infinite alternate;
 }
 
