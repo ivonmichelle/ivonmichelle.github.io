@@ -818,9 +818,6 @@ body {
       50% { transform: translateY(-8px); }
     }
 
-    @media (max-width: 768px) {
-
-    }
 /* --- VIEW ALBUM POLAROID (GRID 2x2) --- */
 .polaroid-grid-view {
   display: grid;
@@ -1486,9 +1483,10 @@ body {
     box-sizing: border-box;
   }
 	.fab-container {
-	gap: 4px;
+	gap: 2px;
 	}
 }
+
 /* Styling Polaroid saat Zoomed */
 .polaroid.zoomed {
   --rx: 0deg;
