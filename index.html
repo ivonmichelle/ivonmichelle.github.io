@@ -348,6 +348,31 @@
         </div>
       </div>
             <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
+              <div class="settings-section">
+        <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 12px;">
+          📕 Tekstur / Warna Cover Buku:
+        </label>
+        <div class="book-cover-grid-select">
+          <button class="fab-btn-cover" onclick="changeBookCover('argyle')" title="Classic Wood Argyle">
+            <span class="cover-preview cover-argyle"></span>
+          </button>
+          <button class="fab-btn-cover" onclick="changeBookCover('food')" title="Food Pattern">
+            <span class="cover-preview cover-food"></span>
+          </button>
+          <button class="fab-btn-cover" onclick="changeBookCover('leather')" title="Dark Leather">
+            <span class="cover-preview cover-leather"></span>
+          </button>
+          <button class="fab-btn-cover" onclick="changeBookCover('carbon')" title="Carbon Fibre">
+            <span class="cover-preview cover-carbon"></span>
+          </button>
+          <button class="fab-btn-cover" onclick="changeBookCover('sos')" title="Crimson SOS">
+            <span class="cover-preview cover-sos"></span>
+          </button>
+        </div>
+      </div>
+
+      <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
+
 <div>
         <label style="font-weight: bold; color: #5c3a21; margin-bottom: 8px; display: block;">Suara Suasana (Ambient):</label>
         <div class="ambient-options" style="display: flex; gap: 10px; justify-content: space-between;">
@@ -3440,6 +3465,53 @@ function openBookView() {
 
   console.log("[Book] Buku berhasil dibuka kembali.");
 }
+
+
+// Data Konfigurasi 5 Cover
+const bookCovers = {
+  'argyle': {
+    color: '#4f3815',
+    texture: 'https://www.transparenttextures.com/patterns/argyle.png'
+  },
+  'food': {
+    color: '#9c61a1',
+    texture: 'https://www.transparenttextures.com/patterns/food.png'
+  },
+  'leather': {
+    color: '#241511',
+    texture: 'https://www.transparenttextures.com/patterns/leather.png'
+  },
+  'carbon': {
+    color: '#141414',
+    texture: 'https://www.transparenttextures.com/patterns/real-carbon-fibre.png'
+  },
+  'sos': {
+    color: '#421514',
+    texture: 'https://www.transparenttextures.com/patterns/sos.png'
+  }
+};
+
+// Fungsi Mengubah Cover Buku
+function changeBookCover(type) {
+  const coverEl = document.getElementById('bookCoverOverlay');
+  const selected = bookCovers[type];
+
+  if (coverEl && selected) {
+    coverEl.style.backgroundColor = selected.color;
+    coverEl.style.backgroundImage = `
+      radial-gradient(circle at 14px 24px, #1c130a 0px, #2b1d0c 8px, rgba(0,0,0,0.18) 8px, transparent 8.5px),
+      url('${selected.texture}')
+    `;
+    // Simpan pilihan user
+    localStorage.setItem('benivon_selected_cover', type);
+  }
+}
+
+// Muat Cover yang Tersimpan saat Halaman Dibuka
+document.addEventListener('DOMContentLoaded', () => {
+  const savedCover = localStorage.getItem('benivon_selected_cover') || 'argyle';
+  changeBookCover(savedCover);
+});
 
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>

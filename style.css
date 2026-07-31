@@ -2678,3 +2678,65 @@ input:checked + .slider:before {
   z-index: 21; /* Di bawah teks, di atas kayu */
   pointer-events: none;
 }
+
+/* GRID PILIHAN COVER BUKU */
+.book-cover-grid-select {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  justify-items: center;
+  align-items: center;
+}
+
+.fab-btn-cover {
+  width: 48px;
+  height: 48px;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px; /* Bentuk kotak membulat menyerupai buku */
+  border: 2px solid #b8a288;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fab-btn-cover:hover {
+  transform: scale(1.1);
+  border-color: #5c3a21;
+}
+
+.cover-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: repeat;
+}
+
+/* KELAS TEKSTUR COVER PREVIEW */
+.cover-argyle {
+  background-color: #4f3815;
+  background-image: url('https://www.transparenttextures.com/patterns/argyle.png');
+}
+.cover-food {
+  background-color: #9c61a1;
+  background-image: url('https://www.transparenttextures.com/patterns/food.png');
+}
+.cover-leather {
+  background-color: #241511;
+  background-image: url('https://www.transparenttextures.com/patterns/leather.png');
+}
+.cover-carbon {
+  background-color: #141414;
+  background-image: url('https://www.transparenttextures.com/patterns/real-carbon-fibre.png');
+}
+.cover-sos {
+  background-color: #421514;
+  background-image: url('https://www.transparenttextures.com/patterns/sos.png');
+}
