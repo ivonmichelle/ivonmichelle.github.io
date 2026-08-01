@@ -164,6 +164,30 @@
         overlay.style.display = 'flex';
       }
     })();
+    
+<!-- PROTEKSI -->
+    document.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+  });
+ document.addEventListener('keydown', function (e) {
+  // Blokir F12
+  if (e.key === 'F12') {
+    e.preventDefault();
+  }
+  // Blokir Ctrl+U (View Source)
+  if (e.ctrlKey && e.key === 'u') {
+    e.preventDefault();
+  }
+  // Blokir Ctrl+S (Save Page)
+  if (e.ctrlKey && e.key === 's') {
+    e.preventDefault();
+  }
+  // Blokir Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Inspect Element)
+  if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+    e.preventDefault();
+  }
+});
+
   </script>
 
   <div class="desk-container initial-blur" id="deskContainer">
