@@ -150,6 +150,7 @@ input, textarea {
   max-width: 90vw;
   height: 84vh;
   max-height: 560px;
+  overflow: visible !important;
 }
 
 .kawat-shadow {
