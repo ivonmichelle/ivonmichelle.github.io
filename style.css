@@ -1882,6 +1882,11 @@ input, textarea {
   max-height: 380px; /* Batas tinggi aman */
   overflow-y: auto;  /* Aktifkan scroll di HP */
   -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;  /* IE dan Edge */
+   scrollbar-width: none;  /* Firefox */
+}
+.disclaimer-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .disclaimer-header {
