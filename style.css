@@ -1524,7 +1524,16 @@ input, textarea {
         padding: 5px 10px 3px 10px;
         font-size: 0.72rem;
       }
-	/* 2 Baris di ponsek */
+      .fab-container{
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: row;
+      gap: 3px;
+      z-index: 20000;
+      }
+	/* 2 Baris di ponsel */
   .book-tabs {
     left: 10px !important;
     right: 10px !important;
@@ -1882,11 +1891,6 @@ input, textarea {
   max-height: 380px; /* Batas tinggi aman */
   overflow-y: auto;  /* Aktifkan scroll di HP */
   -webkit-overflow-scrolling: touch;
-  -ms-overflow-style: none;  /* IE dan Edge */
-   scrollbar-width: none;  /* Firefox */
-}
-.disclaimer-wrapper::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
 }
 
 .disclaimer-header {
