@@ -141,6 +141,33 @@ input, textarea {
   overflow: visible !important;
 }
 
+.book-container {
+  position: relative;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  max-width: 90vw;
+  height: 84vh;
+  max-height: 560px;
+}
+
+.kawat-shadow {
+  position: absolute;
+  top: 15px;
+  bottom: 10px;
+  left: -20px; /* Posisi sejajar dengan kawat depan */
+  width: 38px;
+  z-index: 1; 
+  pointer-events: none;
+
+  /* SVG Kawat Belakang (Miring 30 deg + Gelap) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='32'%3E%3Crect x='0' y='14' width='25' height='8' rx='4' ry='4' fill='%23222222' opacity='0.75' transform='rotate(45 10 18)'/%3E%3C/svg%3E");
+  background-repeat: repeat-y;
+  background-position: 2px 6px;
+  background-size: 38px 32px;
+}
+
     /* --- RING SPIRAL KAWAT LOGAM (LENGKUNG & ROUNDED) --- */
     .book-page::before {
       content: '';
@@ -167,7 +194,7 @@ input, textarea {
       width: 15px;
       height: calc(100% - 8px);
       border-radius: 0 8px 8px 0;
-      
+
       /* Pola garis-garis halaman kertas bertumpuk */
       background: repeating-linear-gradient(
         90deg,
