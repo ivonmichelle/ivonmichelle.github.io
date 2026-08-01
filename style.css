@@ -2035,6 +2035,9 @@ body.bg-noisy-grid {
   z-index: 19000; /* Di atas meja kayu, tetapi di bawah Polaroid (20000) & Buku (10) */
   opacity: 0; /* Default: Sembunyi */
   transition: opacity 1.5s ease-in-out; /* Transisi halus saat pergantian waktu */
+  will-change: opacity;
+  transform: translateZ(0); /* Paksa masuk GPU Layer */
+  backface-visibility: hidden;
 }
 /* -------------------------------------------------
    EFEK MIDNIGHT (Cahaya Bulan Kebiruan & Kusen Jendela)
@@ -2089,6 +2092,9 @@ body.time-midnight .midnight-shadow-overlay {
   transform: rotate(-20deg) skewX(-10deg) scale(1.1);
   animation: leafKomorebiSway 11s ease-in-out infinite alternate;
   filter: blur(20px); /* Blur lebih lembut khas malam */
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 
 /* Vignette pinggiran meja khusus mode Midnight */
@@ -2161,6 +2167,10 @@ body.time-sore .sunset-shadow-overlay {
   
   /* Blur lembut (soft shadow) seolah cahaya melewati jarak dari jendela ke meja */
   filter: blur(12px); 
+  
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
   
 
@@ -2271,6 +2281,9 @@ body.time-pagi .daytime-sunlight-overlay {
 
   /* Animasi goyangan daun ditiup angin */
   animation: leafKomorebiSway 9s ease-in-out infinite alternate;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 
 /* === ANIMASI GOYANGAN POHON === */
