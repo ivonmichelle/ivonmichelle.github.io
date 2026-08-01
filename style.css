@@ -2820,8 +2820,8 @@ input:checked + .slider:before {
 
 .cover-signature {
   position: absolute;
-  bottom: 310px;
-  right: -40px;
+  top: 2%;
+  right: 4%;
   width: 120px;
   height: 60px;
   
