@@ -370,7 +370,11 @@
         <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 12px;">
           🎨 Tema / Background Meja:
         </label>
-        
+            <!-- Custom Color Picker Background -->
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="font-size: 0.75rem; color: #5c3a21; font-weight: 600;">Warna Kustom:</span>
+      <input type="color" id="bgCustomColorPicker" oninput="changeBgCustomColor(this.value)" style="border: none; width: 28px; height: 28px; cursor: pointer; background: transparent; padding: 0;">
+    </div>
         <!-- Grid Tombol Background dengan Padding & Gap Rapi -->
         <div class="bg-grid-select" style="
           display: grid; 
@@ -396,6 +400,11 @@
         <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 12px;">
           📕 Tekstur / Warna Cover Buku:
         </label>
+            <!-- Custom Color Picker Cover -->
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="font-size: 0.75rem; color: #5c3a21; font-weight: 600;">Warna Kustom:</span>
+      <input type="color" id="coverCustomColorPicker" oninput="changeCoverCustomColor(this.value)" style="border: none; width: 28px; height: 28px; cursor: pointer; background: transparent; padding: 0;">
+    </div>
         <div class="book-cover-grid-select">
           <button class="fab-btn-cover" onclick="changeBookCover('argyle')" title="Classic Wood Argyle">
             <span class="cover-preview cover-argyle"></span>
@@ -1264,7 +1273,7 @@ switchTabSfx.currentTime = 0;
         tempPolaroid.style.setProperty('--rx', `0deg`);
         tempPolaroid.style.setProperty('--ry', `0deg`);
         tempPolaroid.style.setProperty('--bx', `0px`);
-        tempPolaroid.style.setProperty('--by', `20px`);
+        tempPolaroid.style.setProperty('--by', `25px`);
         tempPolaroid.style.setProperty('--glare-opacity', `0`);
       };
 
@@ -3197,31 +3206,60 @@ function toggleFabBgMenu() {
   }
 }
 
-// Fungsi Mengganti Background & Simpan ke LocalStorage
+// ==========================================
+// LOGIKA BACKGROUND MEJA
+// ==========================================
+
 function changeBackground(themeName) {
-  // Hapus class background lama
-  document.body.classList.remove('bg-dimension', 'bg-debut-light', 'bg-escheresque-dark', 'bg-retina-wood', 'bg-asfalt-light', 'bg-dark-wood', 'bg-skulls', 'bg-noisy-grid');
+  // 1. Hapus class background lama
+  document.body.classList.remove(
+    'bg-dimension', 'bg-debut-light', 'bg-escheresque-dark', 
+    'bg-retina-wood', 'bg-asfalt-light', 'bg-dark-wood', 
+    'bg-skulls', 'bg-noisy-grid'
+  );
   
-  // Pasang class background baru
+  // 2. Pasang class background baru
   document.body.classList.add(`bg-${themeName}`);
   
-  // Simpan preferensi pengguna
+  // 3. Reset warna inline agar MENGGUNAKAN WARNA DEFAULT bawaan CSS/Tema tersebut
+  document.body.style.removeProperty('background-color');
+  
+  // 4. Hapus warna kustom yang tersimpan di localStorage & update storage tema
+  localStorage.removeItem('benivon_bg_custom_color');
   localStorage.setItem('benivon_bg_theme', themeName);
 
-  // Tutup menu FAB setelah memilih
+  // Tutup menu FAB jika ada
   const bgSubMenu = document.getElementById('fabBgSubMenu');
   if (bgSubMenu) bgSubMenu.classList.remove('show');
 }
 
+// FUNGSI WARNA KUSTOM BACKGROUND MEJA
+function changeBgCustomColor(hexColor) {
+  // Hanya menimpa background-color, TEKSTUR PNG DARI CLASS CSS TETAP DITAMPILKAN!
+  document.body.style.backgroundColor = hexColor;
+  localStorage.setItem('benivon_bg_custom_color', hexColor);
+}
+
 // Memuat Background yang Tersimpan saat Halaman Dibuka
 function loadSavedBackground() {
-  const savedBg = localStorage.getItem('benivon_bg_theme') || 'retina-wood'; // default: retina-wood
+  const savedBg = localStorage.getItem('benivon_bg_theme') || 'retina-wood';
+  const savedBgColor = localStorage.getItem('benivon_bg_custom_color');
+
+  // Pasang tema teksturnya
   changeBackground(savedBg);
+
+  // Jika user pernah memilih warna kustom sebelumnya, terapkan warna tersebut
+  if (savedBgColor) {
+    document.body.style.backgroundColor = savedBgColor;
+    const picker = document.getElementById('bgCustomColorPicker');
+    if (picker) picker.value = savedBgColor;
+  }
 }
 
 // Jalankan auto-load saat DOM Siap
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedBackground();
+  loadSavedCover();
 });
 
 // Update event listener global click agar menutup semua sub-menu jika area luar diklik
@@ -3567,19 +3605,57 @@ const bookCovers = {
   }
 };
 
-// Fungsi Mengubah Cover Buku
+// ==========================================
+// LOGIKA COVER BUKU
+// ==========================================
+
 function changeBookCover(type) {
   const coverEl = document.getElementById('bookCoverOverlay');
   const selected = bookCovers[type];
 
   if (coverEl && selected) {
+    // 1. Pasang warna bawaan/default dari objek bookCovers
     coverEl.style.backgroundColor = selected.color;
+    
+    // 2. Pasang pola tekstur PNG
     coverEl.style.backgroundImage = `
       radial-gradient(circle at 14px 24px, #1c130a 0px, #2b1d0c 8px, rgba(0,0,0,0.18) 8px, transparent 8.5px),
       url('${selected.texture}')
     `;
-    // Simpan pilihan user
+
+    // 3. Simpan jenis cover & hapus warna kustom lama
     localStorage.setItem('benivon_selected_cover', type);
+    localStorage.removeItem('benivon_custom_cover_color');
+
+    // Reset nilai input picker ke warna default cover tersebut
+    const picker = document.getElementById('coverCustomColorPicker');
+    if (picker) picker.value = selected.color;
+  }
+}
+
+// FUNGSI WARNA KUSTOM COVER BUKU
+function changeCoverCustomColor(hexColor) {
+  const coverEl = document.getElementById('bookCoverOverlay');
+  if (coverEl) {
+    // Ubah warna dasar cover tanpa merusak pola background-image PNG di atasnya!
+    coverEl.style.backgroundColor = hexColor;
+    localStorage.setItem('benivon_custom_cover_color', hexColor);
+  }
+}
+
+// Memuat Cover yang Tersimpan saat Halaman Dibuka
+function loadSavedCover() {
+  const savedCover = localStorage.getItem('benivon_selected_cover') || 'argyle';
+  const savedCoverColor = localStorage.getItem('benivon_custom_cover_color');
+
+  // Load tekstur & warna default
+  changeBookCover(savedCover);
+
+  // Jika ada warna kustom, override warnanya saja
+  if (savedCoverColor) {
+    changeCoverCustomColor(savedCoverColor);
+    const picker = document.getElementById('coverCustomColorPicker');
+    if (picker) picker.value = savedCoverColor;
   }
 }
 
