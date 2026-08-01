@@ -973,7 +973,13 @@ document.getElementById('categorySelect').addEventListener('change', () => {
     let wikiList = [];
     let selectedWikiChar = null;
 
+const switchTabSfx = new Audio('sfx/tab.mp3');
+switchTabSfx.volume = 0.7; 
 function switchTab(tab) {
+switchTabSfx.currentTime = 0;
+  switchTabSfx.play().catch(error => {
+    console.log("SFX Play Error:", error);
+  });
   activeTab = tab;
 
   const tabNovelBtn = document.getElementById('tabNovelBtn');
@@ -2992,7 +2998,7 @@ function makeDraggableAndReturnable(elmnt) {
     window.topZIndex++;
     elmnt.style.zIndex = window.topZIndex;
 
-    // Matikan transisi saat jari/mouse menggeser agar tidak lag
+    // Matikan transisi saat menggeser agar tidak lag
     elmnt.style.transition = 'none';
 
     elmnt.setPointerCapture(e.pointerId);
@@ -3029,17 +3035,17 @@ function makeDraggableAndReturnable(elmnt) {
     elmnt.dataset.x = newX;
     elmnt.dataset.y = newY;
 
-    // Gunakan translate seperti polaroid!
-    elmnt.style.transform = `translate(${newX}px, ${newY}px)`;
+    // --- ANIMASI 1: Dynamic Tilt (Miring Saat Di-drag) ---
+    const baseRotate = parseFloat(elmnt.dataset.rotate) || 0; // Rotasi dasar jika ada
+    const dynamicTilt = Math.min(Math.max(deltaX * 0.8, -12), 12);
+    const currentRotate = baseRotate + dynamicTilt;
+
+    elmnt.style.transform = `translate(${newX}px, ${newY}px) rotate(${currentRotate}deg)`;
   }
 
   function closePointerElement(e) {
     if (!isDragging) return;
     isDragging = false;
-
-    // Kembalikan transisi CSS bawaan agar animasi show/hide & return berfungsi
-    elmnt.style.transition = '';
-    void elmnt.offsetWidth;
 
     try {
       elmnt.releasePointerCapture(e.pointerId);
@@ -3049,12 +3055,32 @@ function makeDraggableAndReturnable(elmnt) {
     elmnt.onpointerup = null;
     elmnt.onpointercancel = null;
 
-    // Jika tidak di-drag (cuma diklik/tap), kembalikan stiker ke katalog
+    const currentX = parseFloat(elmnt.dataset.x) || 0;
+    const currentY = parseFloat(elmnt.dataset.y) || 0;
+    const baseRotate = parseFloat(elmnt.dataset.rotate) || 0;
+
+    // Jika TIDAK di-drag (cuma diklik/tap), jalankan logic kembalikan stiker ke katalog
     if (moveDistance < 5) {
+      elmnt.style.transition = ''; // Kembalikan transisi CSS bawaan untuk animasi return
+      void elmnt.offsetWidth;
+      
       elmnt.classList.add('returning');
       setTimeout(() => { 
         if (elmnt.parentNode) elmnt.remove(); 
       }, 200);
+    } 
+    // Jika DI-DRAG lalu dilepas (Mouse Up / Pointer Up)
+    else {
+     elmnt.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+      // Buat sudut rotasi acak baru (-25 deg s/d 24 deg)
+      const newRandomRotate = Math.floor(Math.random() * 50) - 25;
+      
+      // Simpan ke dataset agar saat di-drag berikutnya nilai ini yang dipakai sebagai baseRotate
+      elmnt.dataset.rotate = newRandomRotate;
+
+      // Animasikan elemen ke posisi akhir dengan rotasi acak baru tersebut
+      elmnt.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${newRandomRotate}deg)`;
     }
   }
 }
@@ -3442,7 +3468,13 @@ closeBookSfx.currentTime = 0; // Reset durasi ke detik 0 (supaya kalau diklik ce
 }
 
 // FUNGSI MEMBUKA BUKU (Dipanggil saat Cover Diklik)
+const openCoverSfx = new Audio('sfx/opencover.mp3');
+openCoverSfx.volume = 0.7; 
 function openBookView() {
+openCoverSfx.currentTime = 0;
+  openCoverSfx.play().catch(error => {
+    console.log("SFX Play Error:", error);
+  });
   const bookPage = document.querySelector('.book-page');
   const coverOverlay = document.getElementById('bookCoverOverlay');
   const tabsContainer = document.querySelector('.book-tabs');
