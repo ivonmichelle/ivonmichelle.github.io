@@ -150,7 +150,6 @@ input, textarea {
   max-width: 90vw;
   height: 84vh;
   max-height: 560px;
-  overflow: visible !important;
 }
 
 .kawat-shadow {
@@ -2319,6 +2318,11 @@ body.lighting-disabled .nighttime-spotlight-overlay {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: opacity, visibility;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .settings-modal-overlay.active {
@@ -2335,6 +2339,10 @@ body.lighting-disabled .nighttime-spotlight-overlay {
   font-family: 'Georgia', serif;
   transform: scale(0.85);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .settings-modal-overlay.active .settings-modal {
@@ -2767,4 +2775,77 @@ input:checked + .slider:before {
 .cover-sos {
   background-color: #421514;
   background-image: url('https://www.transparenttextures.com/patterns/sos.png');
+}
+/* --- ELEMEN TIKET DI MEJA --- */
+.ticket-trinket {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1000;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 3px 6px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.ticket-trinket:active {
+  cursor: grabbing;
+}
+.ticket-trinket.hide-in-book {
+  top: 52% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) scale(0.05) rotate(0deg) !important; 
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.ticket-trinket img {
+  width: 130px; /* Sesuaikan ukuran tiket di meja */
+  height: auto;
+  display: block;
+  pointer-events: none; /* Mencegah drag bawaan browser pada <img> */
+}
+/* ========================================= */
+/* ELEMEN TANDA TANGAN PERMANEN DI COVER */
+/* ========================================= */
+
+/* Pastikan parent-nya relative agar posisi absolute bekerja */
+.cover-content {
+  position: relative;
+  /* ... kode lainnya yang sudah ada ... */
+}
+
+.cover-signature {
+  position: absolute;
+  bottom: 320px;
+  right: -40px;
+  width: 120px;
+  height: 60px;
+  
+  background-image: url('images/ivonsignature.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  
+  transform: rotate(-1deg);
+  pointer-events: none;
+  z-index: 23;
+
+  /* --- EFEK TINTA MERESAP --- */
+  mix-blend-mode: multiply; /* Menyatukan tinta dengan tekstur background */
+  opacity: 0.85;            /* Sedikit transparan agar serat kertas tembus */
+  filter: contrast(120%);   /* Mempertegas garis tanda tangan */
+}
+
+/* Penyesuaian untuk Mobile agar tanda tangan tidak terlalu besar */
+@media screen and (max-width: 768px) {
+  .cover-signature {
+    width: 100px;
+    height: 50px;
+    bottom: -15px;
+    right: 5px;
+  }
 }

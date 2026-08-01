@@ -181,6 +181,8 @@
     <div class="polaroid" id="polaroid6"><img src="" alt="Foto 6"></div>
     <div class="polaroid" id="polaroid7"><img src="" alt="Foto 7"></div>
     
+    <div id="trinketLayer"></div>
+    
     <div class="book-container">
     <div class="kawat-shadow"></div>
     <div class="book-page">
@@ -194,6 +196,7 @@
           <p class="cover-sub-title"><em>(Story & Memories)</em></p>
         </div>
         <div class="cover-author"><em>by: Didi Chung</em></div>
+        <div class="cover-signature"></div> 
       </div>
       <!-- Pola Tekstur Paper-Pulp untuk memperkuat efek cover -->
       <div class="cover-texture-pulp"></div>
@@ -278,21 +281,30 @@
     </div>
   </div>
   </div>
-<!-- ========================================= */
-/* === PARA MODAL === */
-/* ========================================= -->
+
   <div class="fab-container">
   <button class="fab-btn" onclick="closeBookView()" title="Tutup Buku & Lihat Cover">📕</button>
-    <!-- FAB PARENT: ELEMEN FOTO (ASLI) -->
-    <div class="fab-wrapper">
-      <div class="fab-sub-menu" id="fabElementSubMenu">
-        <button class="fab-btn" id="btnLighting" onclick="toggleLightingEffect()" title="Matikan/Hidupkan Efek Cahaya">💡</button>
-        <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">🔄</button>
-        <button class="fab-btn" id="btnScatterStickers" onclick="scatterRandomStickers()" title="Sebar Stiker ke Webpage">🏷️</button>
-        <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">🎴</button>
-      </div>
-      <button class="fab-btn" id="btnFabElement" onclick="toggleFabElementMenu()" title="Menu Elemen Foto">🖼️</button>
-    </div>
+<!-- FAB 1: DOMPET (PERNIK) -->
+<div class="fab-wrapper">
+  <!-- ID diubah jadi fabWalletSubMenu -->
+  <div class="fab-sub-menu" id="fabWalletSubMenu">
+    <button class="fab-btn" id="btnTicket" onclick="spawnTicketPair()" title="Keluarkan Tiket Bioskop">🎟️</button>
+  </div>
+  <!-- Kirim ID sub-menu & ID button-nya ke dalam fungsi -->
+  <button class="fab-btn" id="btnWallet" onclick="toggleFabElementMenu('fabWalletSubMenu', 'btnWallet')" title="Buka Dompet Pernik">👛</button>
+</div>
+
+<!-- FAB 2: PARENT ELEMEN FOTO (ASLI) -->
+<div class="fab-wrapper">
+  <div class="fab-sub-menu" id="fabPhotoSubMenu">
+    <button class="fab-btn" id="btnLighting" onclick="toggleLightingEffect()" title="Matikan/Hidupkan Efek Cahaya">💡</button>
+    <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">🔄</button>
+    <button class="fab-btn" id="btnScatterStickers" onclick="scatterRandomStickers()" title="Sebar Stiker ke Webpage">🏷️</button>
+    <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">🎴</button>
+  </div>
+  <!-- Kirim ID sub-menu & ID button-nya ke dalam fungsi -->
+  <button class="fab-btn" id="btnFabElement" onclick="toggleFabElementMenu('fabPhotoSubMenu', 'btnFabElement')" title="Menu Elemen Foto">🖼️</button>
+</div>
 <!-- Tag Audio Khusus Ambient SFX -->
 <audio id="ambientAudio" loop preload="auto"></audio>
     <button class="fab-btn" id="btnBgmToggle" onclick="toggleBgm()" title="Putar Musik">🔇</button>
@@ -302,6 +314,9 @@
     <button class="fab-btn" id="floatingLogoutBtn" style="display: none;" onclick="adminLogout()" title="Logout Admin">🔒</button>
   </div>
 
+<!-- ========================================= */
+/* === PARA MODAL === */
+/* ========================================= -->
   <div class="jukebox-container">
     <div class="jukebox-menu" id="jukeboxMenu">
       <div class="jukebox-header">🎵 JUKEBOX</div>
@@ -3092,16 +3107,16 @@ function makeDraggableAndReturnable(elmnt) {
 
     let isPolaroidOn = true;
 
-    function toggleFabElementMenu() {
-      const subMenu = document.getElementById('fabElementSubMenu');
-      const btnFab = document.getElementById('btnFabElement');
-      
-      if (subMenu) subMenu.classList.toggle('show');
-      if (btnFab) {
-        btnFab.classList.toggle('spin-icon');
-        setTimeout(() => btnFab.classList.remove('spin-icon'), 300);
-      }
-    }
+function toggleFabElementMenu(subMenuId, btnId) {
+  const subMenu = document.getElementById(subMenuId);
+  const btnFab = document.getElementById(btnId);
+  
+  if (subMenu) subMenu.classList.toggle('show');
+  if (btnFab) {
+    btnFab.classList.toggle('spin-icon');
+    setTimeout(() => btnFab.classList.remove('spin-icon'), 300);
+  }
+}
 
 function togglePolaroidScatter() {
   isPolaroidOn = !isPolaroidOn;
@@ -3120,7 +3135,7 @@ function togglePolaroidScatter() {
   }
 
   // 2. ANIMASI SHOW / HIDE STIKER
-  const floatingStickers = document.querySelectorAll('.floating-sticker');
+  const floatingStickers = document.querySelectorAll('.floating-sticker, .ticket-trinket');
   floatingStickers.forEach(sticker => {
     if (isPolaroidOn) {
       sticker.classList.remove('hide-in-book');
@@ -3550,6 +3565,51 @@ document.addEventListener('DOMContentLoaded', () => {
   changeBookCover(savedCover);
 });
 
+const trinketLayer = document.getElementById("trinketLayer");
+function spawnTicketPair() {
+    // Hapus tiket lama jika sudah pernah dikeluarkan (opsional, agar tidak menumpuk terus)
+    // trinketLayer.innerHTML = ''; 
+
+    const tickets = [
+      { id: 'ticket_1', src: 'images/ticket1.jpeg', offsetX: -80, offsetY: -20, rotate: -12 },
+      { id: 'ticket_2', src: 'images/ticket2.jpeg', offsetX: 40, offsetY: 30, rotate: 15 }
+    ];
+
+    tickets.forEach((data) => {
+      // Cek apakah tiket sudah ada di meja, kalau belum buat baru
+      let ticketEl = document.getElementById(data.id);
+      
+      if (!ticketEl) {
+        ticketEl = document.createElement('div');
+        ticketEl.className = 'ticket-trinket';
+        ticketEl.id = data.id;
+        
+        const img = document.createElement('img');
+        img.src = data.src;
+        img.alt = 'Tiket Bioskop';
+        
+        ticketEl.appendChild(img);
+        trinketLayer.appendChild(ticketEl);
+      }
+
+      // Atur posisi sepasang tiket agar berdampingan rapi dengan sedikit variasi sudut rotasi
+      ticketEl.dataset.x = data.offsetX;
+      ticketEl.dataset.y = data.offsetY;
+      ticketEl.dataset.rotate = data.rotate;
+
+      ticketEl.style.transform = `translate(${data.offsetX}px, ${data.offsetY}px) rotate(${data.rotate}deg)`;
+
+      // Hubungkan dengan fungsi Drag & Zoom milikmu
+      if (typeof makeDraggableAndReturnable === 'function') {
+        makeDraggableAndReturnable(ticketEl);
+      }
+    });
+
+    // Simpan status ke state jika menggunakan localStorage
+    if (typeof saveAppState === 'function') {
+      saveAppState();
+    }
+  }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
