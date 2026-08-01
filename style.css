@@ -217,7 +217,7 @@ input, textarea {
 .book-tabs {
   position: absolute;
   top: -25px; /* Disesuaikan dari -30px menjadi -24px */
-  right: 100%;
+  left: 100%;
   display: flex;
   gap: 0px;
   z-index: 12;
