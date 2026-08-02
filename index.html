@@ -3428,24 +3428,6 @@ function togglePolaroidScatter() {
     saveAppState();
   }
 }
-    
-    // Toggle Buka/Tutup Menu Background FAB
-function toggleFabBgMenu() {
-  const bgSubMenu = document.getElementById('fabBgSubMenu');
-  const btnBg = document.getElementById('btnFabBg');
-  const elementSubMenu = document.getElementById('fabElementSubMenu');
-
-  // Tutup sub-menu lain jika sedang terbuka
-  if (elementSubMenu && elementSubMenu.classList.contains('show')) {
-    elementSubMenu.classList.remove('show');
-  }
-
-  if (bgSubMenu) bgSubMenu.classList.toggle('show');
-  if (btnBg) {
-    btnBg.classList.toggle('spin-icon');
-    setTimeout(() => btnBg.classList.remove('spin-icon'), 300);
-  }
-}
 
 // ==========================================
 // LOGIKA BACKGROUND MEJA
