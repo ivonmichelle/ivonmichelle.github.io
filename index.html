@@ -1150,6 +1150,36 @@ switchTabSfx.currentTime = 0;
   saveAppState();
 }
 
+function switchTabWithoutReset(tab) {
+  activeTab = tab;
+
+  // Sembunyikan semua konten & hapus class active tombol
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  
+  const containers = [
+    'bookContent', 'wikiContent', 'illustrationContent', 
+    'polaroidAlbumContent', 'stickerAlbumContent', 'disclaimerContent'
+  ];
+  containers.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // Tampilkan container yang sesuai tab
+  if (tab === 'novel' || tab === 'sol') {
+    const bc = document.getElementById('bookContent');
+    const tb = document.getElementById(tab === 'novel' ? 'tabNovelBtn' : 'tabSolBtn');
+    if (bc) bc.style.display = 'block';
+    if (tb) tb.classList.add('active');
+  } else if (tab === 'illustration') {
+    const ic = document.getElementById('illustrationContent');
+    const tb = document.getElementById('tabIllustBtn');
+    if (ic) ic.style.display = 'block';
+    if (tb) tb.classList.add('active');
+  }
+  // (Tambahkan untuk polaroid/sticker/disclaimer jika perlu)
+}
+
     async function loadAlbumPolaroids() {
       try {
         const res = await fetch(`${SCRIPT_URL}?action=get_all_foto`);
@@ -1526,25 +1556,42 @@ function renderTableOfContentsKanon() {
   document.getElementById('sliderContainer').style.visibility = 'hidden';
 }
 
-    function openChapter(index) {
-      const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
-      if (index < 0 || index >= activeData.length) return;
+function openChapter(index, targetPage = null) {
+  const activeData = (activeTab === 'sol') ? allSolChapters : allChapters;
+  if (index < 0 || index >= activeData.length) return;
 
-      currentChapterIndex = index;
-      currentPage = 0;
-      const ch = activeData[index];
+  currentChapterIndex = index;
+  const ch = activeData[index];
 
-      if ((activeTab === 'novel' || activeTab === 'sol') && ch.subjek) {
-        loadPolaroidsBySubjek(ch.subjek);
-      }
+  if ((activeTab === 'novel' || activeTab === 'sol') && ch.subjek) {
+    loadPolaroidsBySubjek(ch.subjek);
+  }
 
-      const fullText = ch.isi || '';
-      rawParagraphs = fullText.split(/\r?\n/).filter(p => p.trim() !== '');
-      rawParagraphs.unshift(`TITLE::${ch.judul}`);
+  const fullText = ch.isi || '';
+  rawParagraphs = fullText.split(/\r?\n/).filter(p => p.trim() !== '');
+  rawParagraphs.unshift(`TITLE::${ch.judul}`);
 
-      document.getElementById('sliderContainer').style.visibility = 'visible';
-      recalculatePagination();
-    }
+  document.getElementById('sliderContainer').style.visibility = 'visible';
+  
+  // 1. Hitung pembagian halaman
+  recalculatePagination();
+
+  // 2. KUNCI HALAMAN:
+  // Jika targetPage dikirim (saat restore), pakai targetPage.
+  // Jika targetPage null (diklik biasa dari TOC), baru set ke 0.
+  if (targetPage !== null && typeof targetPage === 'number') {
+    // Memastikan targetPage tidak melebihi total halaman yang ada
+    currentPage = Math.min(targetPage, pages.length - 1);
+  } else {
+    currentPage = 0;
+  }
+
+  // 3. Render halaman yang sudah dikunci
+  renderPage();
+
+  // 4. Simpan state
+  saveAppState();
+}
 
     async function loadPolaroidsBySubjek(subjek) {
       try {
@@ -1751,11 +1798,11 @@ pageTurnSfx.volume = 0.7;
           currentStickerPage++; renderStickerGrid();
         }
       }
+      saveAppState();
     }
 
     function changeFontSize(val) {
       recalculatePagination();
-      saveAppState();
     }
 
     async function randomizePolaroids() {
@@ -2490,18 +2537,36 @@ function restoreAppState() {
     } else {
       if (typeof openBookView === 'function') openBookView();
       
-      if (state.activeTab && typeof switchTab === 'function') {
-        switchTab(state.activeTab);
+      if (state.activeTab) {
+        // A. Set tab aktif tanpa reset variabel
+        activeTab = state.activeTab;
         
-        if (state.currentChapterIndex !== -1 && typeof openChapter === 'function') {
-          openChapter(state.currentChapterIndex);
-          setTimeout(() => {
-            if (typeof currentPage !== 'undefined' && state.currentPage !== undefined) {
-              currentPage = state.currentPage;
-              if (typeof renderPage === 'function') renderPage();
-              else if (typeof updatePageDisplay === 'function') updatePageDisplay();
-            }
-          }, 120);
+        // Update tampilan tab visual
+        if (typeof updateTabUI === 'function') {
+          updateTabUI(activeTab);
+        } else if (typeof switchTabWithoutReset === 'function') {
+          switchTabWithoutReset(activeTab);
+        }
+
+        // B. Buka Bab & Halaman Spesifik
+        if ((activeTab === 'novel' || activeTab === 'sol') && 
+            typeof state.currentChapterIndex !== 'undefined' && 
+            state.currentChapterIndex !== -1) {
+          
+          const savedPage = (typeof state.currentPage === 'number') ? state.currentPage : 0;
+          
+          // Panggil openChapter dengan menyertakan savedPage!
+          if (typeof openChapter === 'function') {
+            openChapter(state.currentChapterIndex, savedPage);
+          }
+
+        } else {
+          // Jika memang state terakhir berada di Daftar Isi (TOC)
+          if (activeTab === 'novel' && typeof renderTableOfContentsKanon === 'function') renderTableOfContentsKanon();
+          else if (activeTab === 'sol' && typeof renderTableOfContents === 'function') renderTableOfContents();
+          else if (activeTab === 'illustration' && typeof renderIllustration === 'function') renderIllustration();
+          else if (activeTab === 'polaroid' && typeof renderPolaroidGrid === 'function') renderPolaroidGrid();
+          else if (activeTab === 'sticker' && typeof renderStickerGrid === 'function') renderStickerGrid();
         }
       }
     }
@@ -3891,24 +3956,81 @@ function spawnTicketPair() {
       saveAppState();
     }
   }
-  
-// 1. Export: Mengunduh data localStorage menjadi file .json
-function exportToJson() {
+ 
+// Helper: Mendapatkan username dari localStorage
+function getSavedUsername() {
+  const name = localStorage.getItem('benivon_reader_name');
+  return name ? name.trim() : 'anonim';
+}
+// =========================================================
+// Fungsi Standalone: Hanya Simpan / Overwrite ke Google Drive
+// =========================================================
+async function saveToDrive() {
+  const savedData = localStorage.getItem('benivon_last_state');
+  if (!savedData) {
+    console.warn('⚠️ Tidak ada data state di localStorage untuk disimpan ke Drive.');
+    return false;
+  }
+
+  const username = getSavedUsername();
+
+  try {
+    const payload = new URLSearchParams();
+    payload.append('action', 'save_state');
+    payload.append('username', username);
+    payload.append('stateData', savedData);
+
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: payload.toString()
+    });
+
+    const resJson = await response.json();
+    
+    if (resJson.status === 'success') {
+      console.log('✅ [Drive Sync] Berhasil disimpan:', resJson.message);
+      return true;
+    } else {
+      console.error('❌ [Drive Sync] Error dari GAS:', resJson.message);
+      return false;
+    }
+
+  } catch (err) {
+    console.error('❌ [Drive Sync] Gagal menghubungi Google Apps Script:', err);
+    return false;
+  }
+}
+// =========================================================
+// 1. Export: Mengunduh Lokal JSON + Upload Overwrite ke Google Drive
+// =========================================================
+async function exportToJson() {
   const savedData = localStorage.getItem('benivon_last_state');
   if (!savedData) {
     alert('Belum ada data untuk diexport!');
     return;
   }
+
+  const username = getSavedUsername();
+
+  // A. Download file JSON lokal
   const blob = new Blob([savedData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `benivon_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `benivon_backup_${username}_${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
+
+  // B. Upload ke Drive menggunakan fungsi standalone tadi
+  await saveToDrive();
 }
 
-// 2. Import: Membaca file .json, menyalin ke localStorage, lalu restore tampilan
+// =========================================================
+// 2. Import Lokal JSON
+// =========================================================
 function importFromJson(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -3919,25 +4041,22 @@ function importFromJson(event) {
       const parsedData = JSON.parse(e.target.result);
       localStorage.setItem('benivon_last_state', JSON.stringify(parsedData));
       
-      // 1. OPSI UTAMA: Gunakan fungsi penutup modal bawaan aplikasi jika ada
+      // Tutup modal settings
       if (typeof closeSettingsModal === 'function') {
         closeSettingsModal();
       } else {
-        // 2. OPSI CADANGAN: Cukup hapus class active/show tanpa mengubah style.display inline
         const settingsModal = document.getElementById('settingsModalOverlay') || document.getElementById('settingsModal');
         if (settingsModal) {
           settingsModal.classList.remove('active', 'show');
         }
       }
 
-      // Jalankan pemulihan tampilan
+      // Restore tampilan
       if (typeof restoreAppState === 'function') {
         restoreAppState();
       }
 
-      // Reset input file agar event change tetap berjalan jika mengunggah file yang sama
       event.target.value = '';
-
       alert('Data berhasil dimuat dari file JSON!');
     } catch (err) {
       alert('File JSON tidak valid!');
@@ -3945,6 +4064,108 @@ function importFromJson(event) {
   };
   reader.readAsText(file);
 }
+
+// =========================================================
+// 1. Autoload State dari Google Drive (Async Function)
+// =========================================================
+async function autoLoadFromDrive() {
+  const username = getSavedUsername();
+  if (!username || username === 'anonim') {
+    if (typeof restoreAppState === 'function') restoreAppState();
+    return;
+  }
+
+  try {
+    console.log(`[AutoLoad] Memeriksa state di Google Drive...`);
+    const response = await fetch(`${SCRIPT_URL}?action=load_state&username=${encodeURIComponent(username)}`);
+    
+    if (response.ok) {
+      const rawData = await response.json();
+
+      if (rawData && rawData.status !== 'not_found' && rawData.status !== 'error') {
+        let actualState = rawData.stateData || rawData.data || rawData;
+        if (typeof actualState === 'string') {
+          try { actualState = JSON.parse(actualState); } catch(e) {}
+        }
+
+        const stateString = JSON.stringify(actualState);
+        
+        // Simpan state terbaru dari Drive ke LocalStorage
+        localStorage.setItem('benivon_last_state', stateString);
+        console.log(`[AutoLoad] State B berhasil ditarik dari Drive!`);
+      }
+    }
+  } catch (err) {
+    console.warn('[AutoLoad] Gagal sync Drive, menggunakan LocalStorage lokal:', err);
+  } finally {
+    // Apapun yang terjadi (berhasil ditarik dari Drive atau pakai LocalStorage), jalankan restore!
+    if (typeof restoreAppState === 'function') {
+      restoreAppState();
+    }
+  }
+}
+
+// =========================================================
+// 2. Pembungkus Inisialisasi Aplikasi saat Page Load
+// =========================================================
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('[Init] Memulai proses pemuatan aplikasi...');
+
+  // A. TUNGGU sinkronisasi dari Google Drive sampai selesai
+  await autoLoadFromDrive();
+
+  // B. JALANKAN inisialisasi/render buku/UI utama kamu di bawah ini
+  // (Sesuaikan nama fungsi inisialisasi aplikasi kamu jika ada, misal: initApp() / renderBook())
+  if (typeof initApp === 'function') {
+    initApp();
+  } else if (typeof restoreAppState === 'function') {
+    // Dipanggil sekali lagi sebagai fallback jika initApp tidak ada
+    restoreAppState();
+  }
+});
+
+// =========================================================
+// SISTEM AUTOSAVE DUAL-LAYER (INSTANT LOCAL + PERIODIC DRIVE)
+// =========================================================
+
+let isDirty = false;
+let autoSaveInterval = null;
+
+// 1. Tandai ada perubahan data yang belum diunggah ke Drive
+function markAsDirty() {
+  isDirty = true;
+}
+
+// 2. Interseptor saveAppState:
+// Langsung update LocalStorage seketika (Instant Local Save)
+const originalSaveAppState = saveAppState;
+saveAppState = function() {
+  if (typeof originalSaveAppState === 'function') {
+    originalSaveAppState();
+  }
+  markAsDirty(); // Tandai bahwa Drive belum ter-update dengan state B
+};
+
+// 3. Auto-Sync ke Drive tiap 15 Detik jika ada perubahan (Dirty Check)
+// Ini menjamin State B sudah terunggah KE DRIVE BAHKAN SEBELUM tab sempat ditutup!
+if (autoSaveInterval) clearInterval(autoSaveInterval);
+autoSaveInterval = setInterval(async () => {
+  if (isDirty) {
+    console.log('🔄 [AutoSync Drive] Mengunggah perubahan state B ke Google Drive...');
+    const success = await saveToDrive();
+    if (success) {
+      isDirty = false;
+      console.log('✅ [AutoSync Drive] State B sukses tersimpan di Drive!');
+    }
+  }
+}, 15000); // Cek & upload tiap 15 detik (aman & tidak membebani kuota GAS)
+
+// 4. Upaya Terakhir saat Pindah Tab / Minimize / Close
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden' && isDirty) {
+    saveToDrive(); // Eksekusi langsung saat tab di-minimize/dipindah
+  }
+});
 
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
