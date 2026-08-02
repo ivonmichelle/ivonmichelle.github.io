@@ -2026,12 +2026,10 @@ body.bg-noisy-grid {
   background-repeat: repeat;
 }
 /* =========================================================
-   === CSS SISTEM PENCAHAYAAN DINAMIS (Pagi/Sore/Malam) ===
+   === CSS SISTEM PENCAHAYAAN DINAMIS (ANTI-FLICKER & NO-CUT) ===
    ========================================================= */
 
-/* Wadah dasar untuk semua overlay cahaya. 
-   Mereka menutupi seluruh layar tetapi "tembus pandang" terhadap klik, 
-   sehingga tidak mengganggu drag polaroid atau klik buku. */
+/* Wadah dasar untuk semua overlay cahaya */
 .daytime-sunlight-overlay,
 .sunset-shadow-overlay,
 .midnight-shadow-overlay,
@@ -2041,97 +2039,66 @@ body.bg-noisy-grid {
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none; /* PENTING: Klik tembus ke elemen di bawahnya */
-  z-index: 19000; /* Di atas meja kayu, tetapi di bawah Polaroid (20000) & Buku (10) */
-  opacity: 0; /* Default: Sembunyi */
-  transition: opacity 1.5s ease-in-out; /* Transisi halus saat pergantian waktu */
-  will-change: opacity;
-  transform: translateZ(0); /* Paksa masuk GPU Layer */
-  backface-visibility: hidden;
-}
-/* -------------------------------------------------
-   EFEK MIDNIGHT (Cahaya Bulan Kebiruan & Kusen Jendela)
-   ------------------------------------------------- */
-body.time-midnight .midnight-shadow-overlay {
-  opacity: 1;
+  pointer-events: none;
+  z-index: 19000;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  overflow: hidden; /* Mencegah overflow GPU canvas */
+  
+  /* PENTING: Isolasi blur pada kontainer utama (Render sekali, bukan per frame) */
+  -webkit-backdrop-filter: none;
+  isolation: isolate; 
 }
 
+/* -------------------------------------------------
+   1. EFEK MIDNIGHT (Cahaya Bulan Kebiruan)
+   ------------------------------------------------- */
+body.time-midnight .midnight-shadow-overlay { opacity: 1; }
+
 .midnight-shadow-overlay {
-  /* Nuansa Biru Malam Pekat / Tint Biru kehitaman di meja */
   background-color: rgba(10, 18, 35, 0.45);
-  
-  /* Cahaya Bulan (Moonlight) keperakan dari kiri-atas menembus ke kanan-bawah */
   background-image: 
     radial-gradient(circle at 10% 10%, rgba(160, 200, 255, 0.28) 0%, rgba(30, 60, 110, 0.15) 60%, rgba(2, 6, 18, 0.6) 100%),
     linear-gradient(135deg, rgba(180, 215, 255, 0.1) 0%, rgba(5, 10, 25, 0.5) 100%);
-  
-  overflow: hidden;
 }
 
-/* KUSEN JENDELA MIDNIGHT (Sama seperti SORE, namun warna bayangan biru pekat) */
 .midnight-shadow-overlay::after {
   content: '';
   position: absolute;
+  /* Posisi fixed aman tanpa melebihi batas Texture GPU */
   top: -30%;
   left: -20%;
   width: 160%;
   height: 160%;
   
   background-image: 
-    /* Kusen Horizontal */
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      transparent 45%,
-      rgba(3, 8, 20, 0.55) 45%,
-      rgba(3, 8, 20, 0.55) 53%,
-      transparent 53%,
-      transparent 100%
-    ),
-    /* Kusen Vertikal */
-    linear-gradient(
-      to right,
-      transparent 0%,
-      transparent 46%,
-      rgba(3, 8, 20, 0.55) 46%,
-      rgba(3, 8, 20, 0.55) 52%,
-      transparent 52%,
-      transparent 100%
-    );
+    linear-gradient(to bottom, transparent 0% 45%, rgba(3, 8, 20, 0.55) 45% 53%, transparent 53% 100%),
+    linear-gradient(to right, transparent 0% 46%, rgba(3, 8, 20, 0.55) 46% 52%, transparent 52% 100%);
   
-  transform: rotate(-20deg) skewX(-10deg) scale(1.1);
-  animation: leafKomorebiSway 11s ease-in-out infinite alternate;
-  filter: blur(20px); /* Blur lebih lembut khas malam */
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
+  /* PENTING: Terapkan kemiringan statis di sini, BUKAN di keyframe */
+  transform: rotate(-20deg) skewX(-10deg);
+  filter: blur(20px);
+  
+  /* Animasi HANYA menggerakkan translate offset halus */
+  animation: leafKomorebiSwayPure 11s ease-in-out infinite alternate;
 }
 
-/* Vignette pinggiran meja khusus mode Midnight */
 body.time-midnight .desk-container {
   box-shadow: inset 0 0 120px rgba(2, 8, 20, 0.85);
 }
 
 /* -------------------------------------------------
-   1. EFEK SORE (Golden Hour & Bayangan Kusen Jendela)
+   2. EFEK SORE (Golden Hour)
    ------------------------------------------------- */
-body.time-sore .sunset-shadow-overlay {
-  opacity: 1;
-}
+body.time-sore .sunset-shadow-overlay { opacity: 1; }
 
 .sunset-shadow-overlay {
-  /* Nuansa hangat Golden Hour: Oranye kemerahan tipis di seluruh meja */
   background-color: rgba(255, 120, 30, 0.08);
-  
-  /* Cahaya memancar dari kiri-atas (Cerah) menuju kanan-bawah (Agak Gelap) */
   background-image: 
     radial-gradient(circle at 10% 10%, rgba(255, 180, 70, 0.35) 0%, rgba(255, 110, 20, 0.12) 60%, rgba(30, 10, 0, 0.3) 100%),
     linear-gradient(135deg, rgba(255, 200, 100, 0.15) 0%, rgba(0, 0, 0, 0.2) 100%);
-  
-  overflow: hidden; /* Supaya bayangan miring tidak keluar layar */
 }
 
-/* KUSEN JENDELA PERSPEKTIF */
 .sunset-shadow-overlay::after {
   content: '';
   position: absolute;
@@ -2140,192 +2107,102 @@ body.time-sore .sunset-shadow-overlay {
   width: 160%;
   height: 160%;
   
-  /* 
-    Hanya membuat 1 Salib Jendela (2 Garis Kusen Utama):
-    - 1 Kusen Vertikal di tengah
-    - 1 Kusen Horizontal di tengah
-  */
   background-image: 
-    /* Kusen Horizontal */
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      transparent 45%,
-      rgba(40, 15, 5, 0.45) 45%,
-      rgba(40, 15, 5, 0.45) 53%, /* Ketebalan bingkai kayu horizontal */
-      transparent 53%,
-      transparent 100%
-    ),
-    /* Kusen Vertikal */
-    linear-gradient(
-      to right,
-      transparent 0%,
-      transparent 46%,
-      rgba(40, 15, 5, 0.45) 46%,
-      rgba(40, 15, 5, 0.45) 52%, /* Ketebalan bingkai kayu vertikal */
-      transparent 52%,
-      transparent 100%
-    );
+    linear-gradient(to bottom, transparent 0% 45%, rgba(40, 15, 5, 0.45) 45% 53%, transparent 53% 100%),
+    linear-gradient(to right, transparent 0% 46%, rgba(40, 15, 5, 0.45) 46% 52%, transparent 52% 100%);
   
-  /* 
-    EFEK PERSPEKTIF & PROYEKSI SENJA:
-    - rotate(-28deg): Kemiringan masuknya cahaya senja
-    - skewX(-15deg): Efek perspektif (bayangan tertarik/memanjang karena posisi matahari rendah)
-  */
-  transform: rotate(-20deg) skewX(-10deg) scale(1.1);
-  animation: leafKomorebiSway 9s ease-in-out infinite alternate;
+  transform: rotate(-20deg) skewX(-10deg);
+  filter: blur(20px);
   
-  /* Blur lembut (soft shadow) seolah cahaya melewati jarak dari jendela ke meja */
-  filter: blur(12px); 
-  
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-}
-  
-
-/* === ANIMASI GOYANGAN POHON === */
-@keyframes leafKomorebiSway {
-  0% {
-    transform: rotate(-20deg) skewX(-10deg) translate(0px, 0px) scale(1.1);
-  }
-  33% {
-    transform: rotate(-19deg) skewX(-9deg) translate(18px, 12px) scale(1.12);
-  }
-  66% {
-    transform: rotate(-21deg) skewX(-11deg) translate(-12px, 20px) scale(1.09);
-  }
-  100% {
-    transform: rotate(-19.5deg) skewX(-9.5deg) translate(8px, -6px) scale(1.11);
-  }
+  animation: leafKomorebiSwayPure 9s ease-in-out infinite alternate;
 }
 
-/* Efek Tambahan: Mengganti warna vignette meja agar selaras dengan nuansa senja */
 body.time-sore .desk-container {
   box-shadow: inset 0 0 100px rgba(80, 25, 0, 0.5);
 }
 
 /* -------------------------------------------------
-   2. EFEK MALAM (Lampu Sorot Meja / Spotlight)
+   3. EFEK MALAM (Spotlight / Lampu Meja)
    ------------------------------------------------- */
-/* Class ini akan ditambahkan oleh Javascript jika waktu Malam */
-body.time-malam .nighttime-spotlight-overlay {
-  opacity: 1;
-}
+body.time-malam .nighttime-spotlight-overlay { opacity: 1; }
 
 .nighttime-spotlight-overlay {
-  /* --- KUNCI: LAMPU MEJA --- */
-  /* Kita menggunakan radial-gradient untuk menciptakan lingkaran cahaya hangat (kuning gading)
-     di tengah meja, sementara sekelilingnya menjadi sangat gelap. */
   background-image: radial-gradient(
-    circle at 50% 45%, /* Titik pusat lampu (sedikit di atas tengah) */
-    rgba(255, 253, 230, 0.3) 0%,   /* Inti cahaya paling terang (sangat lembut) */
-    rgba(255, 248, 200, 0.15) 30%, /* Cahaya hangat memudar */
-    rgba(10, 5, 0, 0.6) 70%,        /* Mulai menggelap (Vignette) */
-    rgba(0, 0, 0, 0.85) 100%        /* Pinggiran layar sangat gelap gulita */
+    circle at 50% 45%,
+    rgba(255, 253, 230, 0.3) 0%,
+    rgba(255, 248, 200, 0.15) 30%,
+    rgba(10, 5, 0, 0.6) 70%,
+    rgba(0, 0, 0, 0.85) 100%
   );
 }
 
 /* -------------------------------------------------
-   3. EFEK PAGI/SIANG (Jendela + Bayangan Pohon Bergoyang)
+   4. EFEK PAGI/SIANG (Sunlight & Komorebi)
    ------------------------------------------------- */
-body.time-pagi .daytime-sunlight-overlay {
-  opacity: 1;
-}
+body.time-pagi .daytime-sunlight-overlay { opacity: 1; }
 
-.daytime-sunlight-overlay {
-  background-color: transparent; /* Diubah ke transparent agar tidak meredupkan latar */
-  overflow: hidden;
-}
-
-/* CONTAINER ANIMASI UTAMA: Berisi Kusen Jendela + Siluet Bayangan Daun */
 .daytime-sunlight-overlay::after {
   content: '';
   position: absolute;
-  top: -40%;
-  left: -30%;
-  width: 180%;
-  height: 180%;
-  pointer-events: none;
-
-  /* 
-    GABUNGAN MULTI-LAYER GRADIENT:
-    1. Garis Kusen Jendela
-    2. Bintik-bintik Gelap (Gumpalan Bayangan Daun & Dahan)
-    3. Sorot Cahaya Terang (Sinar Matahari Pagi murni)
-  */
+  top: -30%;
+  left: -20%;
+  width: 160%;
+  height: 160%;
+  
   background-image: 
-    /* --- LAYER A: KUSEN JENDELA --- */
-    linear-gradient(
-      to bottom,
-      transparent 0%, transparent 45%,
-      rgba(25, 18, 12, 0.35) 45%, rgba(25, 18, 12, 0.35) 51%,
-      transparent 51%, transparent 100%
-    ),
-    linear-gradient(
-      to right,
-      transparent 0%, transparent 46%,
-      rgba(25, 18, 12, 0.35) 46%, rgba(25, 18, 12, 0.35) 51%,
-      transparent 51%, transparent 100%
-    ),
-
-    /* --- LAYER B: CLUSTER BAYANGAN DAUN/DAHAN (Gelap Pekat) --- */
+    linear-gradient(to bottom, transparent 0% 45%, rgba(25, 18, 12, 0.35) 45% 51%, transparent 51% 100%),
+    linear-gradient(to right, transparent 0% 46%, rgba(25, 18, 12, 0.35) 46% 51%, transparent 51% 100%),
+    
+    /* Dahan & Daun */
     radial-gradient(ellipse at 20% 30%, rgba(15, 10, 5, 0.25) 0%, transparent 40%),
     radial-gradient(ellipse at 35% 60%, rgba(15, 10, 5, 0.20) 0%, transparent 35%),
     radial-gradient(ellipse at 65% 25%, rgba(15, 10, 5, 0.25) 0%, transparent 45%),
     radial-gradient(ellipse at 75% 70%, rgba(15, 10, 5, 0.25) 0%, transparent 40%),
     radial-gradient(ellipse at 50% 85%, rgba(15, 10, 5, 0.20) 0%, transparent 50%),
     radial-gradient(ellipse at 85% 20%, rgba(15, 10, 5, 0.20) 0%, transparent 35%),
-
-    /* --- LAYER C: BINTIK SINAR MATAHARI MENEROBOS (Cahaya Hangat) --- */
+    
+    /* Sinar Terobos */
     radial-gradient(circle at 28% 42%, rgba(255, 250, 210, 0.3) 0%, transparent 20%),
     radial-gradient(circle at 55% 30%, rgba(255, 250, 210, 0.25) 0%, transparent 25%),
     radial-gradient(circle at 45% 72%, rgba(255, 250, 210, 0.3) 0%, transparent 18%),
     radial-gradient(circle at 70% 50%, rgba(255, 250, 210, 0.2) 0%, transparent 22%);
 
-  /* Blur halus agar bentuknya terlihat alami seperti terproyeksi dari jauh */
+  transform: rotate(-20deg) skewX(-10deg);
   filter: blur(20px);
-
-  /* Kemiringan sudut cahaya matahari pagi */
-  transform: rotate(-20deg) skewX(-10deg) scale(1.1);
-
-  /* Animasi goyangan daun ditiup angin */
-  animation: leafKomorebiSway 9s ease-in-out infinite alternate;
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
+  
+  animation: leafKomorebiSwayPure 9s ease-in-out infinite alternate;
 }
 
-/* === ANIMASI GOYANGAN POHON === */
-@keyframes leafKomorebiSway {
+/* -------------------------------------------------
+   === ANIMASI BEBAS FLICKER & NO-RESCALE ===
+   ------------------------------------------------- */
+/* Rahasia anti-flicker: Animasi HANYA mengubah perpindahan koordinat (translate), 
+   tanpa mengubah scale / rotate berulang-ulang di setiap tick frame. */
+@keyframes leafKomorebiSwayPure {
   0% {
-    transform: rotate(-20deg) skewX(-10deg) translate(0px, 0px) scale(1.1);
+    transform: rotate(-20deg) skewX(-10deg) translate3d(0px, 0px, 0px);
   }
   33% {
-    transform: rotate(-19deg) skewX(-9deg) translate(18px, 12px) scale(1.12);
+    transform: rotate(-20deg) skewX(-10deg) translate3d(14px, 10px, 0px);
   }
   66% {
-    transform: rotate(-21deg) skewX(-11deg) translate(-12px, 20px) scale(1.09);
+    transform: rotate(-20deg) skewX(-10deg) translate3d(-10px, 16px, 0px);
   }
   100% {
-    transform: rotate(-19.5deg) skewX(-9.5deg) translate(8px, -6px) scale(1.11);
+    transform: rotate(-20deg) skewX(-10deg) translate3d(6px, -5px, 0px);
   }
 }
 
 /* =========================================================
    === OVERRIDE SAAT EFEK CAHAYA DIMATIKAN MANUALLY ===
    ========================================================= */
-
-/* Ketika class .lighting-disabled ada di <body>, 
-   paksa semua overlay cahaya menjadi transparan/sembunyi */
 body.lighting-disabled .daytime-sunlight-overlay,
 body.lighting-disabled .sunset-shadow-overlay,
 body.lighting-disabled .midnight-shadow-overlay,
 body.lighting-disabled .nighttime-spotlight-overlay {
-  opacity: 0 !important;
+  display: none !important;
 }
 
-/* Styling opsional untuk tombol Sub-FAB saat efek mati (visual cue) */
 #btnFabElement.disabled-state {
   opacity: 0.6;
   filter: grayscale(80%);

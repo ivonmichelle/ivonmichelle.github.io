@@ -4041,7 +4041,7 @@ function importFromJson(event) {
       const parsedData = JSON.parse(e.target.result);
       localStorage.setItem('benivon_last_state', JSON.stringify(parsedData));
       
-      // Tutup modal settings
+      // Tutup modal settings jika terbuka
       if (typeof closeSettingsModal === 'function') {
         closeSettingsModal();
       } else {
@@ -4051,15 +4051,16 @@ function importFromJson(event) {
         }
       }
 
-      // Restore tampilan
+      // Restore tampilan aplikasi secara langsung
       if (typeof restoreAppState === 'function') {
         restoreAppState();
       }
 
       event.target.value = '';
-      alert('Data berhasil dimuat dari file JSON!');
+      console.log('✅ Data berhasil dimuat dari file JSON!');
     } catch (err) {
-      alert('File JSON tidak valid!');
+      console.error('❌ File JSON tidak valid atau rusak:', err);
+      event.target.value = '';
     }
   };
   reader.readAsText(file);
