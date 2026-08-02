@@ -528,11 +528,30 @@
     </div>
   </label>
 </div>
-
 </div>
-
       </div>
 
+      <!-- 5. SEKSI BACKUP & RESTORE DATA (BARU) -->
+      <div class="settings-section">
+        <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 8px;">
+          💾 Cadangan Data (Backup / Restore):
+        </label>
+        <p style="font-size: 0.75rem; color: #7a5030; margin: 0 0 12px 0; line-height: 1.3;">
+          Simpan seluruh tata letak dan pengaturannya ke file JSON untuk dicadangkan atau dipindahkan ke perangkat lain.
+        </p>
+        
+        <div class="backup-btn-group">
+          <button class="btn-backup btn-export" onclick="exportToJson()">
+            <span>💾</span> Save
+          </button>
+          <button class="btn-backup btn-import" onclick="document.getElementById('jsonFileInput').click()">
+            <span>📂</span> Load
+          </button>
+        </div>
+
+        <!-- Input File Tersembunyi -->
+        <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importFromJson(event)">
+      </div>
     </div>
   </div>
 </div>
@@ -1128,6 +1147,7 @@ switchTabSfx.currentTime = 0;
     if (nextBtn) nextBtn.disabled = true;
     if (navRow) navRow.style.display = 'none';
   }
+  saveAppState();
 }
 
     async function loadAlbumPolaroids() {
@@ -1684,6 +1704,7 @@ function renderTableOfContentsKanon() {
       prevBtn.disabled = false;
       nextBtn.disabled = currentPage === pages.length - 1;
     }
+    
 const pageTurnSfx = new Audio('sfx/pageturn.mp3');
 pageTurnSfx.volume = 0.7; 
     function handlePrevNav() {
@@ -1703,6 +1724,7 @@ pageTurnSfx.volume = 0.7;
       } else if (activeTab === 'sticker') {
         if (currentStickerPage > 0) { currentStickerPage--; renderStickerGrid(); }
       }
+      saveAppState();
     }
 
     function handleNextNav() {
@@ -1733,6 +1755,7 @@ pageTurnSfx.volume = 0.7;
 
     function changeFontSize(val) {
       recalculatePagination();
+      saveAppState();
     }
 
     async function randomizePolaroids() {
@@ -1840,90 +1863,108 @@ pageTurnSfx.volume = 0.7;
     }
 
     function makeElementDraggableAndZoomable(el) {
-      if (el.dataset.initialized) return;
-      el.dataset.initialized = "1";
+  if (el.dataset.initialized) return;
+  el.dataset.initialized = "1";
 
-      let isDragging = false;
-      let startX = 0, startY = 0;
-      let moveDistance = 0;
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let moveDistance = 0;
 
-      function onStart(e) {
-        if (el.classList.contains('zoomed')) return;
+  function onStart(e) {
+    if (el.classList.contains('zoomed')) return;
 
-        isDragging = true;
-        moveDistance = 0;
-        window.topZIndex++;
-        el.style.zIndex = window.topZIndex;
+    isDragging = true;
+    moveDistance = 0;
 
-        el.style.transition = 'none';
+    if (typeof window.topZIndex === 'undefined') window.topZIndex = 1000;
+    window.topZIndex++;
+    el.style.zIndex = window.topZIndex;
 
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+    // Matikan transisi saat menggeser agar bebas lag
+    el.style.transition = 'none';
 
-        const currentX = parseFloat(el.dataset.x) || 0;
-        const currentY = parseFloat(el.dataset.y) || 0;
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
-        startX = clientX - currentX;
-        startY = clientY - currentY;
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
 
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onEnd);
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', onEnd);
+    startX = clientX - currentX;
+    startY = clientY - currentY;
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
+
+  function onMove(e) {
+    if (!isDragging) return;
+    if (e.cancelable) e.preventDefault();
+
+    const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+    const newX = clientX - startX;
+    const newY = clientY - startY;
+
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
+
+    const deltaX = newX - currentX;
+    moveDistance += Math.abs(deltaX) + Math.abs(newY - currentY);
+
+    el.dataset.x = newX;
+    el.dataset.y = newY;
+
+    // --- Dynamic Tilt (Miring Saat Di-drag) ---
+    const baseRotate = parseFloat(el.dataset.rotate) || 0;
+    const dynamicTilt = Math.min(Math.max(deltaX * 0.8, -12), 12);
+    const currentRotate = baseRotate + dynamicTilt;
+
+    // Menggunakan translate3d untuk akselerasi hardware GPU
+    el.style.transform = `translate3d(${newX}px, ${newY}px, 0px) rotate(${currentRotate}deg)`;
+  }
+
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+
+    el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+    const currentX = parseFloat(el.dataset.x) || 0;
+    const currentY = parseFloat(el.dataset.y) || 0;
+
+    // SITUASI A: CUMA DI-TAP/DIKLIK (TOGGLE ZOOM)
+    if (moveDistance < 5) {
+      if (typeof toggleZoomPolaroid === 'function') {
+        toggleZoomPolaroid(el);
       }
+    } 
+    // SITUASI B: SELESAI DI-DRAG (LEPAS DI POSISI BARU)
+    else {
+      // Buat sudut rotasi acak baru (-25 deg s/d 24 deg)
+      const newRandomRotate = Math.floor(Math.random() * 50) - 25;
+      el.dataset.rotate = newRandomRotate;
+      
+      // Terapkan ke style
+      el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0px) rotate(${newRandomRotate}deg)`;
 
-      function onMove(e) {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault();
-
-        const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-
-        const newX = clientX - startX;
-        const newY = clientY - startY;
-
-        const currentX = parseFloat(el.dataset.x) || 0;
-        const currentY = parseFloat(el.dataset.y) || 0;
-
-        const deltaX = newX - currentX;
-        moveDistance += Math.abs(deltaX) + Math.abs(newY - currentY);
-
-        el.dataset.x = newX;
-        el.dataset.y = newY;
-
-        const baseRotate = parseFloat(el.dataset.rotate) || 0;
-        const dynamicTilt = Math.min(Math.max(deltaX * 0.8, -12), 12);
-        const currentRotate = baseRotate + dynamicTilt;
-
-        el.style.transform = `translate(${newX}px, ${newY}px) rotate(${currentRotate}deg)`;
+      // 🚀 SIMPAN STATE TERBARU SEGERA SETELAH DRAG SELESAI
+      if (typeof saveAppState === 'function') {
+        saveAppState();
       }
+    }
+  }
 
-      function onEnd() {
-        if (!isDragging) return;
-        isDragging = false;
-        
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onEnd);
-        document.removeEventListener('touchmove', onMove);
-        document.removeEventListener('touchend', onEnd);
-
-        el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-
-        const currentX = parseFloat(el.dataset.x) || 0;
-        const currentY = parseFloat(el.dataset.y) || 0;
-
-        if (moveDistance < 5) {
-          toggleZoomPolaroid(el);
-        } else {
-          const newRandomRotate = Math.floor(Math.random() * 50) - 25;
-          el.dataset.rotate = newRandomRotate;
-          el.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${newRandomRotate}deg)`;
-        }
-      }
-
-      el.addEventListener('mousedown', onStart);
-      el.addEventListener('touchstart', onStart, { passive: false });
-    }  
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+}
 
     let activeMouseMoveHandler = null;
     let activeMouseLeaveHandler = null;
@@ -2106,6 +2147,7 @@ function setLightingMode(mode) {
   localStorage.setItem('benivon_lighting_mode', mode);
   updateLightingSystem();
   console.log(`[BenivoN-Time] Mode Cahaya diubah ke: ${mode.toUpperCase()}`);
+  saveAppState();
 }
 
 // 3. Fungsi Toggle ON/OFF Lighting
@@ -2220,136 +2262,258 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 500);
     }
 
-    // --- SISTEM SIMPAN POSISI & HALAMAN (AUTO-SAVE) ---
-    function saveAppState() {
-      // 1. Ambil data polaroid dengan pengamanan (JANGAN SIMPAN JIKA MASIH KOSONG)
-      const polaroidData = [1,2,3,4,5,6,7].map(i => {
-        const el = document.getElementById(`polaroid${i}`);
-        const img = el ? el.querySelector('img') : null;
-        
-        // Ambil URL gambar aktual
-        let imageSrc = img ? (img.getAttribute('src') || img.src || '') : '';
-        
-        // Hindari menyimpan URL relatif yang rusak/empty base64
-        if (imageSrc.includes('about:blank') || imageSrc === window.location.href) {
-          imageSrc = '';
-        }
+// =========================================================
+// SYSTEM STATE MANAGER (SAVED & RESTORED FULLY FIXED)
+// =========================================================
+function saveAppState() {
+  // 1. DATA POLAROID MEJA
+  const polaroidData = [1, 2, 3, 4, 5, 6, 7].map(i => {
+    const el = document.getElementById(`polaroid${i}`);
+    const img = el ? el.querySelector('img') : null;
+    let imageSrc = img ? (img.getAttribute('src') || img.src || '') : '';
+    
+    if (imageSrc.includes('about:blank') || imageSrc === window.location.href) {
+      imageSrc = '';
+    }
 
-        return {
-          x: el ? el.dataset.x || 0 : 0,
-          y: el ? el.dataset.y || 0 : 0,
-          rotate: el ? el.dataset.rotate || 0 : 0,
-          src: imageSrc
-        };
+    return {
+      x: el ? el.dataset.x || 0 : 0,
+      y: el ? el.dataset.y || 0 : 0,
+      rotate: el ? el.dataset.rotate || 0 : 0,
+      src: imageSrc
+    };
+  });
+
+  const hasValidPolaroid = polaroidData.some(p => p.src !== '');
+  const savedBefore = localStorage.getItem('benivon_last_state');
+  if (!hasValidPolaroid && !savedBefore) {
+    return;
+  }
+
+  // 2. DATA TIKET BIOSKOP (TRINKET)
+  const trinketTickets = ['ticket_1', 'ticket_2'].map(id => {
+    const el = document.getElementById(id);
+    if (!el) return null;
+    const img = el.querySelector('img');
+    return {
+      id: id,
+      src: img ? (img.getAttribute('src') || img.src) : '',
+      x: el.dataset.x || 0,
+      y: el.dataset.y || 0,
+      rotate: el.dataset.rotate || 0
+    };
+  }).filter(Boolean);
+
+  // 3. DATA STIKER MEJA (PERBAIKAN LENGKAP: Simpan Transform & Skala)
+  const stickerData = Array.from(document.querySelectorAll('.floating-sticker')).map((el, index) => {
+    return {
+      id: el.id || `sticker_${index}`,
+      src: el.getAttribute('src') || el.src || '',
+      x: el.dataset.x || 0,
+      y: el.dataset.y || 0,
+      rotate: el.dataset.rotate || 0,
+      scale: el.dataset.scale || 1,
+      left: el.style.left || '',
+      top: el.style.top || ''
+    };
+  }).filter(s => s.src !== '');
+
+  // 4. STATUS BUKU & NOVEL
+  const bookPageEl = document.querySelector('.book-page');
+  const isBookClosed = bookPageEl ? bookPageEl.classList.contains('book-closed') : false;
+  
+  let currentActiveTab = typeof activeTab !== 'undefined' ? activeTab : (typeof lastActiveTab !== 'undefined' ? lastActiveTab : 'novel');
+  const activeTabBtn = document.querySelector('.tab-btn.active');
+  if (activeTabBtn) {
+    const match = activeTabBtn.getAttribute('onclick')?.match(/'([^']+)'/);
+    if (match) currentActiveTab = match[1];
+  }
+
+  // DETEKSI WARNA & TEKSTUR BACKGROUND LANGSUNG DARI DOM / VARIABLE GLOBAL
+  const activeBgTheme = (typeof currentBgTheme !== 'undefined' ? currentBgTheme : null) || localStorage.getItem('benivon_bg_theme') || 'retina-wood';
+  const activeBgColor = (typeof currentBgCustomColor !== 'undefined' ? currentBgCustomColor : null) || localStorage.getItem('benivon_bg_custom_color') || null;
+
+  // 5. BUNGKUS SELURUH STATE APLIKASI
+  const state = {
+    polaroids: polaroidData,
+    tickets: trinketTickets,
+    stickers: stickerData,
+
+    isBookClosed: isBookClosed,
+    activeTab: currentActiveTab,
+    currentChapterIndex: typeof currentChapterIndex !== 'undefined' ? currentChapterIndex : -1,
+    currentPage: typeof currentPage !== 'undefined' ? currentPage : 0,
+
+    settings: {
+      bgTheme: activeBgTheme,
+      bgCustomColor: activeBgColor,
+      coverTheme: localStorage.getItem('benivon_selected_cover') || 'argyle',
+      coverCustomColor: localStorage.getItem('benivon_custom_cover_color') || null,
+      lightingMode: typeof currentLightingMode !== 'undefined' ? currentLightingMode : 'realtime',
+      lightingEnabled: typeof isLightingEnabled !== 'undefined' ? isLightingEnabled : true,
+      bgmVolume: localStorage.getItem('benivon_bgm_volume') || 1,
+      ambientVolume: localStorage.getItem('benivon_ambient_volume') || 1,
+      ambientTrack: typeof currentAmbientKey !== 'undefined' ? currentAmbientKey : null
+    }
+  };
+
+  localStorage.setItem('benivon_last_state', JSON.stringify(state));
+}
+
+function restoreAppState() {
+  const saved = localStorage.getItem('benivon_last_state');
+  if (!saved) return false;
+
+  try {
+    const state = JSON.parse(saved);
+
+    if (!state.polaroids || !Array.isArray(state.polaroids) || state.polaroids.length < 7) {
+      return false;
+    }
+    const hasValidImages = state.polaroids.some(p => p.src && p.src !== '' && !p.src.includes('about:blank'));
+    if (!hasValidImages) return false;
+
+    // 1. RESTORE POLAROID MEJA
+    state.polaroids.forEach((pos, idx) => {
+      const el = document.getElementById(`polaroid${idx + 1}`);
+      if (el) {
+        el.dataset.x = pos.x;
+        el.dataset.y = pos.y;
+        el.dataset.rotate = pos.rotate;
+        el.style.transform = `translate(${pos.x}px, ${pos.y}px) rotate(${pos.rotate}deg)`;
+
+        const img = el.querySelector('img');
+        if (img && pos.src) img.src = pos.src;
+
+        if (typeof makeElementDraggableAndZoomable === 'function') {
+          makeElementDraggableAndZoomable(el);
+        }
+      }
+    });
+
+    // 2. RESTORE TIKET BIOSKOP
+    if (state.tickets && Array.isArray(state.tickets) && state.tickets.length > 0) {
+      state.tickets.forEach(t => {
+        let ticketEl = document.getElementById(t.id);
+        if (!ticketEl && typeof trinketLayer !== 'undefined' && trinketLayer) {
+          ticketEl = document.createElement('div');
+          ticketEl.className = 'ticket-trinket';
+          ticketEl.id = t.id;
+          const img = document.createElement('img');
+          img.src = t.src;
+          ticketEl.appendChild(img);
+          trinketLayer.appendChild(ticketEl);
+        }
+        if (ticketEl) {
+          ticketEl.dataset.x = t.x;
+          ticketEl.dataset.y = t.y;
+          ticketEl.dataset.rotate = t.rotate;
+          ticketEl.style.transform = `translate(${t.x}px, ${t.y}px) rotate(${t.rotate}deg)`;
+          if (typeof makeDraggableAndReturnable === 'function') {
+            makeDraggableAndReturnable(ticketEl);
+          }
+        }
       });
-
-      // Cegah menimpa localStorage jika Polaroid belum terisi sama sekali saat awal load
-      const hasValidPolaroid = polaroidData.some(p => p.src !== '');
-      const savedBefore = localStorage.getItem('benivon_last_state');
-
-      // Jika memuat dari nol & belum ada foto, batalkan save otomatis
-      if (!hasValidPolaroid && !savedBefore) {
-        return; 
-      }
-
-      const state = {
-        activeTab: typeof activeTab !== 'undefined' ? activeTab : 'novel',
-        currentChapterIndex: typeof currentChapterIndex !== 'undefined' ? currentChapterIndex : -1,
-        currentPage: typeof currentPage !== 'undefined' ? currentPage : 0,
-        polaroids: polaroidData,
-        stickers: Array.from(document.querySelectorAll('.floating-sticker')).map(img => ({
-          src: img.getAttribute('src') || img.src,
-          left: img.style.left,
-          top: img.style.top
-        }))
-      };
-
-      localStorage.setItem('benivon_last_state', JSON.stringify(state));
     }
 
-    function restoreAppState() {
-      const saved = localStorage.getItem('benivon_last_state');
-      if (!saved) return false;
+    // 3. RESTORE STIKER FLOATING (FIXED: Terapkan Dataset & Transform)
+    if (state.stickers && Array.isArray(state.stickers)) {
+      document.querySelectorAll('.floating-sticker').forEach(s => s.remove());
+      state.stickers.forEach(stk => {
+        if (!stk.src) return;
+        const sticker = document.createElement('img');
+        sticker.src = stk.src;
+        sticker.classList.add('floating-sticker');
+        sticker.style.width = '120px';
+        
+        // Pulihkan posisi CSS & Dataset
+        if (stk.left) sticker.style.left = stk.left;
+        if (stk.top) sticker.style.top = stk.top;
+        sticker.dataset.x = stk.x || 0;
+        sticker.dataset.y = stk.y || 0;
+        sticker.dataset.rotate = stk.rotate || 0;
+        sticker.dataset.scale = stk.scale || 1;
 
-      try {
-        const state = JSON.parse(saved);
+        // Re-apply Transformasi
+        sticker.style.transform = `translate(${stk.x || 0}px, ${stk.y || 0}px) rotate(${stk.rotate || 0}deg) scale(${stk.scale || 1})`;
 
-        // Validasi: Jika data polaroid tidak ada atau kosong, anggap restore gagal
-        if (!state.polaroids || !Array.isArray(state.polaroids) || state.polaroids.length < 7) {
-          return false;
+        document.body.appendChild(sticker);
+        if (typeof makeDraggableAndReturnable === 'function') {
+          makeDraggableAndReturnable(sticker);
         }
+      });
+    }
 
-        // Cek apakah minimal ada 1 foto polaroid yang memiliki URL valid
-        const hasValidImages = state.polaroids.some(p => p.src && p.src !== '' && !p.src.includes('about:blank'));
-        if (!hasValidImages) {
-          // Jika data di storage ternyata foto kosong semua, GAGALKAN restore
-          // agar sistem memicu randomizePolaroids()!
-          return false; 
-        }
+    // 4. RESTORE SETTINGS (PENGATURAN BACKGROUND, VISUAL & AUDIO)
+    if (state.settings) {
+      const s = state.settings;
 
-        // 1. Restore Polaroid Meja
-        state.polaroids.forEach((pos, idx) => {
-          const el = document.getElementById(`polaroid${idx + 1}`);
-          if (el) {
-            el.dataset.x = pos.x;
-            el.dataset.y = pos.y;
-            el.dataset.rotate = pos.rotate;
-            
-            // Terapkan Transformasi Posisi
-            el.style.transform = `translate(${pos.x}px, ${pos.y}px) rotate(${pos.rotate}deg)`;
+      // A. Tema Background & Warna Kustom (FIXED)
+      if (s.bgTheme && typeof changeBackground === 'function') {
+        changeBackground(s.bgTheme);
+      }
+      if (s.bgCustomColor && typeof changeBgCustomColor === 'function') {
+        changeBgCustomColor(s.bgCustomColor);
+      }
 
-            const img = el.querySelector('img');
-            if (img && pos.src) {
-              img.src = pos.src;
-            }
+      // B. Cover Buku
+      if (s.coverTheme && typeof changeBookCover === 'function') changeBookCover(s.coverTheme);
+      if (s.coverCustomColor && typeof changeCoverCustomColor === 'function') changeCoverCustomColor(s.coverCustomColor);
 
-            // Pasang kembali event listener drag
-            if (typeof makeElementDraggableAndZoomable === 'function') {
-              makeElementDraggableAndZoomable(el);
-            }
-          }
-        });
+      // C. Pencahayaan (Lighting)
+      if (typeof setLightingMode === 'function' && s.lightingMode) setLightingMode(s.lightingMode);
+      if (typeof toggleLightingEffect === 'function' && s.lightingEnabled !== undefined) toggleLightingEffect(s.lightingEnabled);
 
-        // 2. Restore Stiker
-        if (state.stickers && Array.isArray(state.stickers)) {
-          document.querySelectorAll('.floating-sticker').forEach(s => s.remove());
-          state.stickers.forEach(stk => {
-            if (!stk.src) return;
-            const sticker = document.createElement('img');
-            sticker.src = stk.src;
-            sticker.classList.add('floating-sticker');
-            sticker.style.width = '120px';
-            sticker.style.left = stk.left;
-            sticker.style.top = stk.top;
-            document.body.appendChild(sticker);
-            if (typeof makeDraggableAndReturnable === 'function') {
-              makeDraggableAndReturnable(sticker);
-            }
-          });
-        }
+      // D. Volume Audio
+      if (s.bgmVolume !== undefined && typeof adjustBgmVolume === 'function') {
+        const slider = document.getElementById('bgmVolumeSlider');
+        if (slider) slider.value = s.bgmVolume;
+        adjustBgmVolume(s.bgmVolume);
+      }
+      if (s.ambientVolume !== undefined && typeof adjustAmbientVolume === 'function') {
+        const slider = document.getElementById('ambientVolumeSlider');
+        if (slider) slider.value = s.ambientVolume;
+        adjustAmbientVolume(s.ambientVolume);
+      }
 
-        // 3. Restore Tab & Bab
-        if (state.activeTab && typeof switchTab === 'function') {
-          switchTab(state.activeTab);
-          if (state.currentChapterIndex !== -1 && typeof openChapter === 'function') {
-            openChapter(state.currentChapterIndex);
-            setTimeout(() => {
-              if (typeof currentPage !== 'undefined' && state.currentPage) {
-                currentPage = state.currentPage;
-                if (typeof renderPage === 'function') renderPage();
-                else if (typeof updatePageDisplay === 'function') updatePageDisplay();
-              }
-            }, 100);
-          }
-        }
-
-        return true; // Restore BENAR-BENAR BERHASIL
-      } catch (e) {
-        console.error("Gagal restore state:", e);
-        return false; // Jika error JSON parse, pemicu randomizePolaroids() akan jalan
+      // E. Track Ambient
+      if (s.ambientTrack && typeof playAmbient === 'function') {
+        playAmbient(s.ambientTrack);
+      } else if (typeof stopAmbient === 'function') {
+        stopAmbient();
       }
     }
 
+    // 5. RESTORE BUKU, TAB, BAB, DAN HALAMAN
+    if (state.isBookClosed) {
+      if (typeof closeBookView === 'function') closeBookView();
+    } else {
+      if (typeof openBookView === 'function') openBookView();
+      
+      if (state.activeTab && typeof switchTab === 'function') {
+        switchTab(state.activeTab);
+        
+        if (state.currentChapterIndex !== -1 && typeof openChapter === 'function') {
+          openChapter(state.currentChapterIndex);
+          setTimeout(() => {
+            if (typeof currentPage !== 'undefined' && state.currentPage !== undefined) {
+              currentPage = state.currentPage;
+              if (typeof renderPage === 'function') renderPage();
+              else if (typeof updatePageDisplay === 'function') updatePageDisplay();
+            }
+          }, 120);
+        }
+      }
+    }
+
+    return true;
+  } catch (e) {
+    console.error("Gagal restore state komprehensif:", e);
+    return false;
+  }
+}
+
+<!-- =================== -->
     // LISTENER MULTI-TRIGGER (Leluasa di HP & Desktop)
     window.addEventListener('beforeunload', saveAppState);
 
@@ -3048,6 +3212,9 @@ function makeDraggableAndReturnable(elmnt) {
     
     isDragging = true;
     moveDistance = 0;
+    
+    // Naikkan zIndex
+    if (typeof window.topZIndex === 'undefined') window.topZIndex = 1000;
     window.topZIndex++;
     elmnt.style.zIndex = window.topZIndex;
 
@@ -3083,17 +3250,17 @@ function makeDraggableAndReturnable(elmnt) {
     const currentY = parseFloat(elmnt.dataset.y) || 0;
 
     const deltaX = newX - currentX;
-    moveDistance += Math.abs(deltaX) + Math.abs(newY - currentY);
+    moveDistance += Math.abs(deltaX) + Math.abs(newY - (parseFloat(elmnt.dataset.y) || 0));
 
     elmnt.dataset.x = newX;
     elmnt.dataset.y = newY;
 
-    // --- ANIMASI 1: Dynamic Tilt (Miring Saat Di-drag) ---
-    const baseRotate = parseFloat(elmnt.dataset.rotate) || 0; // Rotasi dasar jika ada
+    // --- Dynamic Tilt (Miring Saat Di-drag) ---
+    const baseRotate = parseFloat(elmnt.dataset.rotate) || 0;
     const dynamicTilt = Math.min(Math.max(deltaX * 0.8, -12), 12);
     const currentRotate = baseRotate + dynamicTilt;
 
-    elmnt.style.transform = `translate(${newX}px, ${newY}px) rotate(${currentRotate}deg)`;
+    elmnt.style.transform = `translate3d(${newX}px, ${newY}px, 0px) rotate(${currentRotate}deg)`;
   }
 
   function closePointerElement(e) {
@@ -3110,30 +3277,39 @@ function makeDraggableAndReturnable(elmnt) {
 
     const currentX = parseFloat(elmnt.dataset.x) || 0;
     const currentY = parseFloat(elmnt.dataset.y) || 0;
-    const baseRotate = parseFloat(elmnt.dataset.rotate) || 0;
 
-    // Jika TIDAK di-drag (cuma diklik/tap), jalankan logic kembalikan stiker ke katalog
+    // SITUASI A: TIDAK DI-DRAG (Cuma diklik/tap -> Hapus / Kembalikan Stiker)
     if (moveDistance < 5) {
-      elmnt.style.transition = ''; // Kembalikan transisi CSS bawaan untuk animasi return
-      void elmnt.offsetWidth;
-      
+      elmnt.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
       elmnt.classList.add('returning');
+      
       setTimeout(() => { 
-        if (elmnt.parentNode) elmnt.remove(); 
+        if (elmnt.parentNode) {
+          elmnt.remove(); 
+        }
+        // 🚀 SIMPAN STATE TERBARU SETELAH ELEMEN DIHAPUS
+        if (typeof saveAppState === 'function') {
+          saveAppState();
+        }
       }, 200);
     } 
-    // Jika DI-DRAG lalu dilepas (Mouse Up / Pointer Up)
+    // SITUASI B: SELESAI DI-DRAG (Dilepas di lokasi baru)
     else {
-     elmnt.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+      elmnt.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
-      // Buat sudut rotasi acak baru (-25 deg s/d 24 deg)
+      // Buat sudut rotasi acak baru (-25 deg s/d 24 deg) jika belum ada rotasi kustom
       const newRandomRotate = Math.floor(Math.random() * 50) - 25;
       
-      // Simpan ke dataset agar saat di-drag berikutnya nilai ini yang dipakai sebagai baseRotate
+      // Simpan ke dataset agar konsisten
       elmnt.dataset.rotate = newRandomRotate;
 
       // Animasikan elemen ke posisi akhir dengan rotasi acak baru tersebut
-      elmnt.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${newRandomRotate}deg)`;
+      elmnt.style.transform = `translate3d(${currentX}px, ${currentY}px, 0px) rotate(${newRandomRotate}deg)`;
+
+      // 🚀 SIMPAN STATE TERBARU SEGERA SETELAH SELESAI DI-DRAG
+      if (typeof saveAppState === 'function') {
+        saveAppState();
+      }
     }
   }
 }
@@ -3231,6 +3407,7 @@ function changeBackground(themeName) {
   // Tutup menu FAB jika ada
   const bgSubMenu = document.getElementById('fabBgSubMenu');
   if (bgSubMenu) bgSubMenu.classList.remove('show');
+  saveAppState();
 }
 
 // FUNGSI WARNA KUSTOM BACKGROUND MEJA
@@ -3238,6 +3415,7 @@ function changeBgCustomColor(hexColor) {
   // Hanya menimpa background-color, TEKSTUR PNG DARI CLASS CSS TETAP DITAMPILKAN!
   document.body.style.backgroundColor = hexColor;
   localStorage.setItem('benivon_bg_custom_color', hexColor);
+  saveAppState();
 }
 
 // Memuat Background yang Tersimpan saat Halaman Dibuka
@@ -3465,6 +3643,7 @@ function adjustBgmVolume(val) {
   }
   // Simpan preferensi volume
   localStorage.setItem('benivon_bgm_volume', val);
+  saveAppState();
 }
 
 function adjustAmbientVolume(val) {
@@ -3530,6 +3709,7 @@ closeBookSfx.currentTime = 0; // Reset durasi ke detik 0 (supaya kalau diklik ce
       const match = onclickAttr.match(/'([^']+)'/);
       if (match) lastActiveTab = match[1];
     }
+    saveAppState();
   }
 
   // 1. Sembunyikan semua kontainer konten di dalam buku
@@ -3576,8 +3756,8 @@ openCoverSfx.currentTime = 0;
   if (typeof switchTab === 'function') {
     switchTab(lastActiveTab || 'novel');
   }
-
   console.log("[Book] Buku berhasil dibuka kembali.");
+  saveAppState();
 }
 
 
@@ -3631,6 +3811,7 @@ function changeBookCover(type) {
     const picker = document.getElementById('coverCustomColorPicker');
     if (picker) picker.value = selected.color;
   }
+  saveAppState();
 }
 
 // FUNGSI WARNA KUSTOM COVER BUKU
@@ -3710,6 +3891,61 @@ function spawnTicketPair() {
       saveAppState();
     }
   }
+  
+// 1. Export: Mengunduh data localStorage menjadi file .json
+function exportToJson() {
+  const savedData = localStorage.getItem('benivon_last_state');
+  if (!savedData) {
+    alert('Belum ada data untuk diexport!');
+    return;
+  }
+  const blob = new Blob([savedData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `benivon_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// 2. Import: Membaca file .json, menyalin ke localStorage, lalu restore tampilan
+function importFromJson(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const parsedData = JSON.parse(e.target.result);
+      localStorage.setItem('benivon_last_state', JSON.stringify(parsedData));
+      
+      // 1. OPSI UTAMA: Gunakan fungsi penutup modal bawaan aplikasi jika ada
+      if (typeof closeSettingsModal === 'function') {
+        closeSettingsModal();
+      } else {
+        // 2. OPSI CADANGAN: Cukup hapus class active/show tanpa mengubah style.display inline
+        const settingsModal = document.getElementById('settingsModalOverlay') || document.getElementById('settingsModal');
+        if (settingsModal) {
+          settingsModal.classList.remove('active', 'show');
+        }
+      }
+
+      // Jalankan pemulihan tampilan
+      if (typeof restoreAppState === 'function') {
+        restoreAppState();
+      }
+
+      // Reset input file agar event change tetap berjalan jika mengunggah file yang sama
+      event.target.value = '';
+
+      alert('Data berhasil dimuat dari file JSON!');
+    } catch (err) {
+      alert('File JSON tidak valid!');
+    }
+  };
+  reader.readAsText(file);
+}
+
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>

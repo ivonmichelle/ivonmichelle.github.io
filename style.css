@@ -2630,6 +2630,58 @@ input:checked + .slider:before {
   border-color: #3d2413;
   box-shadow: 0 0 8px rgba(92, 58, 33, 0.4);
 }
+/* ==========================================
+   SEKSI BACKUP & RESTORE (EXPORT / IMPORT)
+   ========================================== */
+.backup-btn-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-backup {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(92, 58, 33, 0.2);
+}
+
+/* Tombol Export (Warna Cokelat Tema) */
+.btn-export {
+  background: #8c532b;
+  color: #ffffff;
+}
+
+.btn-export:hover {
+  background: #70401f;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Tombol Import (Warna Soft Kertas) */
+.btn-import {
+  background: #fdfaf6;
+  color: #5c3a21;
+}
+
+.btn-import:hover {
+  background: #f5ebe0;
+  border-color: #8c532b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-backup:active {
+  transform: translateY(0);
+}
 /* ========================================= */
 /* === COVER BUKU REALISTIS (SPIRAL & LUBANG) === */
 /* ========================================= */
