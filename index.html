@@ -367,60 +367,71 @@
       
       <!-- 1. SEKSI BACKGROUND MEJA -->
       <div class="settings-section">
-        <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 12px;">
+        <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 8px;">
           🎨 Tema / Background Meja:
         </label>
-            <!-- Custom Color Picker Background -->
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="font-size: 0.75rem; color: #5c3a21; font-weight: 600;">Warna Kustom:</span>
-      <input type="color" id="bgCustomColorPicker" oninput="changeBgCustomColor(this.value)" style="border: none; width: 28px; height: 28px; cursor: pointer; background: transparent; padding: 0;">
-    </div>
-        <!-- Grid Tombol Background dengan Padding & Gap Rapi -->
-        <div class="bg-grid-select" style="
-          display: grid; 
-          grid-template-columns: repeat(4, 1fr); 
-          gap: 12px; 
-          padding: 8px; 
-          background: rgba(0, 0, 0, 0.04); 
-          border-radius: 10px;
-          box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        ">
-          <button class="fab-btn fab-btn-bg" onclick="changeBackground('dimension')" title="Dimension" style="margin: 0;"><span class="bg-preview bg-dimension"></span></button>
-          <button class="fab-btn fab-btn-bg" onclick="changeBackground('debut-light')" title="Debut Light" style="margin: 0;"><span class="bg-preview bg-debut-light"></span></button>
-          <button class="fab-btn fab-btn-bg" onclick="changeBackground('escheresque-dark')" title="Escheresque Dark" style="margin: 0;"><span class="bg-preview bg-escheresque-dark"></span></button>
-          <button class="fab-btn fab-btn-bg" onclick="changeBackground('retina-wood')" title="Retina Wood" style="margin: 0;"><span class="bg-preview bg-retina-wood"></span></button>
-          <button class="fab-btn fab-btn-bg" onclick="changeBackground('asfalt-light')" title="Asfalt Light" style="margin: 0;"><span class="bg-preview bg-asfalt-light"></span></button>
-          <button class="fab-btn fab-btn-bg" onclick="changeBackground('dark-wood')" title="Dark Wood" style="margin: 0;"><span class="bg-preview bg-dark-wood"></span></button>
-          <button class="fab-btn fab-btn-bg" onclick="changeBackground('skulls')" title="Skulls" style="margin: 0;"><span class="bg-preview bg-skulls"></span></button>
-          <button class="fab-btn fab-btn-bg" onclick="changeBackground('noisy-grid')" title="Noisy Grid" style="margin: 0;"><span class="bg-preview bg-noisy-grid"></span></button>
+
+        <!-- Custom Color Picker Background -->
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+          <span style="font-size: 0.75rem; color: #5c3a21; font-weight: 600;">Warna Kustom:</span>
+          <input type="color" id="bgCustomColorPicker" oninput="changeBgCustomColor(this.value)" style="border: none; width: 28px; height: 28px; cursor: pointer; background: transparent; padding: 0;">
+        </div>
+
+        <!-- Grid 5x3 Kotak untuk Background Meja -->
+        <div class="shared-texture-grid">
+          <button class="texture-square-btn" onclick="changeBackground('dimension')" title="Dimension"><span class="tex-preview tex-dimension"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('debut-light')" title="Debut Light"><span class="tex-preview tex-debut-light"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('escheresque-dark')" title="Escheresque Dark"><span class="tex-preview tex-escheresque-dark"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('retina-wood')" title="Retina Wood"><span class="tex-preview tex-retina-wood"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('asfalt-light')" title="Asfalt Light"><span class="tex-preview tex-asfalt-light"></span></button>
+          
+          <button class="texture-square-btn" onclick="changeBackground('dark-wood')" title="Dark Wood"><span class="tex-preview tex-dark-wood"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('skulls')" title="Skulls"><span class="tex-preview tex-skulls"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('noisy-grid')" title="Noisy Grid"><span class="tex-preview tex-noisy-grid"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('argyle')" title="Classic Argyle"><span class="tex-preview tex-argyle"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('food')" title="Food Pattern"><span class="tex-preview tex-food"></span></button>
+          
+          <button class="texture-square-btn" onclick="changeBackground('leather')" title="Dark Leather"><span class="tex-preview tex-leather"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('carbon')" title="Carbon Fibre"><span class="tex-preview tex-carbon"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('sos')" title="Crimson SOS"><span class="tex-preview tex-sos"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('padded-light')" title="Padded Light"><span class="tex-preview tex-padded-light"></span></button>
+          <button class="texture-square-btn" onclick="changeBackground('gplay')" title="Glay Texture"><span class="tex-preview tex-gplay"></span></button>
         </div>
       </div>
-            <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
-              <div class="settings-section">
-        <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 12px;">
+
+      <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
+
+      <!-- 2. SEKSI COVER BUKU -->
+      <div class="settings-section">
+        <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 8px;">
           📕 Tekstur / Warna Cover Buku:
         </label>
-            <!-- Custom Color Picker Cover -->
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="font-size: 0.75rem; color: #5c3a21; font-weight: 600;">Warna Kustom:</span>
-      <input type="color" id="coverCustomColorPicker" oninput="changeCoverCustomColor(this.value)" style="border: none; width: 28px; height: 28px; cursor: pointer; background: transparent; padding: 0;">
-    </div>
-        <div class="book-cover-grid-select">
-          <button class="fab-btn-cover" onclick="changeBookCover('argyle')" title="Classic Wood Argyle">
-            <span class="cover-preview cover-argyle"></span>
-          </button>
-          <button class="fab-btn-cover" onclick="changeBookCover('food')" title="Food Pattern">
-            <span class="cover-preview cover-food"></span>
-          </button>
-          <button class="fab-btn-cover" onclick="changeBookCover('leather')" title="Dark Leather">
-            <span class="cover-preview cover-leather"></span>
-          </button>
-          <button class="fab-btn-cover" onclick="changeBookCover('carbon')" title="Carbon Fibre">
-            <span class="cover-preview cover-carbon"></span>
-          </button>
-          <button class="fab-btn-cover" onclick="changeBookCover('sos')" title="Crimson SOS">
-            <span class="cover-preview cover-sos"></span>
-          </button>
+
+        <!-- Custom Color Picker Cover -->
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+          <span style="font-size: 0.75rem; color: #5c3a21; font-weight: 600;">Warna Kustom:</span>
+          <input type="color" id="coverCustomColorPicker" oninput="changeCoverCustomColor(this.value)" style="border: none; width: 28px; height: 28px; cursor: pointer; background: transparent; padding: 0;">
+        </div>
+
+        <!-- Grid 5x3 Kotak untuk Cover Buku -->
+        <div class="shared-texture-grid">
+          <button class="texture-square-btn" onclick="changeBookCover('dimension')" title="Dimension"><span class="tex-preview tex-dimension"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('debut-light')" title="Debut Light"><span class="tex-preview tex-debut-light"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('escheresque-dark')" title="Escheresque Dark"><span class="tex-preview tex-escheresque-dark"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('retina-wood')" title="Retina Wood"><span class="tex-preview tex-retina-wood"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('asfalt-light')" title="Asfalt Light"><span class="tex-preview tex-asfalt-light"></span></button>
+          
+          <button class="texture-square-btn" onclick="changeBookCover('dark-wood')" title="Dark Wood"><span class="tex-preview tex-dark-wood"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('skulls')" title="Skulls"><span class="tex-preview tex-skulls"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('noisy-grid')" title="Noisy Grid"><span class="tex-preview tex-noisy-grid"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('argyle')" title="Classic Argyle"><span class="tex-preview tex-argyle"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('food')" title="Food Pattern"><span class="tex-preview tex-food"></span></button>
+          
+          <button class="texture-square-btn" onclick="changeBookCover('leather')" title="Dark Leather"><span class="tex-preview tex-leather"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('carbon')" title="Carbon Fibre"><span class="tex-preview tex-carbon"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('sos')" title="Crimson SOS"><span class="tex-preview tex-sos"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('padded-light')" title="Padded Light"><span class="tex-preview tex-padded-light"></span></button>
+          <button class="texture-square-btn" onclick="changeBookCover('gplay')" title="Gplay Texture"><span class="tex-preview tex-gplay"></span></button>
         </div>
       </div>
 
@@ -555,7 +566,7 @@
     </div>
   </div>
 </div>
-
+<!-- ========================================================= -->
   <div class="comment-modal-overlay" id="commentModalOverlay">
     <div class="comment-modal">
       <div class="modal-header">
@@ -1437,33 +1448,58 @@ function switchTabWithoutReset(tab) {
       document.getElementById('nextBtn').disabled = currentIllustIndex === illustrations.length - 1;
     }
 
-    async function loadNovel() {
-      try {
-        const response = await fetch(`${SCRIPT_URL}?action=get_cerita`);
-        if (!response.ok) throw new Error('Gagal terhubung ke server');
-        allChapters = await response.json();
+async function loadNovel() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000); // 4 detik
 
-        if (activeTab === 'novel') {
-          renderTableOfContents();
-        }
-      } catch (err) {
-        console.warn("Gagal memuat novel:", err);
-      }
+  try {
+    const response = await fetch(`${SCRIPT_URL}?action=get_cerita`, {
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) throw new Error('Gagal terhubung ke server');
+
+    allChapters = await response.json();
+
+    if (activeTab === 'novel') {
+      renderTableOfContents();
     }
+  } catch (err) {
+    clearTimeout(timeout);
+    console.warn("Gagal memuat novel:", err);
 
-    async function loadSol() {
-      try {
-        const response = await fetch(`${SCRIPT_URL}?action=get_sol`);
-        if (!response.ok) throw new Error('Gagal terhubung ke server');
-        allSolChapters = await response.json();
+    // Penting: jangan biarkan data undefined
+    if (!Array.isArray(allChapters)) allChapters = [];
+  }
+}
 
-        if (activeTab === 'sol') {
-          renderTableOfContents();
-        }
-      } catch (err) {
-        console.warn("Gagal memuat SoL:", err);
-      }
+async function loadSol() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000); // 4 detik
+
+  try {
+    const response = await fetch(`${SCRIPT_URL}?action=get_sol`, {
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) throw new Error('Gagal terhubung ke server');
+
+    allSolChapters = await response.json();
+
+    if (activeTab === 'sol') {
+      renderTableOfContents();
     }
+  } catch (err) {
+    clearTimeout(timeout);
+    console.warn("Gagal memuat SoL:", err);
+
+    if (!Array.isArray(allSolChapters)) allSolChapters = [];
+  }
+}
 
     function renderTableOfContents() {
       currentChapterIndex = -1;
@@ -2269,45 +2305,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }); 
 
     async function preloadAllDataInBackground() {
-      const totalSteps = 7;
-      let completedSteps = 0;
+  updateLoadingProgress(10, "Membuka buku kenangan...");
 
-      const incrementProgress = (msg) => {
-        completedSteps++;
-        const percent = Math.round((completedSteps / totalSteps) * 100);
-        updateLoadingProgress(percent, msg);
-      };
+  // Hanya data inti
+  await Promise.allSettled([
+    loadNovel(),
+    loadSol()
+  ]);
 
-      // Buat daftar promise loader untuk berjalan paralel di background
-      const tasks = [
-        loadNovel().then(() => incrementProgress("Cerita Kanon dimuat...")).catch(() => incrementProgress("Kanon selesai (dengan fallback)")),
-        loadSol().then(() => incrementProgress("Cerita SoL dimuat...")).catch(() => incrementProgress("SoL selesai (dengan fallback)")),
-        fetchWikiData().then(() => incrementProgress("Data Wiki dimuat...")).catch(() => incrementProgress("Wiki selesai")),
-        loadIllustrations().then(() => incrementProgress("Ilustrasi dimuat...")).catch(() => incrementProgress("Ilustrasi selesai")),
-        loadAlbumPolaroids().then(() => incrementProgress("Album Foto dimuat...")).catch(() => incrementProgress("Foto selesai")),
-        loadAlbumStickers().then(() => incrementProgress("Katalog Stiker dimuat...")).catch(() => incrementProgress("Stiker selesai")),
-        loadJukeboxTracks().then(() => incrementProgress("Playlist BGM dimuat...")).catch(() => incrementProgress("Jukebox selesai"))
-      ];
+  updateLoadingProgress(60, "Menyusun halaman...");
 
-      // Eksekusi semua secara paralel
-      await Promise.allSettled(tasks);
+  const restored = restoreAppState();
+  if (!restored) randomizePolaroids();
 
-      // Tampilkan status akhir
-      updateLoadingProgress(100, "Semua kenangan siap! ✨");
-      
-      // Berikan jeda halus sebelum menyembunyikan modal & hilangkan blur
-      setTimeout(() => {
-        const overlay = document.getElementById('appLoadingOverlay');
-        const deskContainer = document.getElementById('deskContainer');
+  updateLoadingProgress(100, "Siap membaca ✨");
 
-        // --- CUKUP TAMBAHKAN DUA BARIS INI ---
-        const restored = restoreAppState(); // Coba kembalikan posisi terakhir pembaca
-        if (!restored) randomizePolaroids(); // Jika pembaca baru (belum ada histori), acak polaroid
+  setTimeout(() => {
+    document.getElementById('appLoadingOverlay')?.classList.add('fade-out');
+    document.getElementById('deskContainer')?.classList.remove('initial-blur');
+  }, 250);
 
-        if (overlay) overlay.classList.add('fade-out');
-        if (deskContainer) deskContainer.classList.remove('initial-blur');
-      }, 500);
-    }
+  // Semua yang berat dimuat di belakang layar
+  fetchWikiData().catch(console.warn);
+  loadIllustrations().catch(console.warn);
+  loadAlbumPolaroids().catch(console.warn);
+  loadAlbumStickers().catch(console.warn);
+  loadJukeboxTracks().catch(console.warn);
+}
 
 // =========================================================
 // SYSTEM STATE MANAGER (SAVED & RESTORED FULLY FIXED)
@@ -3429,64 +3453,6 @@ function togglePolaroidScatter() {
   }
 }
 
-// ==========================================
-// LOGIKA BACKGROUND MEJA
-// ==========================================
-
-function changeBackground(themeName) {
-  // 1. Hapus class background lama
-  document.body.classList.remove(
-    'bg-dimension', 'bg-debut-light', 'bg-escheresque-dark', 
-    'bg-retina-wood', 'bg-asfalt-light', 'bg-dark-wood', 
-    'bg-skulls', 'bg-noisy-grid'
-  );
-  
-  // 2. Pasang class background baru
-  document.body.classList.add(`bg-${themeName}`);
-  
-  // 3. Reset warna inline agar MENGGUNAKAN WARNA DEFAULT bawaan CSS/Tema tersebut
-  document.body.style.removeProperty('background-color');
-  
-  // 4. Hapus warna kustom yang tersimpan di localStorage & update storage tema
-  localStorage.removeItem('benivon_bg_custom_color');
-  localStorage.setItem('benivon_bg_theme', themeName);
-
-  // Tutup menu FAB jika ada
-  const bgSubMenu = document.getElementById('fabBgSubMenu');
-  if (bgSubMenu) bgSubMenu.classList.remove('show');
-  saveAppState();
-}
-
-// FUNGSI WARNA KUSTOM BACKGROUND MEJA
-function changeBgCustomColor(hexColor) {
-  // Hanya menimpa background-color, TEKSTUR PNG DARI CLASS CSS TETAP DITAMPILKAN!
-  document.body.style.backgroundColor = hexColor;
-  localStorage.setItem('benivon_bg_custom_color', hexColor);
-  saveAppState();
-}
-
-// Memuat Background yang Tersimpan saat Halaman Dibuka
-function loadSavedBackground() {
-  const savedBg = localStorage.getItem('benivon_bg_theme') || 'retina-wood';
-  const savedBgColor = localStorage.getItem('benivon_bg_custom_color');
-
-  // Pasang tema teksturnya
-  changeBackground(savedBg);
-
-  // Jika user pernah memilih warna kustom sebelumnya, terapkan warna tersebut
-  if (savedBgColor) {
-    document.body.style.backgroundColor = savedBgColor;
-    const picker = document.getElementById('bgCustomColorPicker');
-    if (picker) picker.value = savedBgColor;
-  }
-}
-
-// Jalankan auto-load saat DOM Siap
-document.addEventListener('DOMContentLoaded', () => {
-  loadSavedBackground();
-  loadSavedCover();
-});
-
 // Update event listener global click agar menutup semua sub-menu jika area luar diklik
 document.addEventListener('click', (e) => {
   const currentWrapper = e.target.closest('.fab-wrapper');
@@ -3832,67 +3798,6 @@ const bookCovers = {
   }
 };
 
-// ==========================================
-// LOGIKA COVER BUKU
-// ==========================================
-
-function changeBookCover(type) {
-  const coverEl = document.getElementById('bookCoverOverlay');
-  const selected = bookCovers[type];
-
-  if (coverEl && selected) {
-    // 1. Pasang warna bawaan/default dari objek bookCovers
-    coverEl.style.backgroundColor = selected.color;
-    
-    // 2. Pasang pola tekstur PNG
-    coverEl.style.backgroundImage = `
-      radial-gradient(circle at 14px 24px, #1c130a 0px, #2b1d0c 8px, rgba(0,0,0,0.18) 8px, transparent 8.5px),
-      url('${selected.texture}')
-    `;
-
-    // 3. Simpan jenis cover & hapus warna kustom lama
-    localStorage.setItem('benivon_selected_cover', type);
-    localStorage.removeItem('benivon_custom_cover_color');
-
-    // Reset nilai input picker ke warna default cover tersebut
-    const picker = document.getElementById('coverCustomColorPicker');
-    if (picker) picker.value = selected.color;
-  }
-  saveAppState();
-}
-
-// FUNGSI WARNA KUSTOM COVER BUKU
-function changeCoverCustomColor(hexColor) {
-  const coverEl = document.getElementById('bookCoverOverlay');
-  if (coverEl) {
-    // Ubah warna dasar cover tanpa merusak pola background-image PNG di atasnya!
-    coverEl.style.backgroundColor = hexColor;
-    localStorage.setItem('benivon_custom_cover_color', hexColor);
-  }
-}
-
-// Memuat Cover yang Tersimpan saat Halaman Dibuka
-function loadSavedCover() {
-  const savedCover = localStorage.getItem('benivon_selected_cover') || 'argyle';
-  const savedCoverColor = localStorage.getItem('benivon_custom_cover_color');
-
-  // Load tekstur & warna default
-  changeBookCover(savedCover);
-
-  // Jika ada warna kustom, override warnanya saja
-  if (savedCoverColor) {
-    changeCoverCustomColor(savedCoverColor);
-    const picker = document.getElementById('coverCustomColorPicker');
-    if (picker) picker.value = savedCoverColor;
-  }
-}
-
-// Muat Cover yang Tersimpan saat Halaman Dibuka
-document.addEventListener('DOMContentLoaded', () => {
-  const savedCover = localStorage.getItem('benivon_selected_cover') || 'argyle';
-  changeBookCover(savedCover);
-});
-
 const trinketLayer = document.getElementById("trinketLayer");
 function spawnTicketPair() {
     // Hapus tiket lama jika sudah pernah dikeluarkan (opsional, agar tidak menumpuk terus)
@@ -4148,6 +4053,137 @@ document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'hidden' && isDirty) {
     saveToDrive(); // Eksekusi langsung saat tab di-minimize/dipindah
   }
+});
+// ==========================================
+// DATA KAMUS 15 TEKSTUR BERSAMA (SHARED TEXTURES)
+// ==========================================
+const sharedTextures = {
+  'dimension': { color: '#7a4442', texture: 'https://www.transparenttextures.com/patterns/dimension.png' },
+  'debut-light': { color: '#3c4d8f', texture: 'https://www.transparenttextures.com/patterns/debut-light.png' },
+  'escheresque-dark': { color: '#909099', texture: 'https://www.transparenttextures.com/patterns/escheresque-dark.png' },
+  'retina-wood': { color: '#5c3a21', texture: 'https://www.transparenttextures.com/patterns/retina-wood.png' },
+  'asfalt-light': { color: '#78654d', texture: 'https://www.transparenttextures.com/patterns/asfalt-light.png' },
+  'dark-wood': { color: '#2c1d11', texture: 'https://www.transparenttextures.com/patterns/dark-wood.png' },
+  'skulls': { color: '#523a34', texture: 'https://www.transparenttextures.com/patterns/skulls.png' },
+  'noisy-grid': { color: '#1b4d2e', texture: 'https://www.transparenttextures.com/patterns/noisy-grid.png' },
+  'argyle': { color: '#4f3815', texture: 'https://www.transparenttextures.com/patterns/argyle.png' },
+  'food': { color: '#9c61a1', texture: 'https://www.transparenttextures.com/patterns/food.png' },
+  'leather': { color: '#241511', texture: 'https://www.transparenttextures.com/patterns/leather.png' },
+  'carbon': { color: '#141414', texture: 'https://www.transparenttextures.com/patterns/real-carbon-fibre.png' },
+  'sos': { color: '#421514', texture: 'https://www.transparenttextures.com/patterns/sos.png' },
+  'padded-light': { color: '#5c3d70', texture: 'https://www.transparenttextures.com/patterns/padded-light.png' },
+  'gplay': { color: '#0d161f', texture: 'https://www.transparenttextures.com/patterns/gplay.png' }
+};
+
+// ==========================================
+// LOGIKA BACKGROUND MEJA
+// ==========================================
+function changeBackground(themeName) {
+  const selected = sharedTextures[themeName];
+  if (!selected) return;
+
+  // 1. Bersihkan semua class bg-* yang ada pada body
+  document.body.className = document.body.className.replace(/\bbg-\S+/g, '').trim();
+  
+  // 2. Pasang class background baru
+  document.body.classList.add(`bg-${themeName}`);
+  
+  // 3. Pasang warna default bawaan tekstur tersebut
+  document.body.style.backgroundColor = selected.color;
+  
+  // 4. Update storage & reset picker
+  localStorage.removeItem('benivon_bg_custom_color');
+  localStorage.setItem('benivon_bg_theme', themeName);
+
+  const picker = document.getElementById('bgCustomColorPicker');
+  if (picker) picker.value = selected.color;
+
+  if (typeof saveAppState === 'function') saveAppState();
+}
+
+function changeBgCustomColor(hexColor) {
+  document.body.style.backgroundColor = hexColor;
+  localStorage.setItem('benivon_bg_custom_color', hexColor);
+  if (typeof saveAppState === 'function') saveAppState();
+}
+
+function loadSavedBackground() {
+  const savedBg = localStorage.getItem('benivon_bg_theme') || 'retina-wood';
+  const savedBgColor = localStorage.getItem('benivon_bg_custom_color');
+
+  changeBackground(savedBg);
+
+  if (savedBgColor) {
+    document.body.style.backgroundColor = savedBgColor;
+    const picker = document.getElementById('bgCustomColorPicker');
+    if (picker) picker.value = savedBgColor;
+  }
+}
+
+// ==========================================
+// LOGIKA COVER BUKU
+// ==========================================
+function changeBookCover(type) {
+  const coverEl = document.getElementById('bookCoverOverlay');
+  const selected = sharedTextures[type];
+
+  if (coverEl && selected) {
+    coverEl.style.backgroundColor = selected.color;
+    coverEl.style.backgroundImage = `
+      radial-gradient(circle at 14px 24px, #1c130a 0px, #2b1d0c 8px, rgba(0,0,0,0.18) 8px, transparent 8.5px),
+      url('${selected.texture}')
+    `;
+
+    localStorage.setItem('benivon_selected_cover', type);
+    localStorage.removeItem('benivon_custom_cover_color');
+
+    const picker = document.getElementById('coverCustomColorPicker');
+    if (picker) picker.value = selected.color;
+  }
+  if (typeof saveAppState === 'function') saveAppState();
+}
+
+function changeCoverCustomColor(hexColor) {
+  const coverEl = document.getElementById('bookCoverOverlay');
+  if (coverEl) {
+    coverEl.style.backgroundColor = hexColor;
+    localStorage.setItem('benivon_custom_cover_color', hexColor);
+  }
+}
+
+function loadSavedCover() {
+  const savedCover = localStorage.getItem('benivon_selected_cover') || 'argyle';
+  const savedCoverColor = localStorage.getItem('benivon_custom_cover_color');
+
+  changeBookCover(savedCover);
+
+  if (savedCoverColor) {
+    changeCoverCustomColor(savedCoverColor);
+    const picker = document.getElementById('coverCustomColorPicker');
+    if (picker) picker.value = savedCoverColor;
+  }
+}
+
+// 1. Fungsi khusus untuk memuat cover yang tersimpan
+function loadSavedCover() {
+  const savedCover = localStorage.getItem('benivon_selected_cover') || 'argyle';
+  const savedCoverColor = localStorage.getItem('benivon_custom_cover_color');
+
+  // Load tekstur & warna default bawaannya
+  changeBookCover(savedCover);
+
+  // Jika user pernah set warna kustom, terapkan warna kustomnya
+  if (savedCoverColor) {
+    changeCoverCustomColor(savedCoverColor);
+    const picker = document.getElementById('coverCustomColorPicker');
+    if (picker) picker.value = savedCoverColor;
+  }
+}
+
+// 2. Cukup panggil fungsi di atas saat DOM siap (gabung sekalian dengan background)
+document.addEventListener('DOMContentLoaded', () => {
+  loadSavedBackground(); // Memuat background meja
+  loadSavedCover();      // Memuat cover buku
 });
 
   </script>
