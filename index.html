@@ -2310,7 +2310,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Hanya data inti
   await Promise.allSettled([
     loadNovel(),
-    loadSol()
+    loadSol(),
+    fetchWikiData()
   ]);
 
   updateLoadingProgress(60, "Menyusun halaman...");
@@ -2326,11 +2327,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 250);
 
   // Semua yang berat dimuat di belakang layar
-  fetchWikiData().catch(console.warn);
   loadIllustrations().catch(console.warn);
   loadAlbumPolaroids().catch(console.warn);
   loadAlbumStickers().catch(console.warn);
   loadJukeboxTracks().catch(console.warn);
+  fetchComments().catch(console.warn);
 }
 
 // =========================================================
