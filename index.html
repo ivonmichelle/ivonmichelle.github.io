@@ -173,6 +173,7 @@
       <div class="book-content" id="stickerAlbumContent" style="display: none;">
         <div class="polaroid-grid-view" id="stickerGridContainer"></div>
       </div>
+      
       <div class="book-content" id="wikiContent" style="display: none;">
         <input type="file" id="wikiFileInput" accept="image/*" style="display: none;" onchange="handleWikiPhotoSelect(event)">  
         <div class="status-msg">Memuat data wiki...</div>
@@ -3093,6 +3094,7 @@ async function loadJukeboxTracks() {
             
             <h3 class="wiki-char-name">${escapeHtml(c.nama)}</h3>
             ${c.nick ? `<div class="wiki-char-nick">Panggilan: <span>${escapeHtml(c.nick)}</span></div>` : ''}
+            <div class="wiki-scrollable-content">
             ${c.ttl ? `<div class="wiki-field"><strong>TTL / Usia:</strong> <p>${escapeHtml(c.ttl)}</p></div>` : ''}
             ${c.profil ? `<div class="wiki-field"><strong>Profil Ringkas:</strong> <p>${escapeHtml(c.profil)}</p></div>` : ''}
             ${c.wajah ? `<div class="wiki-field"><strong>Ciri Wajah:</strong> <p>${escapeHtml(c.wajah)}</p></div>` : ''}
@@ -3100,7 +3102,8 @@ async function loadJukeboxTracks() {
             ${c.properti ? `<div class="wiki-field"><strong>Ciri khas / Properti:</strong> <p>${escapeHtml(c.properti)}</p></div>` : ''}
             ${c.hubungan ? `<div class="wiki-field"><strong>Hubungan / Relasi:</strong> <p>${escapeHtml(c.hubungan)}</p></div>` : ''}
             ${c.deskripsi ? `<div class="wiki-field"><strong>Deskripsi Lengkap:</strong> <p>${escapeHtml(c.deskripsi)}</p></div>` : ''}
-          </div>
+            </div>
+            </div>
         `;
         wikiContainer.innerHTML = html;
 

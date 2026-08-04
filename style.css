@@ -183,29 +183,36 @@ input, textarea {
   top: 52%;
   left: 50%;
   transform: translate(-50%, -50%);
-  
   width: 420px;
   max-width: 90vw;
-  
   height: 84vh;
   max-height: 560px;
-  
-  background-color: #fbf7ef;
+  background-color: #fbf7ef; /* Warna tengah tetap bersih & original */
   border-radius: 4px 10px 10px 4px;
-  padding: 18px 20px 10px 40px; /* Padding kiri dinaikkan ke 40px agar teks tidak terhalang lubang yang lebih besar */
-  
-  /* LUBANG KERTAS (Hole Punch) di Sisi Kiri */
-  /* Titik pusat berada di 14px (X) & 16px (Y) - persis di tengah kawat & pola 32px */
+  padding: 18px 20px 10px 40px;
+
+  /* HANYA LUBANG KERTAS (Latar belakang tengah 100% #fbf7ef murni) */
   background-image: 
     radial-gradient(circle at 14px 24px, #1c130a 0px, #2b1d0c 8px, rgba(0,0,0,0.18) 8px, transparent 8.5px);
   background-size: 100% 32px;
   background-repeat: repeat-y;
-  
-  /* Bayangan dasar kertas */
+
+  /* =========================================================
+     EFEK MENGUNING TIPIS (PRESISI MENTOK 0.5 CM DI PINGGIRAN)
+     ========================================================= */
   box-shadow: 
+    /* 1. Bayangan Luar Kertas (Bawaan milikmu) */
     -5px 10px 25px rgba(0, 0, 0, 0.5),
-    inset 18px 0 20px -8px rgba(0,0,0,0.06);
-  
+
+    /* 2. Bayangan Lipatan Kiri/Kawat (Bawaan milikmu) */
+    inset 18px 0 20px -8px rgba(0, 0, 0, 0.2),
+
+    /* 3. MENGUNING TIPIS 0.5cm: Kebocoran warna kecokelatan di bibir luar (blurs ke dalam maks 16px/0.4cm) */
+    inset 0 0 18px rgba(180, 130, 60, 0.55),
+
+    /* 4. Oksidasi Tipis: Garis cokelat lebih tegas tepat di list pinggir luar (hanya 3px) */
+    inset 0 0 3px rgba(140, 90, 30, 0.65);
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -358,7 +365,8 @@ input, textarea {
       text-align: center;
       font-weight: bold;
       font-size: 1.25em;
-      margin-bottom: 1.2em;
+      padding-bottom: 1.5em !important; 
+      margin-bottom: 0 !important;
       color: #3d2716;
       text-indent: 0 !important;
       display: block;
@@ -1131,11 +1139,19 @@ input, textarea {
 /* --- WIKI CHARACTER STYLING --- */
 .wiki-detail-container {
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
   padding-right: 6px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Bagian Bawah yang Bisa Di-scroll (Mulai TTL) */
+.wiki-scrollable-content {
+  flex: 1;                  /* Mengambil sisa ruang kosong di bawah */
+  overflow-y: auto;         /* Aktifkan scrollbar vertikal hanya di bagian ini */
+  padding-right: 6px;       /* Ruang napas agar teks tidak tertutup scrollbar */
+  margin-top: 10px;
 }
 
 .wiki-photo-box {
@@ -2733,6 +2749,28 @@ input:checked + .slider:before {
   font-weight: bold;
   letter-spacing: 2px;
   margin: 0 0 5px 0;
+  /* 1. Gradasi Warna Emas Logam Mengkilap */
+  background: linear-gradient(
+    135deg, 
+    #bf953f 0%, 
+    #fcf6ba 25%, 
+    #b38728 50%, 
+    #fbf5b7 75%, 
+    #aa771c 100%
+  );
+  
+  /* 2. Potong background agar masuk ke dalam bentuk teks */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent; /* Fallback */
+
+  /* 3. Efek Pendaran Cahaya & Dimensi Emas */
+  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));
+  
+  /* Penyesuaian Font (Semakin tebal font, efek emasnya semakin terlihat bagus) */
+ display: inline-block;
+}
 }
 
 .cover-sub-title {
