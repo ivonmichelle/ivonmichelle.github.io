@@ -2163,9 +2163,9 @@ function toggleLightingEffect(forceState = null) {
   } else {
     isLightingEnabled = !isLightingEnabled;
   }
-  
   localStorage.setItem('benivon_lighting_enabled', isLightingEnabled);
   updateLightingSystem();
+  if (typeof saveAppState === 'function') saveAppState();
 }
 
 // 4. Update Indikator UI Modal Settings
@@ -2198,7 +2198,7 @@ const lightingOverlays = [
   document.getElementById('daytimeOverlay'),
   document.getElementById('sunsetOverlay'),
   document.getElementById('midnightOverlay'),
-  document.getElementById('neonOverlay'), // <-- TAMBAHAN
+  document.getElementById('neonOverlay'),
   document.getElementById('nighttimeOverlay')
 ];
 
@@ -2230,6 +2230,7 @@ function toggleDustParticles(forceState = null) {
     const container = document.getElementById('dustParticlesContainer');
     if (container) container.innerHTML = '';
   }
+    if (typeof saveAppState === 'function') saveAppState();
 }
 
 function generateDustParticles() {
@@ -2254,15 +2255,13 @@ function generateDustParticles() {
   }
 }
 
-// Panggil inisialisasi dust di DOMContentLoaded milikmu:
-// toggleDustParticles(isDustEnabled);
-
 // --- INISIALISASI UTAMA WEBSITE ---
 document.addEventListener('DOMContentLoaded', () => {
   // Fungsi Tampilan / UI
   closeBookView();
   updateLightingSystem();
-
+  toggleDustParticles(isDustEnabled);
+  
   // Fungsi Sistem & Data
   checkIntroStatus();
   checkAdminStatus();

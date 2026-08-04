@@ -1665,13 +1665,21 @@ input, textarea {
   position: fixed;
   pointer-events: none;
   font-size: 1.4rem;
-  z-index: 99999;
+  z-index: 19000;
   user-select: none;
   animation: floatUpAndFade 2s ease-out forwards;
-
-  /* TAMBAHKAN PROPERTI INI UNTUK MEMBUAT HITAM */
-  color: #000000;
   filter: brightness(0); /* Memaksa warna emoji/teks menjadi hitam pekat */
+  /* 1. Warna teks dibuat terang (misal neon cyan/gold atau putih) */
+  color: #00f0ff; 
+  /* 2. Pendaran Cahaya (Glow Effect) */
+  text-shadow: 
+    0 0 5px #00f0ff,
+    0 0 5px #00f0ff,
+    0 0 10px rgba(0, 240, 255, 0.8),
+    0 0 15px rgba(0, 240, 255, 0.6);
+  /* 3. Drop-shadow tambahan khusus rendering font simbol/emoji */
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.9));
+  /* Tambahkan transisi/animasi melayang kamu seperti biasa */
 }
 
 @keyframes floatUpAndFade {
@@ -1688,6 +1696,22 @@ input, textarea {
     transform: translateY(-80px) scale(1) rotate(15deg);
   }
 }
+
+@keyframes floatUpNote {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.8) rotate(0deg);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(-40px) scale(1.2) rotate(-15deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(1) rotate(15deg);
+  }
+}
+
 /* --- SUB-FAB & CONTAINER SUB-MENU (ELEMENT POPUP) --- */
 .fab-container{
   position: fixed;
@@ -2005,6 +2029,10 @@ input, textarea {
   visibility: hidden;
   transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
   overflow: hidden; /* Mencegah overflow GPU canvas */
+  transform: translate3d(0, 0, 0); 
+  will-change: transform; 
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   
   /* PENTING: Isolasi blur pada kontainer utama (Render sekali, bukan per frame) */
   -webkit-backdrop-filter: none;
@@ -2060,7 +2088,7 @@ body.time-neon .book-container,
 body.time-neon .desk-content,
 body.time-neon .readable-text {
   filter: contrast(1.08) brightness(1.05);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); /* Membaca teks jadi super tajam */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Membaca teks jadi super tajam */
 }
 
 @keyframes lavaLampFlow {
@@ -2170,9 +2198,14 @@ body.time-midnight .midnight-shadow-overlay {
 }
 
 body.time-midnight .desk-container {
-  box-shadow: inset 0 0 120px rgba(2, 8, 20, 0.85);
+  box-shadow: inset 0 0 120px rgba(2, 8, 20, 0.85);  
 }
-
+body.time-midnight .book-container,
+body.time-midnight .desk-content,
+body.time-midnight .readable-text {
+  filter: contrast(1.08) brightness(1.05);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Membaca teks jadi super tajam */
+}
 /* -------------------------------------------------
    2. EFEK SORE (Golden Hour)
    ------------------------------------------------- */
@@ -2209,7 +2242,12 @@ body.time-sore .sunset-shadow-overlay {
 body.time-sore .desk-container {
   box-shadow: inset 0 0 100px rgba(80, 25, 0, 0.5);
 }
-
+body.time-sore .book-container,
+body.time-sore .desk-content,
+body.time-sore .readable-text {
+  filter: contrast(1.08) brightness(1.05);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Membaca teks jadi super tajam */
+}
 /* -------------------------------------------------
    3. EFEK MALAM (Spotlight / Lampu Meja)
    ------------------------------------------------- */
@@ -2227,7 +2265,12 @@ body.time-malam .nighttime-spotlight-overlay {
     rgba(0, 0, 0, 0.85) 100%
   );
 }
-
+body.time-malam .book-container,
+body.time-malam .desk-content,
+body.time-malam .readable-text {
+  filter: contrast(1.08) brightness(1.05);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3); /* Membaca teks jadi super tajam */
+}
 /* -------------------------------------------------
    4. EFEK PAGI/SIANG (Sunlight & Komorebi)
    ------------------------------------------------- */
@@ -2239,8 +2282,9 @@ body.time-pagi .daytime-sunlight-overlay {
 .daytime-sunlight-overlay {
   background-color: rgba(255, 230, 150, 0.06); 
   
+  /* Light intensity */
   background-image: 
-    radial-gradient(circle at 10% 10%, rgba(255, 240, 180, 0.45) 0%, rgba(255, 220, 130, 0.15) 60%, rgba(2, 1, 0, 0.1) 100%),
+    radial-gradient(circle at 10% 10%, rgba(255, 240, 180, 0.35) 0%, rgba(255, 220, 130, 0.15) 60%, rgba(2, 1, 0, 0.1) 100%),
     linear-gradient(135deg, rgba(255, 255, 220, 0.15) 0%, rgba(1, 2, 1, 0.2) 100%);
 }
 
@@ -2252,6 +2296,7 @@ body.time-pagi .daytime-sunlight-overlay {
   width: 160%;
   height: 160%;
   
+  /*Bayangan kusen*/
   background-image: 
     linear-gradient(to bottom, transparent 0% 45%, rgba(35, 40, 45, 0.45) 45% 51%, transparent 51% 100%),
     linear-gradient(to right, transparent 0% 46%, rgba(35, 40, 45, 0.45) 46% 51%, transparent 51% 100%);
@@ -2263,7 +2308,13 @@ body.time-pagi .daytime-sunlight-overlay {
 }
 
 body.time-pagi .desk-container {
-  box-shadow: inset 0 0 100px rgba(100, 80, 40, 0.25);
+box-shadow: inset 0 0 100px rgba(100, 80, 40, 0.25);
+}
+body.time-pagi .book-container,
+body.time-pagi .desk-content,
+body.time-pagi .readable-text {
+  filter: contrast(1.08) brightness(1.05);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3); /* Membaca teks jadi super tajam */
 }
 /* -------------------------------------------------
    === ANIMASI BEBAS FLICKER & NO-RESCALE ===
