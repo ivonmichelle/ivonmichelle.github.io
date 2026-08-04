@@ -2406,21 +2406,62 @@ function restoreAppState() {
       });
     }
 
-    // 4. RESTORE SETTINGS (PENGATURAN BACKGROUND, VISUAL & AUDIO)
+        // 4. RESTORE SETTINGS (PENGATURAN BACKGROUND, VISUAL & AUDIO)
     if (state.settings) {
       const s = state.settings;
 
-      // A. Tema Background & Warna Kustom (FIXED)
-      if (s.bgTheme && typeof changeBackground === 'function') {
-        changeBackground(s.bgTheme);
-      }
-      if (s.bgCustomColor && typeof changeBgCustomColor === 'function') {
-        changeBgCustomColor(s.bgCustomColor);
+      // A. Restore Background Meja (Urutan diperbaiki & disinkronkan ke LocalStorage)
+      if (s.bgTheme) {
+        localStorage.setItem('benivon_bg_theme', s.bgTheme);
+        // Hapus class lama & ganti class baru tanpa memicu reset warna jika ada custom color
+        document.body.className = document.body.className.replace(/\bbg-\S+/g, '').trim();
+        document.body.classList.add(`bg-${s.bgTheme}`);
+        
+        // Pasang warna dasar tema
+        if (typeof sharedTextures !== 'undefined' && sharedTextures[s.bgTheme]) {
+          document.body.style.backgroundColor = sharedTextures[s.bgTheme].color;
+          const picker = document.getElementById('bgCustomColorPicker');
+          if (picker) picker.value = sharedTextures[s.bgTheme].color;
+        }
       }
 
-      // B. Cover Buku
-      if (s.coverTheme && typeof changeBookCover === 'function') changeBookCover(s.coverTheme);
-      if (s.coverCustomColor && typeof changeCoverCustomColor === 'function') changeCoverCustomColor(s.coverCustomColor);
+      // Jika ada warna kustom background, override warna dasar tadi
+      if (s.bgCustomColor) {
+        localStorage.setItem('benivon_bg_custom_color', s.bgCustomColor);
+        document.body.style.backgroundColor = s.bgCustomColor;
+        const picker = document.getElementById('bgCustomColorPicker');
+        if (picker) picker.value = s.bgCustomColor;
+      }
+
+      // B. Restore Cover Buku (FIXED: Dipasang langsung tanpa terhapus oleh changeBookCover)
+      if (s.coverTheme) {
+        localStorage.setItem('benivon_selected_cover', s.coverTheme);
+        const coverEl = document.getElementById('bookCoverOverlay');
+        const selected = typeof sharedTextures !== 'undefined' ? sharedTextures[s.coverTheme] : null;
+
+        if (coverEl && selected) {
+          // 1. Terapkan warna bawaan & tekstur background cover
+          coverEl.style.backgroundColor = selected.color;
+          coverEl.style.backgroundImage = `
+            radial-gradient(circle at 14px 24px, #1c130a 0px, #2b1d0c 8px, rgba(0,0,0,0.18) 8px, transparent 8.5px),
+            url('${selected.texture}')
+          `;
+
+          const picker = document.getElementById('coverCustomColorPicker');
+          if (picker) picker.value = selected.color;
+        }
+      }
+
+      // 2. Jika ada warna kustom cover, override warnanya paling akhir
+      if (s.coverCustomColor) {
+        localStorage.setItem('benivon_custom_cover_color', s.coverCustomColor);
+        const coverEl = document.getElementById('bookCoverOverlay');
+        if (coverEl) {
+          coverEl.style.backgroundColor = s.coverCustomColor;
+        }
+        const picker = document.getElementById('coverCustomColorPicker');
+        if (picker) picker.value = s.coverCustomColor;
+      }
 
       // C. Pencahayaan (Lighting)
       if (typeof setLightingMode === 'function' && s.lightingMode) setLightingMode(s.lightingMode);
@@ -4045,12 +4086,10 @@ function loadSavedCover() {
     `;
   }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
-  loadSavedBackground(); 
-  loadSavedCover();      
+  loadSavedBackground();
+  loadSavedCover();
 });
-
   </script>
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
