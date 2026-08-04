@@ -1992,7 +1992,8 @@ input, textarea {
 .daytime-sunlight-overlay,
 .sunset-shadow-overlay,
 .midnight-shadow-overlay,
-.nighttime-spotlight-overlay {
+.nighttime-spotlight-overlay,
+.neon-spotlight-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -2008,6 +2009,128 @@ input, textarea {
   /* PENTING: Isolasi blur pada kontainer utama (Render sekali, bukan per frame) */
   -webkit-backdrop-filter: none;
   isolation: isolate; 
+}
+/* -------------------------------------------------
+   5. EFEK NEON MOODY (Magenta & Cyan Lava Lamp - High Visibility)
+   ------------------------------------------------- */
+body.time-neon .neon-spotlight-overlay {
+  opacity: 1; 
+  visibility: visible;
+}
+
+.neon-spotlight-overlay {
+  /* Transparansi dinaikkan agar meja & buku sangat jelas (dari 0.85 menjadi 0.25) */
+  background-color: rgba(10, 10, 20, 0.25);
+  
+  /* Gunakan warna neon yang kaya tetapi tingkat opacity radial diperhalus */
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(255, 0, 128, 0.28) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(0, 229, 255, 0.28) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(140, 0, 255, 0.12) 0%, transparent 80%);
+  
+  background-size: 180% 180%;
+  
+  /* KUNCI: Blend mode agar warna neon menyatu dengan tekstur meja/buku tanpa menutupinya */
+  mix-blend-mode: screen; 
+  
+  animation: lavaLampFlow 14s ease-in-out infinite alternate;
+}
+
+.neon-spotlight-overlay::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(circle at 60% 30%, rgba(0, 230, 255, 0.2) 0%, rgba(255, 0, 128, 0.18) 45%, transparent 70%);
+  filter: blur(40px);
+  animation: lavaSpotRotate 20s ease-in-out infinite alternate;
+}
+
+/* Vignette pinggiran meja dibuat transparan di tengah agar area baca/buku terang */
+body.time-neon .desk-container {
+  box-shadow: 
+    inset 0 0 90px rgba(255, 0, 128, 0.2), 
+    inset 0 0 45px rgba(0, 229, 255, 0.15);
+}
+
+/* Meningkatkan legibilitas teks dan kontras buku saat mode Neon aktif */
+body.time-neon .book-container,
+body.time-neon .desk-content,
+body.time-neon .readable-text {
+  filter: contrast(1.08) brightness(1.05);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); /* Membaca teks jadi super tajam */
+}
+
+@keyframes lavaLampFlow {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 100%; }
+}
+
+@keyframes lavaSpotRotate {
+  0% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(30px, -25px) scale(1.1); }
+  100% { transform: translate(-25px, 30px) scale(0.95); }
+}
+
+/* =========================================================
+   === DEBU / DUST PARTICLES OVERLAY & ANIMATION ===
+   ========================================================= */
+
+#dustParticlesContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 19500;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1.5s ease, visibility 1.5s ease;
+}
+
+/* Tampilkan saat aktif dan lighting tidak disable */
+body.dust-enabled:not(.lighting-disabled) #dustParticlesContainer {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dust-particle {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: floatDust 12s infinite linear;
+}
+
+@keyframes floatDust {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(var(--move-x, 40px), var(--move-y, -120px), 0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Direct Override jika Lighting Disabled */
+body.lighting-disabled .neon-spotlight-overlay,
+body.lighting-disabled #dustParticlesContainer {
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 
 /* -------------------------------------------------
