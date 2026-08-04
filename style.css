@@ -4,6 +4,9 @@
 * {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
 }
 
 button, 
@@ -19,7 +22,89 @@ div[onclick] {
   outline: none !important;
   box-shadow: none;
 }
+    /* --- CSS SYSTEM LOADING SCREEN & BLUR OVERLAY --- */
+    #appLoadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(28, 19, 10, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 999999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 1;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
 
+    #appLoadingOverlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading-card {
+      background: #fbf7ef;
+      border: 2px solid #5c3a21;
+      border-radius: 12px;
+      padding: 24px 28px;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 15px rgba(92,58,33,0.08);
+      font-family: 'Georgia', serif;
+      color: #3d2716;
+    }
+
+    .loading-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .loading-status-text {
+      font-size: 0.82rem;
+      color: #7a4f2d;
+      margin-bottom: 16px;
+      font-style: italic;
+      min-height: 18px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 12px;
+      background: #e3d8c8;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #b8a288;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #8c5b35, #28a745);
+      border-radius: 10px;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-percentage {
+      font-size: 0.78rem;
+      font-weight: bold;
+      color: #5c3a21;
+      margin-top: 8px;
+      display: block;
+    }
+
+    /* Blur Efek untuk Komponen Utama Saat Loading Pertama */
+    .desk-container.initial-blur {
+      filter: blur(10px) brightness(0.7);
+    }
+    
 /* Mencegah seleksi teks di seluruh area web/buku */
 .book-page, .book-content {
   -webkit-user-select: none; /* Safari/Chrome */
@@ -36,13 +121,6 @@ input, textarea {
   user-select: text;
 }    
 
-/* Reset & Base Styling */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     html, body {
       width: 100%;
       height: 100%;
@@ -57,8 +135,7 @@ input, textarea {
       background-repeat: repeat;
       display: flex;
       justify-content: center;
-     align-items: center;
-     overflow: hidden !important; 
+      align-items: center;
      }
 
     /* Container Utama Meja */
@@ -510,7 +587,6 @@ input, textarea {
 	  z-index: 20001 !important;
       cursor: pointer;
       box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.2) !important;
-      transform: translate(-50%, -50%) scale(3.2) rotate(0deg) !important;
       transition: transform 0.08s ease-out, box-shadow 0.08s ease-out !important;
       overflow: hidden; /* Biar glare tidak meluber keluar bingkai */
       touch-action: none !important;
@@ -522,14 +598,8 @@ input, textarea {
   --glare-x: 50%;
   --glare-y: 50%;
   --glare-opacity: 0;
-
-  /* Jarak perspektif diperdekat (600px) agar efek kedalaman 3D makin tajam & nyata */
   perspective: 600px !important;
-  
-  /* Ukuran jumbo scale(3.5) gabung dengan 3D tilt */
   transform: translate(-50%, -50%) scale(3.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
-
-  /* Dynamic 3D Box Shadow: Bayangan ikut jatuh ke arah berlawanan dari tilting */
   box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
 }
 
@@ -793,7 +863,36 @@ input, textarea {
       letter-spacing: 0.5px;
     }
 
-    /* --- INTRO AVATAR IVON & BUBBLE TEXT --- */
+/* --- INTRO DIALOG STYLING --- */
+/* Container kartu intro */
+.ivon-intro-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-height: 90vh; /* Batasi tinggi maksimum kartu agar tidak melampaui layar */
+  width: 90%;
+  max-width: 480px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Bubble Teks / Dialog */
+.ivon-speech-bubble {
+  max-height: 60vh;        /* Batasi tinggi bubble maksimal 50% dari tinggi layar */
+  overflow-y: auto;        /* Aktifkan scroll jika teks lebih panjang dari bubble */
+  padding: 16px;
+  padding-right: 10px;     /* Ruang untuk scrollbar */
+  margin-bottom: 15px;     /* Jarak antara bubble dan avatar */
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch; /* Biar smooth scroll di HP */
+}
+
+/* Scrollbar manis untuk speech bubble */
+.ivon-speech-bubble::-webkit-scrollbar {
+  width: 6px;
+}
+
     .ivon-intro-overlay {
       position: fixed;
       top: 0;
@@ -904,6 +1003,9 @@ input, textarea {
       object-fit: cover;
       background-color: #3d2716;
       animation: gentleBounce 2s infinite ease-in-out;
+      object-fit: contain;
+      flex-shrink: 0;          /* Biar gambar avatar TIDAK tertekan/gepeng saat bubble panjang */
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     @keyframes gentleBounce {
@@ -965,157 +1067,6 @@ input, textarea {
   display: block;
   filter: sepia(0.12) contrast(1.05);
 }
-/* --- JUKEBOX CONTAINER (UJUNG KIRI LAYAR) --- */
-.jukebox-container {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 21000;
-}
-
-.jukebox-btn {
-  background: rgba(43, 29, 12, 0.85) !important;
-  border: 2px solid #8b5a2b;
-  border-radius: 50%;
-  font-size: 1.3rem !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-/* Popover Jukebox (Container Utama) */
-.jukebox-menu {
-  display: none;
-  position: absolute;
-  bottom: 60px;
-  left: 0;
-  width: 230px;
-  max-height: 50vh; /* Batas tinggi maksimal popover */
-  background: rgba(25, 17, 9, 0.85);
-  border: 1px solid #8b5a2b;
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  
-  /* PENTING: Gunakan flexbox column dan matikan overflow di parent utama */
-  flex-direction: column;
-  overflow: hidden; 
-}
-
-.jukebox-menu.show {
-  display: flex;
-  animation: jukeboxSlideUp 0.25s ease-out;
-}
-
-@keyframes jukeboxSlideUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Header Tetap Diam di Atas (Fixed/Non-scrollable) */
-.jukebox-header {
-  color: #e2c08d;
-  font-size: 0.75rem;
-  font-weight: bold;
-  letter-spacing: 1.5px;
-  text-align: center;
-  border-bottom: 1px solid rgba(139, 90, 43, 0.4);
-  padding-bottom: 6px;
-  margin-bottom: 6px;
-  flex-shrink: 0; /* Mencegah header menyusut/tertekan */
-}
-
-/* CONTAINER KHUSUS LIST LAGU (HANYA INI YANG BISA DI-SCROLL) */
-.jukebox-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow-y: auto; /* Scrollbar hanya aktif di area ini */
-  flex-grow: 1;     /* Mengisi sisa ruang yang ada di menu */
-  padding-right: 2px; /* Memberi sedikit ruang untuk scrollbar */
-}
-
-/* Card Item Piringan Hitam */
-.vinyl-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.vinyl-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(226, 192, 141, 0.3);
-}
-
-.vinyl-item.active {
-  background: rgba(139, 90, 43, 0.35);
-  border-color: #e2c08d;
-}
-
-/* Gambar Visual Piringan Hitam / Vinyl Disc */
-.vinyl-disc {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #333 18%, #111 20%, #111 40%, #222 41%, #111 43%, #111 70%, #000 100%);
-  border: 1px solid #444;
-  position: relative;
-  flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-}
-
-/* Stiker Tengah Piringan Hitam */
-.vinyl-disc::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #c0392b; /* Warna stiker piringan */
-  border: 1.5px solid #000;
-}
-
-/* Animasi berputar jika lagu aktif */
-.vinyl-item.active .vinyl-disc {
-  animation: spinVinyl 3s linear infinite;
-}
-
-@keyframes spinVinyl {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Teks Judul Lagu */
-.vinyl-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Memastikan judul tepat di tengah vertikal */
-  overflow: hidden;
-}
-
-.vinyl-title {
-  color: #fff;
-  font-size: 0.82rem;
-  font-weight: bold;
-  white-space: normal;      /* Mengizinkan teks turun ke baris baru */
-  word-break: break-word;   /* Memutus kata yang panjang agar rapi */
-  line-height: 1.25;        /* Memberi spasi antar baris yang nyaman dibaca */
-}
-
-/* Hilangkan atau biarkan kosong style .vinyl-sub ini */
-
-.vinyl-sub {
-  color: #a89379;
-  font-size: 0.7rem;
-}
 
     .size-badge {
       font-size: 0.75rem;
@@ -1175,44 +1126,6 @@ input, textarea {
 
 .admin-delete-btn:active {
   transform: scale(0.95);
-}
-/* --- INTRO DIALOG STYLING --- */
-/* Container kartu intro */
-.ivon-intro-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  max-height: 90vh; /* Batasi tinggi maksimum kartu agar tidak melampaui layar */
-  width: 90%;
-  max-width: 480px;
-  position: relative;
-  box-sizing: border-box;
-}
-
-/* Bubble Teks / Dialog */
-.ivon-speech-bubble {
-  max-height: 60vh;        /* Batasi tinggi bubble maksimal 50% dari tinggi layar */
-  overflow-y: auto;        /* Aktifkan scroll jika teks lebih panjang dari bubble */
-  padding: 16px;
-  padding-right: 10px;     /* Ruang untuk scrollbar */
-  margin-bottom: 15px;     /* Jarak antara bubble dan avatar */
-  box-sizing: border-box;
-  -webkit-overflow-scrolling: touch; /* Biar smooth scroll di HP */
-}
-
-/* Ukuran & Tampilan Avatar */
-.ivon-avatar-img {
-  width: 110px;            /* Sesuaikan ukuran avatar agar pas */
-  height: 110px;
-  object-fit: contain;
-  flex-shrink: 0;          /* Biar gambar avatar TIDAK tertekan/gepeng saat bubble panjang */
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* Scrollbar manis untuk speech bubble */
-.ivon-speech-bubble::-webkit-scrollbar {
-  width: 6px;
 }
 
 /* --- WIKI CHARACTER STYLING --- */
@@ -1522,8 +1435,12 @@ input, textarea {
         height: 90px;
       }
       .tab-btn {
-        padding: 5px 10px 3px 10px;
-        font-size: 0.72rem;
+    flex: 1 1 calc(33.33% - 4px) !important;   
+    text-align: center;
+    font-size: 0.65rem !important; /* Ukuran teks disesuaikan */
+    padding: 4px 2px !important;    /* Padding rapat tapi tetap mudah di-klik */
+    border-radius: 6px 6px 0 0;
+    box-sizing: border-box;
       }
       .fab-container{
       position: fixed;
@@ -1564,17 +1481,6 @@ input, textarea {
   .book-tabs > *:nth-child(n+4) {
     flex: 0 0 calc(25% - 1px) !important;
     max-width: calc(25% - 1px) !important;
-  }
-
-  .tab-btn {
-    /* Lebar ~31% membuat 3 tab pas di baris pertama, dan 3 tab di baris kedua */
-    flex: 1 1 calc(33.33% - 4px) !important;
-    
-    text-align: center;
-    font-size: 0.65rem !important; /* Ukuran teks disesuaikan */
-    padding: 4px 2px !important;    /* Padding rapat tapi tetap mudah di-klik */
-    border-radius: 6px 6px 0 0;
-    box-sizing: border-box;
   }
 }
 
@@ -1853,19 +1759,159 @@ input, textarea {
   opacity: 0;
   pointer-events: none;
 }
+/* --- JUKEBOX CONTAINER (UJUNG KIRI LAYAR) --- */
+.jukebox-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 21000;
+}
 
-/* Styling Header Jukebox agar fleksibel menyamping */
+.jukebox-btn {
+  background: rgba(43, 29, 12, 0.85) !important;
+  border: 2px solid #8b5a2b;
+  border-radius: 50%;
+  font-size: 1.3rem !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Popover Jukebox (Container Utama) */
+.jukebox-menu {
+  display: none;
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  width: 230px;
+  max-height: 50vh; /* Batas tinggi maksimal popover */
+  background: rgba(25, 17, 9, 0.85);
+  border: 1px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  
+  /* PENTING: Gunakan flexbox column dan matikan overflow di parent utama */
+  flex-direction: column;
+  overflow: hidden; 
+}
+
+.jukebox-menu.show {
+  display: flex;
+  animation: jukeboxSlideUp 0.25s ease-out;
+}
+
+@keyframes jukeboxSlideUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Tetap Diam di Atas (Fixed/Non-scrollable) */
 .jukebox-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
   color: #e2c08d;
   font-size: 0.75rem;
   font-weight: bold;
   letter-spacing: 1px;
+  text-align: center;
   border-bottom: 1px solid rgba(139, 90, 43, 0.4);
   padding-bottom: 6px;
   margin-bottom: 6px;
+  flex-shrink: 0; /* Mencegah header menyusut/tertekan */
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* CONTAINER KHUSUS LIST LAGU (HANYA INI YANG BISA DI-SCROLL) */
+.jukebox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto; /* Scrollbar hanya aktif di area ini */
+  flex-grow: 1;     /* Mengisi sisa ruang yang ada di menu */
+  padding-right: 2px; /* Memberi sedikit ruang untuk scrollbar */
+}
+
+/* Card Item Piringan Hitam */
+.vinyl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.vinyl-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(226, 192, 141, 0.3);
+}
+
+.vinyl-item.active {
+  background: rgba(139, 90, 43, 0.35);
+  border-color: #e2c08d;
+}
+
+/* Gambar Visual Piringan Hitam / Vinyl Disc */
+.vinyl-disc {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #333 18%, #111 20%, #111 40%, #222 41%, #111 43%, #111 70%, #000 100%);
+  border: 1px solid #444;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* Stiker Tengah Piringan Hitam */
+.vinyl-disc::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #c0392b; /* Warna stiker piringan */
+  border: 1.5px solid #000;
+}
+
+/* Animasi berputar jika lagu aktif */
+.vinyl-item.active .vinyl-disc {
+  animation: spinVinyl 3s linear infinite;
+}
+
+@keyframes spinVinyl {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Teks Judul Lagu */
+.vinyl-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Memastikan judul tepat di tengah vertikal */
+  overflow: hidden;
+}
+
+.vinyl-title {
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: bold;
+  white-space: normal;      /* Mengizinkan teks turun ke baris baru */
+  word-break: break-word;   /* Memutus kata yang panjang agar rapi */
+  line-height: 1.25;        /* Memberi spasi antar baris yang nyaman dibaca */
+}
+
+/* Hilangkan atau biarkan kosong style .vinyl-sub ini */
+
+.vinyl-sub {
+  color: #a89379;
+  font-size: 0.7rem;
 }
 
 /* Tombol Mode Play All / Repeat */
@@ -1955,7 +2001,8 @@ input, textarea {
   pointer-events: none;
   z-index: 19000;
   opacity: 0;
-  transition: opacity 1.5s ease-in-out;
+  visibility: hidden;
+  transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
   overflow: hidden; /* Mencegah overflow GPU canvas */
   
   /* PENTING: Isolasi blur pada kontainer utama (Render sekali, bukan per frame) */
@@ -1966,13 +2013,16 @@ input, textarea {
 /* -------------------------------------------------
    1. EFEK MIDNIGHT (Cahaya Bulan Kebiruan)
    ------------------------------------------------- */
-body.time-midnight .midnight-shadow-overlay { opacity: 1; }
+body.time-midnight .midnight-shadow-overlay {
+  opacity: 1; 
+  visibility: visible;
+}
 
 .midnight-shadow-overlay {
   background-color: rgba(10, 18, 35, 0.45);
   background-image: 
-    radial-gradient(circle at 10% 10%, rgba(160, 200, 255, 0.28) 0%, rgba(30, 60, 110, 0.15) 60%, rgba(2, 6, 18, 0.6) 100%),
-    linear-gradient(135deg, rgba(180, 215, 255, 0.1) 0%, rgba(5, 10, 25, 0.5) 100%);
+  radial-gradient(circle at 10% 10%, rgba(160, 200, 255, 0.28) 0%, rgba(30, 60, 110, 0.15) 60%, rgba(2, 6, 18, 0.6) 100%),
+  linear-gradient(135deg, rgba(180, 215, 255, 0.1) 0%, rgba(5, 10, 25, 0.5) 100%);
 }
 
 .midnight-shadow-overlay::after {
@@ -2003,7 +2053,10 @@ body.time-midnight .desk-container {
 /* -------------------------------------------------
    2. EFEK SORE (Golden Hour)
    ------------------------------------------------- */
-body.time-sore .sunset-shadow-overlay { opacity: 1; }
+body.time-sore .sunset-shadow-overlay {
+	  opacity: 1; 
+  visibility: visible;
+}
 
 .sunset-shadow-overlay {
   background-color: rgba(255, 120, 30, 0.08);
@@ -2037,7 +2090,10 @@ body.time-sore .desk-container {
 /* -------------------------------------------------
    3. EFEK MALAM (Spotlight / Lampu Meja)
    ------------------------------------------------- */
-body.time-malam .nighttime-spotlight-overlay { opacity: 1; }
+body.time-malam .nighttime-spotlight-overlay {
+	  opacity: 1; 
+  visibility: visible;
+}
 
 .nighttime-spotlight-overlay {
   background-image: radial-gradient(
@@ -2054,6 +2110,7 @@ body.time-malam .nighttime-spotlight-overlay { opacity: 1; }
    ------------------------------------------------- */
 body.time-pagi .daytime-sunlight-overlay { 
   opacity: 1; 
+  visibility: visible;
 }
 
 .daytime-sunlight-overlay {
@@ -2112,7 +2169,8 @@ body.lighting-disabled .daytime-sunlight-overlay,
 body.lighting-disabled .sunset-shadow-overlay,
 body.lighting-disabled .midnight-shadow-overlay,
 body.lighting-disabled .nighttime-spotlight-overlay {
-  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 
 #btnFabElement.disabled-state {
