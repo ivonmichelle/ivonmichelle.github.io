@@ -238,7 +238,7 @@
 <div class="fab-wrapper">
   <div class="fab-sub-menu" id="fabPhotoSubMenu">
     <button class="fab-btn" id="btnLighting" onclick="toggleLightingEffect()" title="Matikan/Hidupkan Efek Cahaya">💡</button>
-    <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshPolaroidsOnly()" title="Refresh Foto Polaroid">🔄</button>
+    <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshContent()" title="Refresh Foto Polaroid">🔄</button>
     <button class="fab-btn" id="btnScatterStickers" onclick="scatterRandomStickers()" title="Sebar Stiker ke Webpage">🏷️</button>
     <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">🎴</button>
   </div>
@@ -551,6 +551,17 @@
     let topZIndex = 18500;
     window.topZIndex = 18500;
     let activeZoomedEl = null;
+
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return String(text ?? '').replace(/[&<>"']/g, m => map[m]);
+}
 
     // --- LOGIKA ALL-IN-ONE BACKGROUND PRELOADER ---
     function updateLoadingProgress(percent, statusMsg) {
@@ -2638,15 +2649,6 @@ function restoreAppState() {
       }
     }
 
-    function escapeHtml(text) {
-      return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
     function refreshPolaroidsOnly() {
       const refreshBtn = document.getElementById('btnRefreshPhotos');
       
@@ -2893,11 +2895,27 @@ async function loadJukeboxTracks() {
   }
 }
 
-function escapeHtml(text) {
-  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-  return text.replace(/[&<>"']/g, m => map[m]);
-}
+async function refreshContent() {
+      const refreshBtn = document.getElementById('btnRefreshPhotos');
+      
+      refreshBtn.classList.add('spin-icon');
+      setTimeout(() => { refreshBtn.classList.remove('spin-icon'); }, 500);
 
+      if (typeof closeZoomedPolaroid === 'function') {
+        closeZoomedPolaroid();
+      }
+
+      randomizePolaroids();
+      loadNovel();
+      loadSol();
+      fetchWikiData();
+      loadIllustrations();
+      loadAlbumPolaroids();
+      loadAlbumStickers();
+      loadJukeboxTracks();
+      fetchComments();
+      }
+     
     function getImageSizeKB(src) {
       return new Promise((resolve) => {
         if (!src) return resolve(null);
@@ -3718,6 +3736,7 @@ async function saveToDrive() {
     return false;
   }
 }
+
 // =========================================================
 // 1. Export: Mengunduh Lokal JSON + Upload Overwrite ke Google Drive
 // =========================================================
@@ -3846,14 +3865,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 let isDirty = false;
 let autoSaveInterval = null;
-
-// 1. Tandai ada perubahan data yang belum diunggah ke Drive
 function markAsDirty() {
   isDirty = true;
 }
-
-// 2. Interseptor saveAppState:
-// Langsung update LocalStorage seketika (Instant Local Save)
 const originalSaveAppState = saveAppState;
 saveAppState = function() {
   if (typeof originalSaveAppState === 'function') {
@@ -3862,7 +3876,6 @@ saveAppState = function() {
   markAsDirty(); // Tandai bahwa Drive belum ter-update dengan state B
 };
 
-// 3. Auto-Sync ke Drive tiap 15 Detik jika ada perubahan (Dirty Check)
 // Ini menjamin State B sudah terunggah KE DRIVE BAHKAN SEBELUM tab sempat ditutup!
 if (autoSaveInterval) clearInterval(autoSaveInterval);
 autoSaveInterval = setInterval(async () => {
@@ -3874,7 +3887,7 @@ autoSaveInterval = setInterval(async () => {
       console.log('✅ [AutoSync Drive] State B sukses tersimpan di Drive!');
     }
   }
-}, 15000); // Cek & upload tiap 15 detik (aman & tidak membebani kuota GAS)
+}, 60000); // Cek & upload tiap 15 detik (aman & tidak membebani kuota GAS)
 
 // 4. Upaya Terakhir saat Pindah Tab / Minimize / Close
 document.addEventListener('visibilitychange', function() {
