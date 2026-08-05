@@ -1412,22 +1412,18 @@ input, textarea {
     aspect-ratio: 1 / 1 !important;
     object-fit: cover !important;
   }
-  .polaroid.zoomed {
-    /* 1. Paksa lepas dari container & lepas ke layar layar penuh HP */
+    .polaroid.zoomed {
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
 
-    /* 2. Ubah ukuran fisik dasar saat zoomed agar tidak bergantung pada 80px */
-    width: 220px !important; 
-    height: 260px !important;
-    padding: 10px 10px 24px 10px !important;
+    /* Lebar foto otomatis 72% dari lebar layar HP (aman gak akan offscreen) */
+    width: 72vw !important; 
+    height: auto !important;
+    padding: 8px 8px 18px 8px !important;
 
-    /* 3. Turunkan scale-nya karena ukuran dasar sudah kita perbesar ke 220px */
-    transform: translate(-50%, -50%) translateZ(0) scale(1.3) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important; 
-    
-    /* 4. Naikkan font caption saat zoomed di HP agar terbaca jelas */
-    font-size: 18px !important;
+    /* Matikan scale-nya, biarkan width 72vw yang mengatur kepastian ukurannya */
+    transform: translate(-50%, -50%) translateZ(0) scale(1) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important; 
   }
   .polaroid-caption {
     font-size: 11px !important;
