@@ -1399,23 +1399,31 @@ input, textarea {
 
 /* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
-  .polaroid {
+  .polaroid:not(.zoomed) {
     width: 80px !important;
-    height: 98px !important; /* Disesuaikan agar rasio tinggi-lebar tetap mirip desktop */
+    height: 98px !important;
     padding: 4px !important;
   }
-  .polaroid img {
+
+  .polaroid:not(.zoomed) img {
     width: 100% !important;
-    height: auto !important; /* Mengikuti aspect-ratio secara alami */
+    height: auto !important;
     aspect-ratio: 1 / 1 !important;
   }
-  .polaroid-caption {
-    font-size: 11px !important; /* Ukuran font dikecilkan agar pas di lebar 80px */
+
+  .polaroid:not(.zoomed) .polaroid-caption {
+    font-size: 11px !important;
     margin-bottom: 2px !important;
-  }  
+  }
+
+  /* Polaroid saat di-zoom */
   .polaroid.zoomed {
+    width: 140px !important;
+    height: 160px !important;
+    padding: 7px 7px 17px 7px !important;
+
     transform: translate(-50%, -50%) translateZ(0)
-               scale(4.8)
+               scale(3.5)
                rotateX(var(--rx)) rotateY(var(--ry)) !important;
   }
       .ivon-intro-card {
