@@ -585,53 +585,7 @@ input, textarea {
     .font-slider-container input[type=range]::-webkit-slider-thumb:hover {
       transform: scale(1.2);
     }
-
-    /* Styling Polaroid */
-
-    .polaroid:active {
-      cursor: grabbing;
-    }
     
-.polaroid.zoomed {
-  z-index: 20001 !important;
-  cursor: pointer;
-  touch-action: none !important;
-
-  /* 1. Aktifkan Hardware Acceleration GPU */
-  will-change: transform, box-shadow;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-
-  /* 2. Properti Variabel CSS */
-  --rx: 0deg;
-  --ry: 0deg;
-  --bx: 0px;
-  --by: 20px;
-  --glare-x: 50%;
-  --glare-y: 50%;
-  --glare-opacity: 0;
-
-  perspective: 600px !important;
-  
-  /* Masukkan translateZ(0) untuk memaksa pemisahan GPU layer secara independen */
-  transform: translate(-50%, -50%) translateZ(0) scale(2.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
-
-  /* Pakai satu deklarasi box-shadow saja (gabungkan ke var) */
-  box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
-  
-  /* Transisi ultra cepat untuk respon mouse bergerak */
-  transition: transform 0.05s ease-out, box-shadow 0.05s ease-out !important;
-}
-
-/* Efek Kilatan Cahaya Dinamis (Dynamic Glare/Shine) */
-.polaroid.zoomed::after {
-  z-index: 20001 !important;
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: inherit;
-
   /* Hapus overflow: hidden dari parent, batasi lewat clip-path jika perlu */
   clip-path: inset(0 round 2px); 
   
@@ -1445,13 +1399,22 @@ input, textarea {
 
 /* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
-	.polaroid {
-        width: 80px !important;
-        padding: 5px 5px 10px 5px !important;
-      }
-      .polaroid img {
-        height: 70px !important;
-      }
+	  .polaroid {
+    width: 80px !important;
+    height: 98px !important; /* Disesuaikan agar rasio tinggi-lebar tetap mirip desktop */
+    padding: 4px !important;
+  }
+
+  .polaroid img {
+    width: 100% !important;
+    height: auto !important; /* Mengikuti aspect-ratio secara alami */
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  .polaroid-caption {
+    font-size: 11px !important; /* Ukuran font dikecilkan agar pas di lebar 80px */
+    margin-bottom: 2px !important;
+  }
       .ivon-intro-card {
         width: 90%;
       }
@@ -1811,7 +1774,7 @@ input, textarea {
 }
     .polaroid img {
       width: 100%;
-      height: auto%;
+      height: auto;
       aspect-ratio: 1 / 1;
       object-fit: cover;
       display: block;
@@ -1828,6 +1791,50 @@ input, textarea {
   text-align: center;
   line-height: 1;
 }
+
+    .polaroid:active {
+      cursor: grabbing;
+    }
+    
+.polaroid.zoomed {
+  z-index: 20001 !important;
+  cursor: pointer;
+  touch-action: none !important;
+
+  /* 1. Aktifkan Hardware Acceleration GPU */
+  will-change: transform, box-shadow;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  /* 2. Properti Variabel CSS */
+  --rx: 0deg;
+  --ry: 0deg;
+  --bx: 0px;
+  --by: 20px;
+  --glare-x: 50%;
+  --glare-y: 50%;
+  --glare-opacity: 0;
+
+  perspective: 600px !important;
+  
+  /* Masukkan translateZ(0) untuk memaksa pemisahan GPU layer secara independen */
+  transform: translate(-50%, -50%) translateZ(0) scale(2.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
+
+  /* Pakai satu deklarasi box-shadow saja (gabungkan ke var) */
+  box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
+  
+  /* Transisi ultra cepat untuk respon mouse bergerak */
+  transition: transform 0.05s ease-out, box-shadow 0.05s ease-out !important;
+}
+
+/* Efek Kilatan Cahaya Dinamis (Dynamic Glare/Shine) */
+.polaroid.zoomed::after {
+  z-index: 20001 !important;
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
 
 .polaroid.hide-in-book {
   top: 52%;
