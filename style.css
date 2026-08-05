@@ -1417,6 +1417,9 @@ input, textarea {
     font-size: 11px !important;
     margin-bottom: 2px !important;
   }
+  .polaroid.zoomed {
+  	transform: translate(-50%, -50%) translateZ(0) scale(3.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
+  }
       .ivon-intro-card {
         width: 90%;
       }
