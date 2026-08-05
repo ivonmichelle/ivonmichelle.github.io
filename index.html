@@ -116,6 +116,16 @@
     <div class="nighttime-spotlight-overlay" id="nighttimeOverlay"></div>
     <div class="neon-spotlight-overlay" id="neonOverlay"></div>
     
+    <div class="shadow-overlay-layer">
+  <div class="window-shadow-overlay"></div>
+  <div class="net-shadow-overlay"></div>
+  <div class="leaf-shadow-overlay"></div>
+  <div class="branch-shadow-overlay"></div>
+  <div class="curtain-shadow-overlay"></div>
+  <div class="perspective-shadow-overlay"></div>
+  <div class="arch-shadow-overlay"></div>
+</div>
+    
         <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
     
     <div class="shadow-overlay-layer" id="shadowOverlayLayer"></div>
@@ -134,7 +144,7 @@
     <div class="book-container">
     <div class="kawat-shadow"></div>
     <div class="book-page">
-        <!-- ========================================= -->
+    <!-- ========================================= -->
     <!-- ELEMEN COVER BUKU BARU (Tambahkan Ini) -->
     <!-- ========================================= -->
     <div class="book-cover-overlay active" id="bookCoverOverlay" onclick="openBookView()" style="background-color: #4f3815;">
@@ -187,9 +197,9 @@
 <!-- Elemen Disclaimer khusus agar tidak mengganggu bookContent -->
 <div id="disclaimerContent" style="display: none; height: 100%; overflow-y: auto;">
   <div class="disclaimer-page" style="padding: 10px 5px; color: #4a3b32;">
-    <div style="text-align: center; margin-bottom: 14px; border-bottom: 1px dashed rgba(92, 58, 33, 0.3); padding-bottom: 8px;">
+<div style="position: sticky; top: 0; background-color: #fff; z-index: 10; text-align: center; margin-bottom: 14px; border-bottom: 1px dashed rgba(92, 58, 33, 0.3); padding-bottom: 8px;">
       <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600; color: #5c3a21;">📜 Disclaimer & Hak Cipta</h3>
-      <span style="font-size: 0.7rem; opacity: 0.7;">Informasi Legal & Hak Kekayaan Intelektual</span>
+      <span style="font-size: 0.7rem; opacity: 0.7;">Informasi Legal & Hak Kekayaan Intelektual<br><em>(WebNovel v2.0)</em></span>
     </div>
 
     <div style="font-size: 0.82rem; line-height: 1.6; text-align: justify; padding-bottom: 20px;">
@@ -335,6 +345,44 @@
       </div>
 
       <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
+
+      <!-- SEKSI BARU: KUSTOMISASI JUDUL COVER BUKU -->
+      <div class="settings-section">
+        <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 10px;">
+          📖 Kustomisasi Judul Cover Buku
+        </label>
+
+        <!-- 1. Posisi Title Box -->
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 0.78rem; font-weight: 600; color: #5c3a21; display: block; margin-bottom: 6px;">Posisi Judul:</label>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="nav-btn title-pos-btn" style="flex: 1; padding: 6px 4px; font-size: 0.75rem; background: #5c3a21; color: #fff;" onclick="setCoverTitlePosition('center')">Tengah (Default)</button>
+            <button type="button" class="nav-btn title-pos-btn" style="flex: 1; padding: 6px 4px; font-size: 0.75rem; background: #8c532b; color: #fff;" onclick="setCoverTitlePosition('top')">Atas</button>
+          </div>
+        </div>
+
+        <!-- 2. Warna Huruf Judul -->
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 0.78rem; font-weight: 600; color: #5c3a21; display: block; margin-bottom: 6px;">Warna Tulisan:</label>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="nav-btn" style="flex: 1; padding: 6px 2px; font-size: 0.75rem; background: #bf953f; color: #fff;" onclick="setCoverTitleColor('gold')">Gold</button>
+            <button type="button" class="nav-btn" style="flex: 1; padding: 6px 2px; font-size: 0.75rem; background: #a8a8a8; color: #333;" onclick="setCoverTitleColor('silver')">Silver</button>
+            <button type="button" class="nav-btn" style="flex: 1; padding: 6px 2px; font-size: 0.75rem; background: #222; color: #fff;" onclick="setCoverTitleColor('dark-metallic')">Hitam Metalik</button>
+          </div>
+        </div>
+
+        <!-- 3. Fitur Emboss -->
+        <div>
+          <label style="font-size: 0.78rem; font-weight: 600; color: #5c3a21; display: block; margin-bottom: 6px;">Efek Emboss:</label>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="nav-btn" style="flex: 1; padding: 6px 4px; font-size: 0.75rem; background: #5c3a21; color: #fff;" onclick="toggleCoverTitleEmboss(true)">ON</button>
+            <button type="button" class="nav-btn" style="flex: 1; padding: 6px 4px; font-size: 0.75rem; background: #8c532b; color: #fff;" onclick="toggleCoverTitleEmboss(false)">OFF</button>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
+
 
 <div>
         <label style="font-weight: bold; color: #5c3a21; margin-bottom: 8px; display: block;">Suara Suasana (Ambient):</label>
@@ -2498,8 +2546,47 @@ async function preloadAllDataInBackground() {
     });
   });
 }
+
+// Function untuk Mengatur Posisi Title Box
+function setCoverTitlePosition(pos) {
+  const titleBox = document.querySelector('.cover-title-box');
+  if (!titleBox) return;
+
+  titleBox.classList.remove('pos-top', 'pos-center');
+  titleBox.classList.add(`pos-${pos}`);
+
+  if (typeof saveAppState === 'function') saveAppState();
+}
+
+// Function untuk Mengatur Warna Judul (Gold, Silver, Hitam Metalik)
+function setCoverTitleColor(color) {
+  const mainTitle = document.querySelector('.cover-main-title');
+  if (!mainTitle) return;
+
+  mainTitle.classList.remove('color-gold', 'color-silver', 'color-dark-metallic');
+  mainTitle.classList.add(`color-${color}`);
+
+  if (typeof saveAppState === 'function') saveAppState();
+}
+
+// Function untuk Mengaktifkan/Mematikan Emboss
+function toggleCoverTitleEmboss(enable) {
+  const mainTitle = document.querySelector('.cover-main-title');
+  if (!mainTitle) return;
+
+  if (enable) {
+    mainTitle.classList.remove('emboss-off');
+    mainTitle.classList.add('emboss-on');
+  } else {
+    mainTitle.classList.remove('emboss-on');
+    mainTitle.classList.add('emboss-off');
+  }
+
+  if (typeof saveAppState === 'function') saveAppState();
+}
+
 // =========================================================
-// SYSTEM STATE MANAGER (SAVED & RESTORED FULLY FIXED)
+// SYSTEM STATE MANAGER (SAVED & RESTORED - UPDATED)
 // =========================================================
 function saveAppState() {
   // 1. DATA POLAROID MEJA
@@ -2540,7 +2627,7 @@ function saveAppState() {
     };
   }).filter(Boolean);
 
-  // 3. DATA STIKER MEJA (PERBAIKAN LENGKAP: Simpan Transform & Skala)
+  // 3. DATA STIKER MEJA
   const stickerData = Array.from(document.querySelectorAll('.floating-sticker')).map((el, index) => {
     return {
       id: el.id || `sticker_${index}`,
@@ -2565,9 +2652,40 @@ function saveAppState() {
     if (match) currentActiveTab = match[1];
   }
 
-  // DETEKSI WARNA & TEKSTUR BACKGROUND LANGSUNG DARI DOM / VARIABLE GLOBAL
+  // DETEKSI WARNA & TEKSTUR BACKGROUND
   const activeBgTheme = (typeof currentBgTheme !== 'undefined' ? currentBgTheme : null) || localStorage.getItem('benivon_bg_theme') || 'retina-wood';
   const activeBgColor = (typeof currentBgCustomColor !== 'undefined' ? currentBgCustomColor : null) || localStorage.getItem('benivon_bg_custom_color') || null;
+
+  // DETEKSI KUSTOMISASI JUDUL COVER BUKU
+  const coverTitleBox = document.querySelector('.cover-title-box');
+  const coverMainTitle = document.querySelector('.cover-main-title');
+
+  let coverTitlePosition = 'center';
+  if (coverTitleBox && coverTitleBox.classList.contains('pos-top')) {
+    coverTitlePosition = 'top';
+  } else {
+    coverTitlePosition = localStorage.getItem('benivon_cover_title_pos') || 'center';
+  }
+
+  let coverTitleColor = 'gold';
+  if (coverMainTitle) {
+    if (coverMainTitle.classList.contains('color-silver')) coverTitleColor = 'silver';
+    else if (coverMainTitle.classList.contains('color-dark-metallic')) coverTitleColor = 'dark-metallic';
+    else if (coverMainTitle.classList.contains('color-gold')) coverTitleColor = 'gold';
+    else coverTitleColor = localStorage.getItem('benivon_cover_title_color') || 'gold';
+  }
+
+  let coverTitleEmboss = true;
+  if (coverMainTitle) {
+    if (coverMainTitle.classList.contains('emboss-off')) coverTitleEmboss = false;
+    else if (coverMainTitle.classList.contains('emboss-on')) coverTitleEmboss = true;
+    else coverTitleEmboss = localStorage.getItem('benivon_cover_title_emboss') !== 'false';
+  }
+
+  // Simpan ke localStorage sebagai sinkronisasi cadangan
+  localStorage.setItem('benivon_cover_title_pos', coverTitlePosition);
+  localStorage.setItem('benivon_cover_title_color', coverTitleColor);
+  localStorage.setItem('benivon_cover_title_emboss', coverTitleEmboss);
 
   // 5. BUNGKUS SELURUH STATE APLIKASI
   const state = {
@@ -2586,7 +2704,11 @@ function saveAppState() {
       coverTheme: localStorage.getItem('benivon_selected_cover') || 'argyle',
       coverCustomColor: localStorage.getItem('benivon_custom_cover_color') || null,
       
-      // === TAMBAHKAN DUA BARIS INI ===
+      // === KUSTOMISASI COVER TITLE ===
+      coverTitlePosition: coverTitlePosition,
+      coverTitleColor: coverTitleColor,
+      coverTitleEmboss: coverTitleEmboss,
+
       floatingNoteColor: localStorage.getItem('floatingNoteColor') || 
                          getComputedStyle(document.documentElement).getPropertyValue('--note-color').trim() || '#00f0ff',
 
@@ -2658,7 +2780,7 @@ function restoreAppState() {
       });
     }
 
-    // 3. RESTORE STIKER FLOATING (FIXED: Terapkan Dataset & Transform)
+    // 3. RESTORE STIKER FLOATING
     if (state.stickers && Array.isArray(state.stickers)) {
       document.querySelectorAll('.floating-sticker').forEach(s => s.remove());
       state.stickers.forEach(stk => {
@@ -2668,7 +2790,6 @@ function restoreAppState() {
         sticker.classList.add('floating-sticker');
         sticker.style.width = '120px';
         
-        // Pulihkan posisi CSS & Dataset
         if (stk.left) sticker.style.left = stk.left;
         if (stk.top) sticker.style.top = stk.top;
         sticker.dataset.x = stk.x || 0;
@@ -2676,7 +2797,6 @@ function restoreAppState() {
         sticker.dataset.rotate = stk.rotate || 0;
         sticker.dataset.scale = stk.scale || 1;
 
-        // Re-apply Transformasi
         sticker.style.transform = `translate(${stk.x || 0}px, ${stk.y || 0}px) rotate(${stk.rotate || 0}deg) scale(${stk.scale || 1})`;
 
         document.body.appendChild(sticker);
@@ -2686,18 +2806,16 @@ function restoreAppState() {
       });
     }
 
-        // 4. RESTORE SETTINGS (PENGATURAN BACKGROUND, VISUAL & AUDIO)
+    // 4. RESTORE SETTINGS (BACKGROUND, COVER, VISUAL & AUDIO)
     if (state.settings) {
       const s = state.settings;
 
-      // A. Restore Background Meja (Urutan diperbaiki & disinkronkan ke LocalStorage)
+      // A. Restore Background Meja
       if (s.bgTheme) {
         localStorage.setItem('benivon_bg_theme', s.bgTheme);
-        // Hapus class lama & ganti class baru tanpa memicu reset warna jika ada custom color
         document.body.className = document.body.className.replace(/\bbg-\S+/g, '').trim();
         document.body.classList.add(`bg-${s.bgTheme}`);
         
-        // Pasang warna dasar tema
         if (typeof sharedTextures !== 'undefined' && sharedTextures[s.bgTheme]) {
           document.body.style.backgroundColor = sharedTextures[s.bgTheme].color;
           const picker = document.getElementById('bgCustomColorPicker');
@@ -2705,7 +2823,6 @@ function restoreAppState() {
         }
       }
 
-      // Jika ada warna kustom background, override warna dasar tadi
       if (s.bgCustomColor) {
         localStorage.setItem('benivon_bg_custom_color', s.bgCustomColor);
         document.body.style.backgroundColor = s.bgCustomColor;
@@ -2713,14 +2830,13 @@ function restoreAppState() {
         if (picker) picker.value = s.bgCustomColor;
       }
 
-      // B. Restore Cover Buku (FIXED: Dipasang langsung tanpa terhapus oleh changeBookCover)
+      // B. Restore Cover Buku
       if (s.coverTheme) {
         localStorage.setItem('benivon_selected_cover', s.coverTheme);
         const coverEl = document.getElementById('bookCoverOverlay');
         const selected = typeof sharedTextures !== 'undefined' ? sharedTextures[s.coverTheme] : null;
 
         if (coverEl && selected) {
-          // 1. Terapkan warna bawaan & tekstur background cover
           coverEl.style.backgroundColor = selected.color;
           coverEl.style.backgroundImage = `
             radial-gradient(circle at 14px 24px, #1c130a 0px, #2b1d0c 8px, rgba(0,0,0,0.18) 8px, transparent 8.5px),
@@ -2732,7 +2848,6 @@ function restoreAppState() {
         }
       }
 
-      // 2. Jika ada warna kustom cover, override warnanya paling akhir
       if (s.coverCustomColor) {
         localStorage.setItem('benivon_custom_cover_color', s.coverCustomColor);
         const coverEl = document.getElementById('bookCoverOverlay');
@@ -2743,6 +2858,41 @@ function restoreAppState() {
         if (picker) picker.value = s.coverCustomColor;
       }
 
+      // C. Restore Kustomisasi Title Cover Buku (Posisi, Warna, & Emboss)
+      const titlePos = s.coverTitlePosition || localStorage.getItem('benivon_cover_title_pos') || 'center';
+      if (typeof setCoverTitlePosition === 'function') {
+        setCoverTitlePosition(titlePos);
+      } else {
+        const titleBox = document.querySelector('.cover-title-box');
+        if (titleBox) {
+          titleBox.classList.remove('pos-center', 'pos-top');
+          titleBox.classList.add(`pos-${titlePos}`);
+        }
+      }
+
+      const titleColor = s.coverTitleColor || localStorage.getItem('benivon_cover_title_color') || 'gold';
+      if (typeof setCoverTitleColor === 'function') {
+        setCoverTitleColor(titleColor);
+      } else {
+        const mainTitle = document.querySelector('.cover-main-title');
+        if (mainTitle) {
+          mainTitle.classList.remove('color-gold', 'color-silver', 'color-dark-metallic');
+          mainTitle.classList.add(`color-${titleColor}`);
+        }
+      }
+
+      const titleEmboss = s.coverTitleEmboss !== undefined ? s.coverTitleEmboss : (localStorage.getItem('benivon_cover_title_emboss') !== 'false');
+      if (typeof toggleCoverTitleEmboss === 'function') {
+        toggleCoverTitleEmboss(titleEmboss);
+      } else {
+        const mainTitle = document.querySelector('.cover-main-title');
+        if (mainTitle) {
+          mainTitle.classList.remove('emboss-on', 'emboss-off');
+          mainTitle.classList.add(titleEmboss ? 'emboss-on' : 'emboss-off');
+        }
+      }
+
+      // D. Floating Note Color
       if (s.floatingNoteColor) {
         if (typeof changeFloatingNoteColor === 'function') {
           changeFloatingNoteColor(s.floatingNoteColor);
@@ -2750,26 +2900,24 @@ function restoreAppState() {
           localStorage.setItem('floatingNoteColor', s.floatingNoteColor);
           document.documentElement.style.setProperty('--note-color', s.floatingNoteColor);
           
-          // Fallback manual jika hexToRgba atau changeFloatingNoteColor belum siap
           if (typeof hexToRgba === 'function') {
             document.documentElement.style.setProperty('--note-glow-color', hexToRgba(s.floatingNoteColor, 0.8));
             document.documentElement.style.setProperty('--note-glow-subtle', hexToRgba(s.floatingNoteColor, 0.6));
           }
         }
 
-        // Sinkronkan ke input color picker di modal jika elemen ada
         const notePicker = document.getElementById('floatingNoteColorPicker');
         if (notePicker) notePicker.value = s.floatingNoteColor;
       }
 
-      // C. Pencahayaan & Bayangan (Lighting & Shadow)
+      // E. Pencahayaan & Bayangan
       if (s.shadowType && typeof setShadowType === 'function') {
         setShadowType(s.shadowType);
       }
       if (typeof setLightingMode === 'function' && s.lightingMode) setLightingMode(s.lightingMode);
       if (typeof toggleLightingEffect === 'function' && s.lightingEnabled !== undefined) toggleLightingEffect(s.lightingEnabled);
 
-      // D. Volume Audio
+      // F. Volume Audio
       if (s.bgmVolume !== undefined && typeof adjustBgmVolume === 'function') {
         const slider = document.getElementById('bgmVolumeSlider');
         if (slider) slider.value = s.bgmVolume;
@@ -2781,7 +2929,7 @@ function restoreAppState() {
         adjustAmbientVolume(s.ambientVolume);
       }
 
-      // E. Track Ambient
+      // G. Track Ambient
       if (s.ambientTrack && typeof playAmbient === 'function') {
         playAmbient(s.ambientTrack);
       } else if (typeof stopAmbient === 'function') {
@@ -2796,30 +2944,25 @@ function restoreAppState() {
       if (typeof openBookView === 'function') openBookView();
       
       if (state.activeTab) {
-        // A. Set tab aktif tanpa reset variabel
         activeTab = state.activeTab;
         
-        // Update tampilan tab visual
         if (typeof updateTabUI === 'function') {
           updateTabUI(activeTab);
         } else if (typeof switchTabWithoutReset === 'function') {
           switchTabWithoutReset(activeTab);
         }
 
-        // B. Buka Bab & Halaman Spesifik
         if ((activeTab === 'novel' || activeTab === 'sol') && 
             typeof state.currentChapterIndex !== 'undefined' && 
             state.currentChapterIndex !== -1) {
           
           const savedPage = (typeof state.currentPage === 'number') ? state.currentPage : 0;
           
-          // Panggil openChapter dengan menyertakan savedPage!
           if (typeof openChapter === 'function') {
             openChapter(state.currentChapterIndex, savedPage);
           }
 
         } else {
-          // Jika memang state terakhir berada di Daftar Isi (TOC)
           if (activeTab === 'novel' && typeof renderTableOfContentsKanon === 'function') renderTableOfContentsKanon();
           else if (activeTab === 'sol' && typeof renderTableOfContents === 'function') renderTableOfContents();
           else if (activeTab === 'illustration' && typeof renderIllustration === 'function') renderIllustration();
