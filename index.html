@@ -114,8 +114,9 @@
     <div class="sunset-shadow-overlay" id="sunsetOverlay"></div>
     <div class="midnight-shadow-overlay" id="midnightOverlay"></div>
     <div class="nighttime-spotlight-overlay" id="nighttimeOverlay"></div>
-    <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
     <div class="neon-spotlight-overlay" id="neonOverlay"></div>
+    
+        <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeZoomedPolaroid()"></div>
     
     <div class="shadow-overlay-layer" id="shadowOverlayLayer"></div>
     <div id="dustParticlesContainer"></div>
@@ -281,7 +282,7 @@
     <!-- Modal Header (Tetap Diam / Sticky di Atas) -->
     <div class="settings-modal-header" style="margin-bottom: 15px; flex-shrink: 0;">
       <h3 style="margin: 0; font-size: 1.2rem; color: #5c3a21; display: flex; align-items: center; gap: 8px;">
-        ⚙️ Pengaturan Tampilan & Suara
+        ⚙️ Pengaturan
       </h3>
       <button class="close-btn" onclick="closeSettingsModal()">&times;</button>
     </div>
@@ -381,7 +382,7 @@
           </div>
           <input type="range" id="ambientVolumeSlider" min="0" max="1" step="0.05" value="1" style="width: 100%; cursor: pointer;" oninput="adjustAmbientVolume(this.value)">
         </div>
-
+      <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
 <!-- MODAL SETTINGS LIGHTING -->
 <div class="settings-section">
   <div class="section-header">
@@ -477,7 +478,7 @@
       <label class="lighting-radio-card">
         <input type="radio" name="shadowType" value="net" onclick="setShadowType('net')">
         <div class="card-content">
-          <span class="icon">🏁</span>
+          <span class="icon">🥅</span>
           <span class="label">Jaring</span>
         </div>
       </label>
@@ -501,16 +502,37 @@
       <label class="lighting-radio-card">
         <input type="radio" name="shadowType" value="curtain" onclick="setShadowType('curtain')">
         <div class="card-content">
-          <span class="icon">🪟</span>
+          <span class="icon">🧧</span>
           <span class="label">Gorden</span>
+        </div>
+      </label>
+      
+        <label class="lighting-radio-card">
+        <input type="radio" name="shadowType" value="perspective" onclick="setShadowType('perspective')">
+        <div class="card-content">
+          <span class="icon">🌐</span>
+          <span class="label">Perspective</span>
+        </div>
+      </label>
+      
+        <label class="lighting-radio-card">
+        <input type="radio" name="shadowType" value="arch" onclick="setShadowType('arch')">
+        <div class="card-content">
+          <span class="icon">💍</span>
+          <span class="label">Arch</span>
         </div>
       </label>
     </div>
   </div>
-
+<!-- Color Picker khusus Floating Note -->
+  <div style="margin-top: 15px;"><hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;"></div>
+<div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.4); padding: 6px 10px; border-radius: 6px; margin-top: 8px; margin-bottom: 10px;">
+  <span style="font-size: 0.78rem; color: #5c3a21; font-weight: 600;">Warna Floating Note:</span>
+  <input type="color" id="floatingNoteColorPicker" value="#00f0ff" oninput="changeFloatingNoteColor(this.value)" style="border: none; width: 32px; height: 32px; cursor: pointer; background: transparent; padding: 0;">
+</div>
+      <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
 </div>
 </div>
-
       <!-- 5. SEKSI BACKUP & RESTORE DATA (BARU) -->
       <div class="settings-section">
         <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 8px;">
@@ -1438,6 +1460,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+<!-- ================================== -->
 
     function renderIllustration() {
       if (illustrations.length === 0) return;
@@ -2265,7 +2288,7 @@ function toggleLightingEffect(forceState = null) {
 
 /**
  * Mengatur tipe bayangan pada background/meja
- * @param {string} type - 'none' | 'window' | 'net' | 'leaf' | 'branch' | 'curtain'
+ * @param {string} type - 'none' | 'window' | 'net' | 'leaf' | 'branch' | 'curtain' | 'perspective' | 'arch'
  */
 function setShadowType(type) {
   // 1. Terapkan atribut ke tag <body>
@@ -2562,7 +2585,12 @@ function saveAppState() {
       bgCustomColor: activeBgColor,
       coverTheme: localStorage.getItem('benivon_selected_cover') || 'argyle',
       coverCustomColor: localStorage.getItem('benivon_custom_cover_color') || null,
-      shadowType: document.body.getAttribute('data-shadow') || localStorage.getItem('selected_shadow_type') || 'window', // <-- TAMBAHKAN INI
+      
+      // === TAMBAHKAN DUA BARIS INI ===
+      floatingNoteColor: localStorage.getItem('floatingNoteColor') || 
+                         getComputedStyle(document.documentElement).getPropertyValue('--note-color').trim() || '#00f0ff',
+
+      shadowType: document.body.getAttribute('data-shadow') || localStorage.getItem('selected_shadow_type') || 'window',
       lightingMode: typeof currentLightingMode !== 'undefined' ? currentLightingMode : 'realtime',
       lightingEnabled: typeof isLightingEnabled !== 'undefined' ? isLightingEnabled : true,
       bgmVolume: localStorage.getItem('benivon_bgm_volume') || 1,
@@ -2713,6 +2741,25 @@ function restoreAppState() {
         }
         const picker = document.getElementById('coverCustomColorPicker');
         if (picker) picker.value = s.coverCustomColor;
+      }
+
+      if (s.floatingNoteColor) {
+        if (typeof changeFloatingNoteColor === 'function') {
+          changeFloatingNoteColor(s.floatingNoteColor);
+        } else {
+          localStorage.setItem('floatingNoteColor', s.floatingNoteColor);
+          document.documentElement.style.setProperty('--note-color', s.floatingNoteColor);
+          
+          // Fallback manual jika hexToRgba atau changeFloatingNoteColor belum siap
+          if (typeof hexToRgba === 'function') {
+            document.documentElement.style.setProperty('--note-glow-color', hexToRgba(s.floatingNoteColor, 0.8));
+            document.documentElement.style.setProperty('--note-glow-subtle', hexToRgba(s.floatingNoteColor, 0.6));
+          }
+        }
+
+        // Sinkronkan ke input color picker di modal jika elemen ada
+        const notePicker = document.getElementById('floatingNoteColorPicker');
+        if (notePicker) notePicker.value = s.floatingNoteColor;
       }
 
       // C. Pencahayaan & Bayangan (Lighting & Shadow)
@@ -2950,6 +2997,56 @@ function updateJukeboxVisualEffects(isPlaying) {
     if (jukeboxBtn) jukeboxBtn.classList.remove('pulsing');
   }
 }
+// Helper fungsi mengonversi HEX ke RGBA untuk transparansi pendaran (glow)
+function hexToRgba(hex, alpha) {
+  let c = hex.replace('#', '');
+  if (c.length === 3) {
+    c = c.split('').map(char => char + char).join('');
+  }
+  const num = parseInt(c, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// Fungsi utama mengubah warna Floating Note
+function changeFloatingNoteColor(hexColor) {
+  if (!hexColor) return;
+
+  const glowColor = hexToRgba(hexColor, 0.8);
+  const glowSubtle = hexToRgba(hexColor, 0.6);
+
+  // Set CSS Variables pada tingkat root / documentElement
+  document.documentElement.style.setProperty('--note-color', hexColor);
+  document.documentElement.style.setProperty('--note-glow-color', glowColor);
+  document.documentElement.style.setProperty('--note-glow-subtle', glowSubtle);
+
+  // Simpan preferensi warna ke localStorage
+  localStorage.setItem('floatingNoteColor', hexColor);
+
+  // Jalankan saveAppState jika tersedia
+  if (typeof saveAppState === 'function') saveAppState();
+}
+
+// Fungsi memuat warna tersimpan saat halaman selesai dimuat (DOM Ready)
+function loadFloatingNoteColor() {
+  const savedColor = localStorage.getItem('floatingNoteColor') || '#00f0ff';
+  
+  // Set nilai input picker
+  const picker = document.getElementById('floatingNoteColorPicker');
+  if (picker) {
+    picker.value = savedColor;
+  }
+
+  // Terapkan warna ke CSS Variables
+  changeFloatingNoteColor(savedColor);
+}
+
+// Panggil saat aplikasi diinisialisasi / DOM Loaded
+document.addEventListener('DOMContentLoaded', () => {
+  loadFloatingNoteColor();
+});
 
 // Fungsi untuk berganti mode Play All <-> Repeat Single
 function togglePlayMode() {
