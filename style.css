@@ -1399,25 +1399,23 @@ input, textarea {
 
 /* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
+@media screen and (max-width: 768px) {
   .polaroid {
     width: 80px !important;
-    height: 98px !important;
+    height: 98px !important; /* Disesuaikan agar rasio tinggi-lebar tetap mirip desktop */
     padding: 4px !important;
-    box-sizing: border-box !important;
   }
 
   .polaroid img {
     width: 100% !important;
-    height: auto !important;
+    height: auto !important; /* Mengikuti aspect-ratio secara alami */
     aspect-ratio: 1 / 1 !important;
-    object-fit: cover !important;
   }
 
   .polaroid-caption {
-    font-size: 11px !important;
+    font-size: 11px !important; /* Ukuran font dikecilkan agar pas di lebar 80px */
     margin-bottom: 2px !important;
   }
-
   .polaroid.zoomed {
     position: fixed !important;
     top: 50% !important;
