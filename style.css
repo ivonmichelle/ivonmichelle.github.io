@@ -2254,25 +2254,25 @@ body[data-shadow="arch"] .arch-shadow-overlay {
   background-image:
     linear-gradient(to bottom,
       transparent 0 44%,
-      rgba(35,40,45,0.30) 44% 50%,
+      rgba(35,40,45,0.90) 44% 50%,
       transparent 50% 100%),
     linear-gradient(to right,
       transparent 0 45%,
-      rgba(35,40,45,0.30) 45% 50%,
+      rgba(35,40,45,0.90) 45% 50%,
       transparent 50% 100%),
-    radial-gradient(circle at 18% 22%, rgba(24,34,20,0.18) 0 7%, transparent 8%),
-    radial-gradient(circle at 36% 30%, rgba(24,34,20,0.16) 0 8%, transparent 9%),
-    radial-gradient(circle at 56% 18%, rgba(24,34,20,0.18) 0 7%, transparent 8%),
-    radial-gradient(circle at 76% 36%, rgba(24,34,20,0.16) 0 9%, transparent 10%),
-    radial-gradient(circle at 26% 62%, rgba(24,34,20,0.18) 0 10%, transparent 11%),
-    radial-gradient(circle at 68% 70%, rgba(24,34,20,0.16) 0 9%, transparent 10%);
+    radial-gradient(circle at 18% 22%, rgba(24,34,20,0.54) 0 7%, transparent 8%),
+    radial-gradient(circle at 36% 30%, rgba(24,34,20,0.48) 0 8%, transparent 9%),
+    radial-gradient(circle at 56% 18%, rgba(24,34,20,0.54) 0 7%, transparent 8%),
+    radial-gradient(circle at 76% 36%, rgba(24,34,20,0.48) 0 9%, transparent 10%),
+    radial-gradient(circle at 26% 62%, rgba(24,34,20,0.54) 0 10%, transparent 11%),
+    radial-gradient(circle at 68% 70%, rgba(24,34,20,0.48) 0 9%, transparent 10%);
   transform: rotate(-20deg) skewX(-8deg);
   filter: blur(16px);
   animation-duration: 10s;
 }
 
 /* -------------------------------------------------
-   2. SHADOW: NET / KASA (GRID MESH)
+   2. SHADOW: NET / KASA (GRID MESH) - 2X LEBIH PEKAT
    ------------------------------------------------- */
 .net-shadow-overlay::after {
   top: -30%;
@@ -2280,10 +2280,11 @@ body[data-shadow="arch"] .arch-shadow-overlay {
   width: 160%;
   height: 160%;
   background-image: 
-    repeating-linear-gradient(to bottom, transparent 0 80px, rgba(35, 40, 45, 0.58) 80px 92px),
-    repeating-linear-gradient(to right, transparent 0 120px, rgba(35, 40, 45, 0.58) 120px 132px);
+    repeating-linear-gradient(to bottom, transparent 0 80px, rgba(10, 12, 15, 1.0) 80px 92px),
+    repeating-linear-gradient(to right, transparent 0 120px, rgba(10, 12, 15, 1.0) 120px 132px);
   transform: rotate(-20deg) skewX(-10deg);
-  filter: blur(18px);
+  /* Menambahkan drop-shadow untuk menggandakan intensitas ketebalan bayangan secara visual */
+  filter: blur(18px) drop-shadow(0 0 0px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 0px rgba(0, 0, 0, 0.5));
   animation-duration: 9s;
 }
 
@@ -2296,14 +2297,14 @@ body[data-shadow="arch"] .arch-shadow-overlay {
   width: 170%;
   height: 170%;
   background-image:
-    radial-gradient(circle at 15% 20%, rgba(25, 35, 20, 0.32) 0 6%, transparent 7%),
-    radial-gradient(circle at 35% 30%, rgba(30, 40, 25, 0.28) 0 8%, transparent 9%),
-    radial-gradient(circle at 55% 18%, rgba(20, 30, 18, 0.30) 0 7%, transparent 8%),
-    radial-gradient(circle at 75% 35%, rgba(28, 38, 22, 0.26) 0 9%, transparent 10%),
-    radial-gradient(circle at 20% 60%, rgba(22, 32, 18, 0.30) 0 10%, transparent 11%),
-    radial-gradient(circle at 48% 72%, rgba(24, 34, 20, 0.26) 0 8%, transparent 9%),
-    radial-gradient(circle at 72% 68%, rgba(20, 30, 18, 0.28) 0 9%, transparent 10%),
-    radial-gradient(circle at 90% 52%, rgba(18, 26, 16, 0.24) 0 7%, transparent 8%);
+    radial-gradient(circle at 15% 20%, rgba(25, 35, 20, 0.96) 0 6%, transparent 7%),
+    radial-gradient(circle at 35% 30%, rgba(30, 40, 25, 0.84) 0 8%, transparent 9%),
+    radial-gradient(circle at 55% 18%, rgba(20, 30, 18, 0.90) 0 7%, transparent 8%),
+    radial-gradient(circle at 75% 35%, rgba(28, 38, 22, 0.78) 0 9%, transparent 10%),
+    radial-gradient(circle at 20% 60%, rgba(22, 32, 18, 0.90) 0 10%, transparent 11%),
+    radial-gradient(circle at 48% 72%, rgba(24, 34, 20, 0.78) 0 8%, transparent 9%),
+    radial-gradient(circle at 72% 68%, rgba(20, 30, 18, 0.84) 0 9%, transparent 10%),
+    radial-gradient(circle at 90% 52%, rgba(18, 26, 16, 0.72) 0 7%, transparent 8%);
   transform: rotate(-18deg) scale(1.1);
   filter: blur(18px);
   animation-duration: 10s;
@@ -2317,12 +2318,12 @@ body[data-shadow="arch"] .arch-shadow-overlay {
   width: 150%;
   height: 150%;
   background-image:
-    linear-gradient(115deg, transparent 0 28%, rgba(35, 40, 25, 0.32) 28% 30%, transparent 30% 100%),
-    linear-gradient(122deg, transparent 0 52%, rgba(35, 40, 25, 0.26) 52% 53.5%, transparent 53.5% 100%),
-    radial-gradient(circle at 32% 34%, rgba(35, 40, 25, 0.28) 0 8%, transparent 10%),
-    radial-gradient(circle at 48% 22%, rgba(35, 40, 25, 0.30) 0 7%, transparent 9%),
-    radial-gradient(circle at 66% 42%, rgba(35, 40, 25, 0.28) 0 9%, transparent 11%),
-    radial-gradient(circle at 80% 30%, rgba(35, 40, 25, 0.26) 0 8%, transparent 10%);
+    linear-gradient(115deg, transparent 0 28%, rgba(35, 40, 25, 0.96) 28% 30%, transparent 30% 100%),
+    linear-gradient(122deg, transparent 0 52%, rgba(35, 40, 25, 0.78) 52% 53.5%, transparent 53.5% 100%),
+    radial-gradient(circle at 32% 34%, rgba(35, 40, 25, 0.84) 0 8%, transparent 10%),
+    radial-gradient(circle at 48% 22%, rgba(35, 40, 25, 0.90) 0 7%, transparent 9%),
+    radial-gradient(circle at 66% 42%, rgba(35, 40, 25, 0.84) 0 9%, transparent 11%),
+    radial-gradient(circle at 80% 30%, rgba(35, 40, 25, 0.78) 0 8%, transparent 10%);
   transform: rotate(-20deg);
   filter: blur(14px);
   animation-duration: 10s;
@@ -2338,8 +2339,8 @@ body[data-shadow="arch"] .arch-shadow-overlay {
   background-image:
     repeating-linear-gradient(
       100deg,
-      rgba(40,45,50,0.16) 0 26px,
-      rgba(40,45,50,0.04) 26px 48px,
+      rgba(40,45,50,0.48) 0 26px,
+      rgba(40,45,50,0.12) 26px 48px,
       transparent 48px 92px
     );
   transform: rotate(-12deg);
@@ -2357,7 +2358,7 @@ body[data-shadow="arch"] .arch-shadow-overlay {
   height: 180%;
   background-image: repeating-conic-gradient(
     from 250deg at -10% 20%,
-    rgba(35, 40, 45, 0.48) 0deg 2.2deg,
+    rgba(35, 40, 45, 1.0) 0deg 2.2deg,
     transparent 2.2deg 7.5deg
   );
   transform: perspective(800px) rotateX(18deg) rotateY(-12deg) rotate(-10deg) scale(1.1);
@@ -2374,9 +2375,9 @@ body[data-shadow="arch"] .arch-shadow-overlay {
   width: 150%;
   height: 150%;
   background-image: 
-    radial-gradient(circle at 50% 30%, transparent 0 22%, rgba(35, 40, 45, 0.45) 22.5% 28%, transparent 28.5%),
-    linear-gradient(to right, transparent 0 48%, rgba(35, 40, 45, 0.45) 48% 52%, transparent 52% 100%),
-    linear-gradient(to bottom, transparent 0 50%, rgba(35, 40, 45, 0.45) 50% 54%, transparent 54% 100%);
+    radial-gradient(circle at 50% 30%, transparent 0 22%, rgba(35, 40, 45, 1.0) 22.5% 28%, transparent 28.5%),
+    linear-gradient(to right, transparent 0 48%, rgba(35, 40, 45, 1.0) 48% 52%, transparent 52% 100%),
+    linear-gradient(to bottom, transparent 0 50%, rgba(35, 40, 45, 1.0) 50% 54%, transparent 54% 100%);
   transform: rotate(-15deg) skewX(-5deg);
   filter: blur(22px);
   animation-duration: 11s;
@@ -2394,6 +2395,17 @@ body.lighting-disabled .perspective-shadow-overlay,
 body.lighting-disabled .arch-shadow-overlay {
   opacity: 0 !important;
   visibility: hidden !important;
+}
+/* Terapkan variabel --shadow-opacity pada pseudo-element bayangan */
+.window-shadow-overlay::after,
+.net-shadow-overlay::after,
+.leaf-shadow-overlay::after,
+.branch-shadow-overlay::after,
+.curtain-shadow-overlay::after,
+.perspective-shadow-overlay::after,
+.arch-shadow-overlay::after {
+  opacity: var(--shadow-opacity, 1);
+  transition: opacity 0.2s ease;
 }
 
 /* -------------------------------------------------

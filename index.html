@@ -500,7 +500,26 @@
       </div>
     </label>
   </div>
+  <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
     <!-- SEKSI PILIHAN BENTUK BAYANGAN (SHADOW TYPE) -->
+<div style="margin-top: 15px; background: rgba(255, 255, 255, 0.4); padding: 10px 12px; border-radius: 8px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+    <label style="font-weight: 600; font-size: 0.82rem; color: #5c3a21; display: flex; align-items: center; gap: 6px;">
+      🌑 Intensitas Bayangan
+    </label>
+    <span id="shadowOpacityText" style="font-size: 0.8rem; font-weight: bold; color: #8c532b;">100%</span>
+  </div>
+  <input 
+    type="range" 
+    id="shadowOpacitySlider" 
+    min="0" 
+    max="100" 
+    value="100" 
+    style="width: 100%; cursor: pointer;" 
+    oninput="adjustShadowOpacity(this.value)"
+  >
+</div>
+
   <div style="margin-top: 15px;">
     <label style="font-weight: bold; font-size: 0.85rem; color: #5c3a21; display: block; margin-bottom: 8px;">
       🪟 Bentuk Bayangan Jendela:
@@ -2335,9 +2354,44 @@ function toggleLightingEffect(forceState = null) {
 }
 
 /**
+ * Mengatur intensitas opasitas bayangan (Slider 0 - 100 mapped to Opacity 0.3 - 0.75)
+ * @param {number|string} value - Nilai slider dari 0 hingga 100
+ */
+function adjustShadowOpacity(value) {
+  const numericValue = Number(value);
+  
+  // Konversi rentang slider 0..100 ke opasitas 0.3..0.75
+  const calculatedOpacity = 0.3 + (numericValue / 100) * 0.45;
+
+  // 1. Terapkan nilai opacity ke CSS Variable di root / body
+  document.documentElement.style.setProperty('--shadow-opacity', calculatedOpacity);
+
+  // 2. Perbarui teks persentase di UI Modal
+  const textIndicator = document.getElementById('shadowOpacityText');
+  if (textIndicator) {
+    textIndicator.innerText = `${numericValue}%`;
+  }
+
+  // 3. Sinkronkan nilai slider jika dipanggil secara programmatic
+  const slider = document.getElementById('shadowOpacitySlider');
+  if (slider && slider.value !== String(value)) {
+    slider.value = value;
+  }
+
+  // 4. Simpan ke LocalStorage
+  localStorage.setItem('selected_shadow_opacity', numericValue);
+
+  // 5. Jalankan saveAppState() jika tersedia
+  if (typeof saveAppState === 'function') {
+    saveAppState();
+  }
+}
+
+/**
  * Mengatur tipe bayangan pada background/meja
  * @param {string} type - 'none' | 'window' | 'net' | 'leaf' | 'branch' | 'curtain' | 'perspective' | 'arch'
  */
+ 
 function setShadowType(type) {
   // 1. Terapkan atribut ke tag <body>
   document.body.setAttribute('data-shadow', type);
@@ -2359,8 +2413,13 @@ function setShadowType(type) {
 
 // Inisialisasi state saat halaman selesai dimuat
 document.addEventListener('DOMContentLoaded', () => {
+  // Load Shadow Type
   const savedShadow = localStorage.getItem('selected_shadow_type') || 'window';
   setShadowType(savedShadow);
+
+  // Load Shadow Opacity (Default 100%)
+  const savedOpacity = localStorage.getItem('selected_shadow_opacity') ?? 100;
+  adjustShadowOpacity(savedOpacity);
 });
 
 // 4. Update Indikator UI Modal Settings
