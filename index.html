@@ -188,7 +188,6 @@
       <div class="book-content" id="stickerAlbumContent" style="display: none;">
         <div class="polaroid-grid-view" id="stickerGridContainer"></div>
       </div>
-      
       <div class="book-content" id="wikiContent" style="display: none;">
         <input type="file" id="wikiFileInput" accept="image/*" style="display: none;" onchange="handleWikiPhotoSelect(event)">  
         <div class="status-msg">Memuat data wiki...</div>
@@ -257,6 +256,7 @@
 <div class="fab-wrapper">
   <div class="fab-sub-menu" id="fabPhotoSubMenu">
     <button class="fab-btn" id="btnLighting" onclick="toggleLightingEffect()" title="Matikan/Hidupkan Efek Cahaya">💡</button>
+    <button class="fab-btn" id="btnShadow" onclick="toggleShadow(this.checked)" title="Matikan/Hidupkan Bayangan">🌑</button>
     <button class="fab-btn" id="btnRefreshPhotos" onclick="refreshContent()" title="Refresh Foto Polaroid">🔄</button>
     <button class="fab-btn" id="btnScatterStickers" onclick="scatterRandomStickers()" title="Sebar Stiker ke Webpage">🏷️</button>
     <button class="fab-btn" id="btnTogglePolaroid" onclick="togglePolaroidScatter()" title="Sembunyikan / Sebar Polaroid">🎴</button>
@@ -494,7 +494,7 @@
     
         <label class="lighting-radio-card">
         <input type="radio" name="lightingMode" value="neon" onclick="setLightingMode('neon')">
-        <div class="card-content">
+        <div style="margin-bottom: 15px;" class="card-content">
         <span class="icon">🔮</span>
         <span class="label">NeonCyber</span>
       </div>
@@ -611,7 +611,7 @@
         
         <div class="backup-btn-group">
           <button class="btn-backup btn-export" onclick="exportToJson()">
-            <span>💾</span> Save
+            <span>??</span> Save
           </button>
           <button class="btn-backup btn-import" onclick="document.getElementById('jsonFileInput').click()">
             <span>📂</span> Load
@@ -2387,12 +2387,12 @@ function adjustShadowOpacity(value) {
   }
 }
 
-/**
- * Mengatur tipe bayangan pada background/meja
- * @param {string} type - 'none' | 'window' | 'net' | 'leaf' | 'branch' | 'curtain' | 'perspective' | 'arch'
- */
- 
 function setShadowType(type) {
+  // Catat tipe bayangan jika bukan 'none'
+  if (type !== 'none') {
+    window.lastActiveShadowType = type;
+  }
+
   // 1. Terapkan atribut ke tag <body>
   document.body.setAttribute('data-shadow', type);
   
@@ -2421,6 +2421,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedOpacity = localStorage.getItem('selected_shadow_opacity') ?? 100;
   adjustShadowOpacity(savedOpacity);
 });
+
+// Variabel untuk menyimpan jenis bayangan terakhir sebelum di-off-kan
+// Default ke 'window' jika belum ada pilihan sebelumnya
+window.lastActiveShadowType = localStorage.getItem('selected_shadow_type') || 'window';
+
+/**
+ * Mematikan atau menghidupkan bayangan (Toggle ON/OFF)
+ * @param {boolean} [forceState] - (Opsional) true untuk ON, false untuk OFF
+ */
+function toggleShadow(forceState) {
+  const currentType = document.body.getAttribute('data-shadow') || 'none';
+  const isCurrentlyOn = currentType !== 'none';
+
+  // Tentukan status target (jika forceState diisi gunakan itu, jika tidak switch nilainya)
+  const targetState = (typeof forceState === 'boolean') ? forceState : !isCurrentlyOn;
+
+  if (targetState) {
+    // === TURN ON ===
+    // Ambil bayangan terakhir yang tersimpan, jika tidak ada/masih 'none' gunakan 'window'
+    let shadowToRestore = window.lastActiveShadowType;
+    if (!shadowToRestore || shadowToRestore === 'none') {
+      shadowToRestore = 'window';
+    }
+    setShadowType(shadowToRestore);
+  } else {
+    // === TURN OFF ===
+    // Simpan tipe bayangan aktif saat ini sebelum di-OFF-kan (agar tidak lupa)
+    if (currentType !== 'none') {
+      window.lastActiveShadowType = currentType;
+    }
+    setShadowType('none');
+  }
+}
 
 // 4. Update Indikator UI Modal Settings
 function updateModalLightingUI() {
@@ -4590,7 +4623,6 @@ function toggleBookView() {
     openBookView();
   }
 }
-
 
 // ==========================================
 // LOAD PRESET SAAT AWAL BUKA
