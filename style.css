@@ -1399,23 +1399,17 @@ input, textarea {
 
 /* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
-	.polaroid {
-    width: 80px !important;
-    height: 98px !important;
-    padding: 4px !important;
-    box-sizing: border-box !important;
-  }
-
-  .polaroid img {
-    width: 100% !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-    object-fit: cover !important;
-  }
-  .polaroid-caption {
-    font-size: 11px !important;
-    margin-bottom: 2px !important;
-  }
+      .polaroid {
+        width: 80px !important;
+        padding: 5px 5px 10px 5px !important;
+      }
+      .polaroid img {
+        height: 70px !important;
+      }
+      .polaroid-caption {
+       font-size: 11px !important;
+       margin-bottom: 2px !important;
+      }
       .ivon-intro-card {
         width: 90%;
       }
