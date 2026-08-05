@@ -1625,7 +1625,6 @@ input, textarea {
 }
 
 /* Animasi saat stiker diklik untuk kembali/menghilang */
-/* Animasi saat stiker diklik untuk kembali/menghilang */
 .floating-sticker.returning {
   /* Pakai durasi 0.2s (200ms) agar pas dengan setTimeout di JS */
   transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1) !important, 
@@ -1664,6 +1663,12 @@ input, textarea {
 }
 
 /* --- ELEMEN NOT BALOK MELAYANG --- */
+:root {
+  /* Warna default floating note (Neon Cyan) */
+  --note-color: #00f0ff;
+  --note-glow-color: rgba(0, 240, 255, 0.8);
+  --note-glow-subtle: rgba(0, 240, 255, 0.6);
+}
 .floating-note {
   position: fixed;
   pointer-events: none;
@@ -1671,18 +1676,21 @@ input, textarea {
   z-index: 19000;
   user-select: none;
   animation: floatUpAndFade 2s ease-out forwards;
-  filter: brightness(0); /* Memaksa warna emoji/teks menjadi hitam pekat */
-  /* 1. Warna teks dibuat terang (misal neon cyan/gold atau putih) */
-  color: #00f0ff; 
-  /* 2. Pendaran Cahaya (Glow Effect) */
+  
+  /* HAPUS/KOMENTARI: filter: brightness(0); agar warna kustom terlihat */
+  
+  /* 1. Warna teks dinamis */
+  color: var(--note-color); 
+  
+  /* 2. Pendaran Cahaya (Glow Effect) Dinamis */
   text-shadow: 
-    0 0 5px #00f0ff,
-    0 0 5px #00f0ff,
-    0 0 10px rgba(0, 240, 255, 0.8),
-    0 0 15px rgba(0, 240, 255, 0.6);
-  /* 3. Drop-shadow tambahan khusus rendering font simbol/emoji */
-  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.9));
-  /* Tambahkan transisi/animasi melayang kamu seperti biasa */
+    0 0 5px var(--note-color),
+    0 0 5px var(--note-color),
+    0 0 10px var(--note-glow-color),
+    0 0 15px var(--note-glow-subtle);
+    
+  /* 3. Drop-shadow dinamis */
+  filter: drop-shadow(0 0 8px var(--note-glow-color));
 }
 
 @keyframes floatUpAndFade {
@@ -1753,7 +1761,9 @@ input, textarea {
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
-
+/* ==========================================
+POLAROID
+ ========================================== */
 .polaroid {
   position: absolute;
   top: 50%;
@@ -1841,11 +1851,21 @@ input, textarea {
 
 /* Efek Kilatan Cahaya Dinamis (Dynamic Glare/Shine) */
 .polaroid.zoomed::after {
-  z-index: 20001 !important;
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   border-radius: inherit;
+  /* Radial gradient yang titik apinya bergerak ngikutin kursor */
+  background: radial-gradient(
+    circle at var(--glare-x) var(--glare-y),
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(0, 0, 0, 0.15) 90%
+  );
+  pointer-events: none;
+  opacity: var(--glare-opacity);
+  transition: opacity 0.15s ease;
+  mix-blend-mode: overlay; /* Bikin kilatan menyatu alami dengan warna foto */
 }
 .polaroid.hide-in-book {
   top: 52%;
