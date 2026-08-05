@@ -1399,17 +1399,46 @@ input, textarea {
 
 /* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
-      .polaroid {
-        width: 80px !important;
-        padding: 5px 5px 10px 5px !important;
-      }
-      .polaroid img {
-        height: 70px !important;
-      }
-      .polaroid-caption {
-       font-size: 11px !important;
-       margin-bottom: 2px !important;
-      }
+  .polaroid {
+    width: 80px !important;
+    height: 98px !important;
+    padding: 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  .polaroid img {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+  }
+
+  .polaroid-caption {
+    font-size: 11px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .polaroid.zoomed {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+
+    width: 220px !important;
+    height: 260px !important;
+    padding: 10px 10px 24px 10px !important;
+
+    transform: translate(-50%, -50%) translateZ(0)
+               scale(1.3)
+               rotateX(var(--rx, 0deg))
+               rotateY(var(--ry, 0deg)) !important;
+
+    box-shadow: var(--bx) var(--by) 28px rgba(0,0,0,0.45) !important;
+  }
+
+  .polaroid.zoomed .polaroid-caption {
+    font-size: 18px !important;
+    margin-bottom: 6px !important;
+  }
       .ivon-intro-card {
         width: 90%;
       }
