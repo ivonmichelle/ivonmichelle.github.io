@@ -1413,8 +1413,8 @@ input, textarea {
     object-fit: cover !important;
   }
 	.polaroid.zoomed {
-    max-width: 75vw !important;
-    max-height: 60vh !important;
+    max-width: 65vw !important;
+    max-height: 50vh !important;
     width: auto !important;
     height: auto !important;
     object-fit: contain !important;
