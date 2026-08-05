@@ -1399,7 +1399,6 @@ input, textarea {
 
 /* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
-@media screen and (max-width: 768px) {
   .polaroid {
     width: 80px !important;
     height: 98px !important; /* Disesuaikan agar rasio tinggi-lebar tetap mirip desktop */
@@ -1426,7 +1425,7 @@ input, textarea {
     padding: 10px 10px 24px 10px !important;
 
     transform: translate(-50%, -50%) translateZ(0)
-               scale(1)
+               scale(0.75)
                rotateX(var(--rx, 0deg))
                rotateY(var(--ry, 0deg)) !important;
 
