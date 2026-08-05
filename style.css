@@ -1412,25 +1412,19 @@ input, textarea {
     aspect-ratio: 1 / 1 !important;
     object-fit: cover !important;
   }
-     .polaroid.zoomed {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-
-    /* Matikan perspektif 3D desktop yang bikin melar */
-    perspective: none !important;
-    transform-style: flat !important;
-
-    /* Kunci ukuran pasti pas di tengah layar HP */
-    width: 70vw !important; 
+	.polaroid.zoomed {
+    max-width: 75vw !important;
+    max-height: 60vh !important;
+    width: auto !important;
     height: auto !important;
-    padding: 8px 8px 20px 8px !important;
+    object-fit: contain !important;
+  }
 
-    /* Paksa scale TEPAT 1 (tanpa pembesaran ganda) */
-    transform: translate(-50%, -50%) scale(1) rotate(0deg) !important; 
-    
-    z-index: 20001 !important;
-	 }
+  .polaroid.zoomed img {
+    max-width: 100% !important;
+    max-height: 45vh !important;
+    object-fit: contain !important;
+  }
   .polaroid-caption {
     font-size: 11px !important;
     margin-bottom: 2px !important;
