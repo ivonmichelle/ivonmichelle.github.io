@@ -1404,13 +1404,11 @@ input, textarea {
     height: 98px !important; /* Disesuaikan agar rasio tinggi-lebar tetap mirip desktop */
     padding: 4px !important;
   }
-
   .polaroid img {
     width: 100% !important;
     height: auto !important; /* Mengikuti aspect-ratio secara alami */
     aspect-ratio: 1 / 1 !important;
   }
-
   .polaroid-caption {
     font-size: 11px !important; /* Ukuran font dikecilkan agar pas di lebar 80px */
     margin-bottom: 2px !important;
@@ -1430,11 +1428,6 @@ input, textarea {
                rotateY(var(--ry, 0deg)) !important;
 
     box-shadow: var(--bx) var(--by) 28px rgba(0,0,0,0.45) !important;
-  }
-
-  .polaroid.zoomed .polaroid-caption {
-    font-size: 18px !important;
-    margin-bottom: 6px !important;
   }
       .ivon-intro-card {
         width: 90%;
