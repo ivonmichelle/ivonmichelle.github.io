@@ -1412,9 +1412,11 @@ input, textarea {
   .polaroid-caption {
     font-size: 11px !important; /* Ukuran font dikecilkan agar pas di lebar 80px */
     margin-bottom: 2px !important;
-  }
-	.polaroid.zoomed {
-	transform: scale(3.5);
+  }  
+  .polaroid.zoomed {
+    transform: translate(-50%, -50%) translateZ(0)
+               scale(4.8)
+               rotateX(var(--rx)) rotateY(var(--ry)) !important;
   }
       .ivon-intro-card {
         width: 90%;
