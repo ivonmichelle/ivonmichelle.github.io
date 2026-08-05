@@ -1414,16 +1414,7 @@ input, textarea {
     margin-bottom: 2px !important;
   }
 	.polaroid.zoomed {
-    max-width: 55vw !important;
-    max-height: 40vh !important;
-    width: auto !important;
-    height: auto !important;
-    object-fit: contain !important;
-  }
-  .polaroid.zoomed img {
-    max-width: 100% !important;
-    max-height: 25vh !important;
-    object-fit: contain !important;
+	transform: scale(3.5);
   }
       .ivon-intro-card {
         width: 90%;
