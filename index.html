@@ -478,7 +478,7 @@
         <input type="radio" name="shadowType" value="net" onclick="setShadowType('net')">
         <div class="card-content">
           <span class="icon">🏁</span>
-          <span class="label">Net / Kasa</span>
+          <span class="label">Jaring</span>
         </div>
       </label>
 
@@ -2562,6 +2562,7 @@ function saveAppState() {
       bgCustomColor: activeBgColor,
       coverTheme: localStorage.getItem('benivon_selected_cover') || 'argyle',
       coverCustomColor: localStorage.getItem('benivon_custom_cover_color') || null,
+      shadowType: document.body.getAttribute('data-shadow') || localStorage.getItem('selected_shadow_type') || 'window', // <-- TAMBAHKAN INI
       lightingMode: typeof currentLightingMode !== 'undefined' ? currentLightingMode : 'realtime',
       lightingEnabled: typeof isLightingEnabled !== 'undefined' ? isLightingEnabled : true,
       bgmVolume: localStorage.getItem('benivon_bgm_volume') || 1,
@@ -2714,7 +2715,10 @@ function restoreAppState() {
         if (picker) picker.value = s.coverCustomColor;
       }
 
-      // C. Pencahayaan (Lighting)
+      // C. Pencahayaan & Bayangan (Lighting & Shadow)
+      if (s.shadowType && typeof setShadowType === 'function') {
+        setShadowType(s.shadowType);
+      }
       if (typeof setLightingMode === 'function' && s.lightingMode) setLightingMode(s.lightingMode);
       if (typeof toggleLightingEffect === 'function' && s.lightingEnabled !== undefined) toggleLightingEffect(s.lightingEnabled);
 
