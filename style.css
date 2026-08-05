@@ -1412,19 +1412,27 @@ input, textarea {
     aspect-ratio: 1 / 1 !important;
     object-fit: cover !important;
   }
+  .polaroid.zoomed {
+    /* 1. Paksa lepas dari container & lepas ke layar layar penuh HP */
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
 
+    /* 2. Ubah ukuran fisik dasar saat zoomed agar tidak bergantung pada 80px */
+    width: 220px !important; 
+    height: 260px !important;
+    padding: 10px 10px 24px 10px !important;
+
+    /* 3. Turunkan scale-nya karena ukuran dasar sudah kita perbesar ke 220px */
+    transform: translate(-50%, -50%) translateZ(0) scale(1.3) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important; 
+    
+    /* 4. Naikkan font caption saat zoomed di HP agar terbaca jelas */
+    font-size: 18px !important;
+  }
   .polaroid-caption {
     font-size: 11px !important;
     margin-bottom: 2px !important;
   }
-	.polaroid.zoomed {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    z-index: 99999 !important; /* Pastikan berada paling depan di atas meja & overlay */
-    transform: translate(-50%, -50%) translateZ(0) scale(3.5) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
-    transform-origin: center center !important;
-  	}
       .ivon-intro-card {
         width: 90%;
       }
