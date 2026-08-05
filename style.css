@@ -1430,6 +1430,7 @@ input, textarea {
     transform: translate(-50%, -50%) scale(1) rotate(0deg) !important; 
     
     z-index: 20001 !important;
+	 }
   .polaroid-caption {
     font-size: 11px !important;
     margin-bottom: 2px !important;
