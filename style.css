@@ -1417,9 +1417,14 @@ input, textarea {
     font-size: 11px !important;
     margin-bottom: 2px !important;
   }
-  .polaroid.zoomed {
-  	transform: translate(-50%, -50%) translateZ(0) scale(3.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
-  }
+	.polaroid.zoomed {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    z-index: 99999 !important; /* Pastikan berada paling depan di atas meja & overlay */
+    transform: translate(-50%, -50%) translateZ(0) scale(3.5) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
+    transform-origin: center center !important;
+  	}
       .ivon-intro-card {
         width: 90%;
       }
