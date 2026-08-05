@@ -585,39 +585,10 @@ input, textarea {
     .font-slider-container input[type=range]::-webkit-slider-thumb:hover {
       transform: scale(1.2);
     }
-
-    /* Styling Polaroid */
-
-    .polaroid:active {
-      cursor: grabbing;
-    }
-.polaroid.zoomed {
-	  z-index: 20001 !important;
-      cursor: pointer;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.2) !important;
-      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out !important;
-      overflow: hidden; /* Biar glare tidak meluber keluar bingkai */
-      touch-action: none !important;
-	
-  --rx: 0deg;
-  --ry: 0deg;
-  --bx: 0px;
-  --by: 20px;
-  --glare-x: 50%;
-  --glare-y: 50%;
-  --glare-opacity: 0;
-  perspective: 600px !important;
-  transform: translate(-50%, -50%) scale(3.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
-  box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
-}
-
-/* Efek Kilatan Cahaya Dinamis (Dynamic Glare/Shine) */
-.polaroid.zoomed::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: inherit;
-  /* Radial gradient yang titik apinya bergerak ngikutin kursor */
+    
+  /* Hapus overflow: hidden dari parent, batasi lewat clip-path jika perlu */
+  clip-path: inset(0 round 2px); 
+  
   background: radial-gradient(
     circle at var(--glare-x) var(--glare-y),
     rgba(255, 255, 255, 0.6) 0%,
@@ -626,18 +597,14 @@ input, textarea {
   );
   pointer-events: none;
   opacity: var(--glare-opacity);
+  
+  /* Mencegah GPU thrashing pada efek blend mode */
+  will-change: opacity, background;
+  transform: translateZ(1px); /* Mencegah z-index fighting / Z-fighting di 3D space */
+  
   transition: opacity 0.15s ease;
-  mix-blend-mode: overlay; /* Bikin kilatan menyatu alami dengan warna foto */
+  mix-blend-mode: overlay;
 }
-
-    .polaroid img {
-      width: 100%;
-      height: 95px;
-      object-fit: cover;
-      display: block;
-      filter: sepia(0.12) contrast(1.05);
-      pointer-events: none;
-    }
 
     .status-msg {
       text-align: center;
@@ -1433,12 +1400,23 @@ input, textarea {
 /* --- LAYOUT TAB UNTUK PONSEL --- */
 @media screen and (max-width: 768px) {
 	.polaroid {
-        width: 80px !important;
-        padding: 5px 5px 10px 5px !important;
-      }
-      .polaroid img {
-        height: 70px !important;
-      }
+    width: 80px !important;
+    height: 98px !important;
+    padding: 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  .polaroid img {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+  }
+
+  .polaroid-caption {
+    font-size: 11px !important;
+    margin-bottom: 2px !important;
+  }
       .ivon-intro-card {
         width: 90%;
       }
@@ -1771,15 +1749,20 @@ input, textarea {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 110px;
+  width: 140px;
+  height: 160px;
   background: #fff;
-  padding: 7px 7px 15px 7px;
+  padding: 7px 7px 17px 7px;
   box-shadow: 0 8px 18px rgba(0,0,0,0.4);
   border-radius: 2px;
   z-index: 100;
   cursor: grab;
   user-select: none;
   touch-action: none;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   /* Tambahkan opacity, top, dan left ke dalam transition */
   transition: 
@@ -1789,8 +1772,72 @@ input, textarea {
     left 0.5s ease, 
     box-shadow 0.3s ease, 
     filter 0.4s ease;
+
+}
+    .polaroid img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+      filter: sepia(0.12) contrast(1.05);
+      pointer-events: none;
+    }
+
+.polaroid-caption {
+  font-family: 'Reenie Beanie', cursive;
+  font-size: 18px;
+  color: #2c2c2c;
+  margin-top: auto;        /* Mendorong teks ke dasar polaroid */
+  margin-bottom: 8px;     /* Jarak dari tepi bawah */
+  text-align: center;
+  line-height: 1;
 }
 
+    .polaroid:active {
+      cursor: grabbing;
+    }
+    
+.polaroid.zoomed {
+  z-index: 20001 !important;
+  cursor: pointer;
+  touch-action: none !important;
+
+  /* 1. Aktifkan Hardware Acceleration GPU */
+  will-change: transform, box-shadow;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  /* 2. Properti Variabel CSS */
+  --rx: 0deg;
+  --ry: 0deg;
+  --bx: 0px;
+  --by: 20px;
+  --glare-x: 50%;
+  --glare-y: 50%;
+  --glare-opacity: 0;
+
+  perspective: 600px !important;
+  
+  /* Masukkan translateZ(0) untuk memaksa pemisahan GPU layer secara independen */
+  transform: translate(-50%, -50%) translateZ(0) scale(2.5) rotateX(var(--rx)) rotateY(var(--ry)) !important; 
+
+  /* Pakai satu deklarasi box-shadow saja (gabungkan ke var) */
+  box-shadow: var(--bx) var(--by) 30px rgba(0, 0, 0, 0.45) !important;
+  
+  /* Transisi ultra cepat untuk respon mouse bergerak */
+  transition: transform 0.05s ease-out, box-shadow 0.05s ease-out !important;
+}
+
+/* Efek Kilatan Cahaya Dinamis (Dynamic Glare/Shine) */
+.polaroid.zoomed::after {
+  z-index: 20001 !important;
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+}
 .polaroid.hide-in-book {
   top: 52%;
   left: 50%;
