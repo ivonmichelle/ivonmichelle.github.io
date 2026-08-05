@@ -1413,22 +1413,6 @@ input, textarea {
     font-size: 11px !important; /* Ukuran font dikecilkan agar pas di lebar 80px */
     margin-bottom: 2px !important;
   }
-  .polaroid.zoomed {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-
-    width: 220px !important;
-    height: 260px !important;
-    padding: 10px 10px 24px 10px !important;
-
-    transform: translate(-50%, -50%) translateZ(0)
-               scale(0.75)
-               rotateX(var(--rx, 0deg))
-               rotateY(var(--ry, 0deg)) !important;
-
-    box-shadow: var(--bx) var(--by) 28px rgba(0,0,0,0.45) !important;
-  }
       .ivon-intro-card {
         width: 90%;
       }
