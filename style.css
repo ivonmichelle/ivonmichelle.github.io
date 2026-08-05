@@ -1412,19 +1412,24 @@ input, textarea {
     aspect-ratio: 1 / 1 !important;
     object-fit: cover !important;
   }
-    .polaroid.zoomed {
+     .polaroid.zoomed {
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
 
-    /* Lebar foto otomatis 72% dari lebar layar HP (aman gak akan offscreen) */
-    width: 72vw !important; 
-    height: auto !important;
-    padding: 8px 8px 18px 8px !important;
+    /* Matikan perspektif 3D desktop yang bikin melar */
+    perspective: none !important;
+    transform-style: flat !important;
 
-    /* Matikan scale-nya, biarkan width 72vw yang mengatur kepastian ukurannya */
-    transform: translate(-50%, -50%) translateZ(0) scale(1) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important; 
-  }
+    /* Kunci ukuran pasti pas di tengah layar HP */
+    width: 70vw !important; 
+    height: auto !important;
+    padding: 8px 8px 20px 8px !important;
+
+    /* Paksa scale TEPAT 1 (tanpa pembesaran ganda) */
+    transform: translate(-50%, -50%) scale(1) rotate(0deg) !important; 
+    
+    z-index: 20001 !important;
   .polaroid-caption {
     font-size: 11px !important;
     margin-bottom: 2px !important;
