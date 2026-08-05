@@ -6,6 +6,9 @@
   <title>BenivoN</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Reenie+Beanie&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body>
@@ -1110,6 +1113,9 @@ function switchTabWithoutReset(tab) {
   // (Tambahkan untuk polaroid/sticker/disclaimer jika perlu)
 }
 
+// ==========================================
+// POLAROID
+// ==========================================
     async function loadAlbumPolaroids() {
       try {
         const res = await fetch(`${SCRIPT_URL}?action=get_all_foto`);
@@ -1344,6 +1350,36 @@ function switchTabWithoutReset(tab) {
         alert("Foto telah dihapus dari tampilan lokal.");
       }
     }
+
+// Polaroid caption
+document.addEventListener('DOMContentLoaded', () => {
+  // Daftar kata lengkap kamu
+  const words = [
+    "memories", "story", "nostalgia", "precious", "good vibes", 
+    "forever", "sweet days", "moments", "nice shot", "snap", 
+    "yesterday", "best", "back then", "captured", "snapshot"
+  ];
+
+  // 1. Acak urutan array kata secara menyeluruh (Fisher-Yates Shuffle)
+  const shuffledWords = [...words].sort(() => Math.random() - 0.5);
+
+  // 2. Bagikan kata satu per satu ke tiap polaroid
+  document.querySelectorAll('.polaroid').forEach((polaroid, index) => {
+    // Ambil kata berdasarkan urutan yang sudah diacak
+    // (Gunakan % shuffledWords.length agar tidak error jika jumlah foto > jumlah kata)
+    const selectedWord = shuffledWords[index % shuffledWords.length];
+
+    const randomRotate = (Math.random() * 8 - 4).toFixed(1);
+
+    const caption = document.createElement('span');
+    caption.className = 'polaroid-caption';
+    caption.textContent = selectedWord;
+    caption.style.transform = `rotate(${randomRotate}deg)`;
+
+    polaroid.appendChild(caption);
+  });
+});
+
 
     function renderIllustration() {
       if (illustrations.length === 0) return;
