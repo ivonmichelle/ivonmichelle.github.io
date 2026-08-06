@@ -2551,113 +2551,50 @@ body.time-pagi .readable-text {
   filter: contrast(1.12) brightness(1.10) saturate(1.02);
 }
 /* -------------------------------------------------
-   5. NEON MOODY OVERLAY (Robust / Optimized / Android Friendly)
+   5. EFEK NEON (Magenta vs Cyan - Bright Lightweight)
    ------------------------------------------------- */
-/* Aktifkan overlay */
 body.time-neon .neon-spotlight-overlay {
   opacity: 1;
   visibility: visible;
 }
 
-/* Overlay utama */
 .neon-spotlight-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  overflow: hidden;
   z-index: 19000;
-
-  /* Lapisan dasar yang ringan */
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255, 0, 128, 0.22) 0%, transparent 42%),
-    radial-gradient(circle at 80% 80%, rgba(0, 229, 255, 0.20) 0%, transparent 44%),
-    radial-gradient(circle at 50% 50%, rgba(140, 0, 255, 0.10) 0%, transparent 65%),
-    rgba(10, 10, 20, 0.16);
-
-  background-size: 160% 160%, 170% 170%, 200% 200%, 100% 100%;
-  background-position: 18% 22%, 82% 78%, 50% 50%, 0 0;
 
   opacity: 0;
   visibility: hidden;
   transition: opacity 900ms ease, visibility 900ms ease;
 
-  /* Optimasi rendering */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  contain: paint;
-  isolation: isolate;
-
-  /* Animasi hanya background-position (lebih stabil) */
-  animation: neonBackgroundFlow 18s ease-in-out infinite alternate;
-}
-
-/* Lapisan glow tipis */
-.neon-spotlight-overlay::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
   background:
-    radial-gradient(circle at 60% 30%, rgba(0, 230, 255, 0.12) 0%, transparent 35%),
-    radial-gradient(circle at 35% 70%, rgba(255, 0, 128, 0.10) 0%, transparent 38%);
+    radial-gradient(circle at 18% 82%,
+      rgba(255, 0, 150, 0.28) 0%,
+      transparent 48%),
+    radial-gradient(circle at 82% 18%,
+      rgba(0, 235, 255, 0.26) 0%,
+      transparent 50%),
+    radial-gradient(circle at 50% 50%,
+      rgba(90, 20, 120, 0.08) 0%,
+      rgba(10, 12, 24, 0.22) 100%);
 
-  opacity: 0.9;
   transform: translateZ(0);
-  backface-visibility: hidden;
-  animation: neonGlowDrift 24s ease-in-out infinite alternate;
+  contain: paint;
 }
 
-/* Kontainer meja mendapat glow halus */
 body.time-neon .desk-container {
   box-shadow:
-    inset 0 0 60px rgba(255, 0, 128, 0.12),
-    inset 0 0 30px rgba(0, 229, 255, 0.10);
+    inset 0 0 70px rgba(255, 0, 150, 0.14),
+    inset 0 0 70px rgba(0, 235, 255, 0.12),
+    inset 0 0 80px rgba(10, 12, 24, 0.35);
 }
 
-/* Sedikit peningkatan kontras konten */
 body.time-neon .book-container,
 body.time-neon .desk-content,
 body.time-neon .readable-text {
-  filter: brightness(1.03) contrast(1.05);
-}
-
-/* Animasi sangat halus */
-@keyframes neonBackgroundFlow {
-  0% {
-    background-position:
-      18% 22%,
-      82% 78%,
-      50% 50%,
-      0 0;
-  }
-  50% {
-    background-position:
-      24% 18%,
-      76% 84%,
-      46% 54%,
-      0 0;
-  }
-  100% {
-    background-position:
-      20% 26%,
-      80% 74%,
-      54% 46%,
-      0 0;
-  }
-}
-
-@keyframes neonGlowDrift {
-  0%   { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(8px, -6px, 0); }
-}
-
-/* Pengguna yang memilih mengurangi animasi */
-@media (prefers-reduced-motion: reduce) {
-  .neon-spotlight-overlay,
-  .neon-spotlight-overlay::before {
-    animation: none;
-  }
+  filter: contrast(1.08) brightness(1.08);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 /* -------------------------------------------------
    6. EFEK RAINY (Hujan / Mendung Glum)
@@ -2732,7 +2669,7 @@ body.time-emerald .book-container,
 body.time-emerald .desk-content,
 body.time-emerald .readable-text {
   filter: contrast(1.10) brightness(1.04);
-  text-shadow: 0 1px 2px rgba(0, 20, 10, 0.5);
+  text-shadow: 0 1px 1px rgba(0, 20, 10, 0.5);
 }
 /* -------------------------------------------------
    === ANIMASI BEBAS FLICKER & NO-RESCALE ===
