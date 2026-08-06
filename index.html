@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BenivoN</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1.3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -111,12 +111,14 @@
 
   <div class="desk-container initial-blur" id="deskContainer">
   <div class="daytime-sunlight-overlay" id="daytimeOverlay"></div>
-    <div class="sunset-shadow-overlay" id="sunsetOverlay"></div>
-    <div class="midnight-shadow-overlay" id="midnightOverlay"></div>
-    <div class="nighttime-spotlight-overlay" id="nighttimeOverlay"></div>
-    <div class="neon-spotlight-overlay" id="neonOverlay"></div>
+  <div class="sunset-shadow-overlay" id="sunsetOverlay"></div>
+  <div class="midnight-shadow-overlay" id="midnightOverlay"></div>
+  <div class="nighttime-spotlight-overlay" id="nighttimeOverlay"></div>
+  <div class="neon-spotlight-overlay" id="neonOverlay"></div>
+  <div class="rainy-day-overlay" id="rainyOverlay"></div>
+  <div class="emerald-spotlight-overlay" id="emeraldOverlay"></div>
     
-    <div class="shadow-overlay-layer">
+  <div class="shadow-overlay-layer">
   <div class="window-shadow-overlay"></div>
   <div class="net-shadow-overlay"></div>
   <div class="leaf-shadow-overlay"></div>
@@ -343,6 +345,22 @@
           <button class="texture-square-btn" onclick="selectSharedTexture('gplay')" title="Gplay Texture"><span class="tex-preview tex-gplay"></span></button>
         </div>
       </div>
+<hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
+
+<!-- SEKSI BARU: KUSTOMISASI WARNA KAWAT JILID (WIRE SPIRAL) -->
+<div class="settings-section">
+  <label style="font-weight: bold; font-size: 0.9rem; color: #5c3a21; display: block; margin-bottom: 10px;">
+    📎 Warna Kawat Jilid (Spiral Wire)
+  </label>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+    <button type="button" class="nav-btn wire-color-btn" style="padding: 6px 2px; font-size: 0.75rem; background: #a8a8a8; color: #333;" onclick="setWireColor('silver')">Silver</button>
+    <button type="button" class="nav-btn wire-color-btn" style="padding: 6px 2px; font-size: 0.75rem; background: #bf953f; color: #fff;" onclick="setWireColor('gold')">Gold</button>
+    <button type="button" class="nav-btn wire-color-btn" style="padding: 6px 2px; font-size: 0.75rem; background: #b87333; color: #fff;" onclick="setWireColor('copper')">Copper</button>
+    <button type="button" class="nav-btn wire-color-btn" style="padding: 6px 2px; font-size: 0.75rem; background: #222222; color: #fff;" onclick="setWireColor('black')">Hitam</button>
+    <button type="button" class="nav-btn wire-color-btn" style="padding: 6px 2px; font-size: 0.75rem; background: #8b0000; color: #fff;" onclick="setWireColor('red')">Merah</button>
+    <button type="button" class="nav-btn wire-color-btn" style="padding: 6px 2px; font-size: 0.75rem; background: #004080; color: #fff;" onclick="setWireColor('blue')">Biru</button>
+  </div>
+</div>
 
       <hr style="border: none; border-top: 1px dashed rgba(92, 58, 33, 0.3); margin: 0;">
 
@@ -387,6 +405,9 @@
 <div>
         <label style="font-weight: bold; color: #5c3a21; margin-bottom: 8px; display: block;">Suara Suasana (Ambient):</label>
         <div class="ambient-options" style="display: flex; gap: 10px; justify-content: space-between;">
+          <button class="ambient-btn" data-ambient="birds" onclick="playAmbient('birds')" title="Birds">
+            🦜
+          </button>
           <button class="ambient-btn" data-ambient="rain" onclick="playAmbient('rain')" title="Hujan">
             🌧️
           </button>
@@ -402,7 +423,6 @@
           <button class="ambient-btn" data-ambient="off" onclick="stopAmbient()" title="Matikan Ambient">
             🚫
           </button>
-
         </div>
       </div>
 
@@ -459,7 +479,6 @@
         <span class="label">Realtime</span>
       </div>
     </label>
-
     <label class="lighting-radio-card">
       <input type="radio" name="lightingMode" value="pagi" onclick="setLightingMode('pagi')">
       <div class="card-content">
@@ -467,7 +486,6 @@
         <span class="label">Pagi/Siang</span>
       </div>
     </label>
-
     <label class="lighting-radio-card">
       <input type="radio" name="lightingMode" value="sore" onclick="setLightingMode('sore')">
       <div class="card-content">
@@ -475,7 +493,6 @@
         <span class="label">Sore</span>
       </div>
     </label>
-
     <label class="lighting-radio-card">
       <input type="radio" name="lightingMode" value="midnight" onclick="setLightingMode('midnight')">
       <div class="card-content">
@@ -483,7 +500,6 @@
         <span class="label">Midnight</span>
       </div>
     </label>
-
     <label class="lighting-radio-card">
       <input type="radio" name="lightingMode" value="malam" onclick="setLightingMode('malam')">
       <div class="card-content">
@@ -491,12 +507,25 @@
         <span class="label">Malam</span>
       </div>
     </label>
-    
         <label class="lighting-radio-card">
         <input type="radio" name="lightingMode" value="neon" onclick="setLightingMode('neon')">
         <div style="margin-bottom: 15px;" class="card-content">
         <span class="icon">🔮</span>
         <span class="label">NeonCyber</span>
+      </div>
+    </label>
+        <label class="lighting-radio-card">
+      <input type="radio" name="lightingMode" value="rainy" onclick="setLightingMode('rainy')">
+      <div class="card-content">
+        <span class="icon">🌧️</span>
+        <span class="label">Rainy</span>
+      </div>
+    </label>
+    <label class="lighting-radio-card">
+      <input type="radio" name="lightingMode" value="emerald" onclick="setLightingMode('emerald')">
+      <div class="card-content">
+        <span class="icon">💎</span>
+        <span class="label">Emerald</span>
       </div>
     </label>
   </div>
@@ -611,7 +640,7 @@
         
         <div class="backup-btn-group">
           <button class="btn-backup btn-export" onclick="exportToJson()">
-            <span>??</span> Save
+            <span>💾</span> Save
           </button>
           <button class="btn-backup btn-import" onclick="document.getElementById('jsonFileInput').click()">
             <span>📂</span> Load
@@ -2308,8 +2337,16 @@ function updateLightingSystem() {
     }
   }
 
-  // C. Terapkan Class Waktu ke <body> (TAMBAHKAN 'time-neon' DI SINI)
-  bodyEl.classList.remove('time-pagi', 'time-sore', 'time-midnight', 'time-malam', 'time-neon');
+  // C. Terapkan Class Waktu ke <body>
+  bodyEl.classList.remove(
+    'time-pagi', 
+    'time-sore', 
+    'time-midnight', 
+    'time-malam', 
+    'time-neon', 
+    'time-rainy', 
+    'time-emerald'
+  );
 
   if (modeToApply === 'pagi') {
     bodyEl.classList.add('time-pagi');
@@ -2320,12 +2357,18 @@ function updateLightingSystem() {
   } else if (modeToApply === 'midnight') {
     bodyEl.classList.add('time-midnight');
     if (iconFab) iconFab.className = 'fas fa-user-astronaut'; 
-  } else if (modeToApply === 'neon') { // <-- TAMBAHAN MODE NEON
+  } else if (modeToApply === 'neon') {
     bodyEl.classList.add('time-neon');
     if (iconFab) iconFab.className = 'fas fa-compact-disc';
   } else if (modeToApply === 'malam') {
     bodyEl.classList.add('time-malam');
     if (iconFab) iconFab.className = 'fas fa-moon';
+  } else if (modeToApply === 'rainy') {
+    bodyEl.classList.add('time-rainy');
+    if (iconFab) iconFab.className = 'fas fa-cloud-showers-heavy';
+  } else if (modeToApply === 'emerald') {
+    bodyEl.classList.add('time-emerald');
+    if (iconFab) iconFab.className = 'fas fa-gem';
   }
 
   // D. Sync Tampilan UI di Modal Settings
@@ -2486,7 +2529,9 @@ const lightingOverlays = [
   document.getElementById('sunsetOverlay'),
   document.getElementById('midnightOverlay'),
   document.getElementById('neonOverlay'),
-  document.getElementById('nighttimeOverlay')
+  document.getElementById('nighttimeOverlay'),
+  document.getElementById('rainyOverlay'),
+  document.getElementById('emeraldOverlay')
 ];
 
 function switchLightingMode(activeOverlayId) {
@@ -2650,6 +2695,25 @@ function setCoverTitlePosition(pos) {
   if (typeof saveAppState === 'function') saveAppState();
 }
 
+// Mengatur warna kawat spiral
+function setWireColor(color) {
+  const pages = document.querySelectorAll('.book-page');
+  const validColors = ['silver', 'gold', 'copper', 'black', 'red', 'blue'];
+
+  pages.forEach(page => {
+    // Hapussemua class warna wire lama
+    validColors.forEach(c => page.classList.remove(`wire-${c}`));
+    
+    // Tambahkan class warna baru jika bukan default silver
+    if (color && color !== 'silver') {
+      page.classList.add(`wire-${color}`);
+    }
+  });
+
+  // Panggil auto-save state jika fungsi tersedia
+  if (typeof saveAppState === 'function') saveAppState();
+}
+
 // Function untuk Mengatur Warna Judul (Gold, Silver, Hitam Metalik)
 function setCoverTitleColor(color) {
   const mainTitle = document.querySelector('.cover-main-title');
@@ -2677,9 +2741,6 @@ function toggleCoverTitleEmboss(enable) {
   if (typeof saveAppState === 'function') saveAppState();
 }
 
-// =========================================================
-// SYSTEM STATE MANAGER (SAVED & RESTORED - UPDATED)
-// =========================================================
 function saveAppState() {
   // 1. DATA POLAROID MEJA
   const polaroidData = [1, 2, 3, 4, 5, 6, 7].map(i => {
@@ -2779,6 +2840,9 @@ function saveAppState() {
   localStorage.setItem('benivon_cover_title_color', coverTitleColor);
   localStorage.setItem('benivon_cover_title_emboss', coverTitleEmboss);
 
+  // === DATA BOOKMARK ===
+  const bookmarkData = JSON.parse(localStorage.getItem('benivon_bookmark') || 'null') || (typeof currentBookmark !== 'undefined' ? currentBookmark : null);
+
   // 5. BUNGKUS SELURUH STATE APLIKASI
   const state = {
     polaroids: polaroidData,
@@ -2789,6 +2853,9 @@ function saveAppState() {
     activeTab: currentActiveTab,
     currentChapterIndex: typeof currentChapterIndex !== 'undefined' ? currentChapterIndex : -1,
     currentPage: typeof currentPage !== 'undefined' ? currentPage : 0,
+
+    // TAMBAHAN: Menyimpan Bookmark State
+    bookmark: bookmarkData,
 
     settings: {
       bgTheme: activeBgTheme,
@@ -3029,6 +3096,19 @@ function restoreAppState() {
       }
     }
 
+    // === RESTORE BOOKMARK DATA & UI ===
+    if (state.bookmark) {
+      localStorage.setItem('benivon_bookmark', JSON.stringify(state.bookmark));
+      if (typeof currentBookmark !== 'undefined') {
+        currentBookmark = state.bookmark;
+      }
+    } else {
+      localStorage.removeItem('benivon_bookmark');
+      if (typeof currentBookmark !== 'undefined') {
+        currentBookmark = null;
+      }
+    }
+
     // 5. RESTORE BUKU, TAB, BAB, DAN HALAMAN
     if (state.isBookClosed) {
       if (typeof closeBookView === 'function') closeBookView();
@@ -3064,6 +3144,13 @@ function restoreAppState() {
       }
     }
 
+    // Update UI Bookmark jika fungsinya tersedia di aplikasi
+    if (typeof updateBookmarkUI === 'function') {
+      updateBookmarkUI();
+    } else if (typeof renderBookmark === 'function') {
+      renderBookmark();
+    }
+
     return true;
   } catch (e) {
     console.error("Gagal restore state komprehensif:", e);
@@ -3071,7 +3158,7 @@ function restoreAppState() {
   }
 }
 
-<!-- =================== -->
+<!-- ============================================== -->
     // LISTENER MULTI-TRIGGER (Leluasa di HP & Desktop)
     window.addEventListener('beforeunload', saveAppState);
 
@@ -3381,6 +3468,12 @@ function toggleBgm() {
     });
   } else {
     audio.pause();
+    
+    // Matikan juga suara ambient saat BGM di-off-kan
+    if (typeof stopAmbient === 'function') {
+      stopAmbient();
+    }
+
     if (bgmBtn) {
       bgmBtn.innerText = '🔇';
       bgmBtn.setAttribute('title', 'Putar Musik');
@@ -3985,6 +4078,7 @@ document.addEventListener('click', (e) => {
 const ambientAudio = document.getElementById('ambientAudio');
 
 const ambientTracks = {
+  birds: 'sfx/birds.mp3',
   rain: 'sfx/rain_loop.mp3',
   thunder: 'sfx/thunder_rain_loop.mp3',
   crickets: 'sfx/crickets_night_loop.mp3',
@@ -4623,6 +4717,7 @@ function toggleBookView() {
     openBookView();
   }
 }
+
 
 // ==========================================
 // LOAD PRESET SAAT AWAL BUKA

@@ -253,21 +253,53 @@ input, textarea {
   background-size: 38px 32px;
 }
 
-    /* --- RING SPIRAL KAWAT LOGAM (LENGKUNG & ROUNDED) --- */
+/* --- RING SPIRAL KAWAT LOGAM (LENGKUNG & ROUNDED) --- */
+/* Definisikan warna kawat default (Silver) pada root/body */
+:root {
+  --wire-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='32'%3E%3Cdefs%3E%3ClinearGradient id='metal' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23111111'/%3E%3Cstop offset='15%25' stop-color='%23666666'/%3E%3Cstop offset='35%25' stop-color='%23ffffff'/%3E%3Cstop offset='45%25' stop-color='%23e0e0e0'/%3E%3Cstop offset='60%25' stop-color='%23444444'/%3E%3Cstop offset='85%25' stop-color='%23999999'/%3E%3Cstop offset='100%25' stop-color='%23050505'/%3E%3C/linearGradient%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.6'/%3E%3Cstop offset='20%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='80%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3Cfilter id='shd' x='-20%25' y='-20%25' width='150%25' height='150%25'%3E%3CfeDropShadow dx='1.5' dy='2.5' stdDeviation='1' flood-color='%23000000' flood-opacity='0.65'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shd)'%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23metal)'/%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23shine)'/%3E%3Crect x='3' y='12' width='30' height='2' rx='1' ry='1' fill='%23ffffff' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
+}
+
 .book-page::before {
   content: '';
   position: absolute;
   top: 8px;
   bottom: 10px;
-  left: -16px; /* Menggantung keluar dari pinggir kertas */
+  left: -16px;
   width: 38px;
   z-index: 25;
   pointer-events: none;
 
-  /* Kawat Logam Ultra-Metallic & Shiny dengan High Specular Highlight */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='32'%3E%3Cdefs%3E%3ClinearGradient id='metal' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23111111'/%3E%3Cstop offset='15%25' stop-color='%23666666'/%3E%3Cstop offset='35%25' stop-color='%23ffffff'/%3E%3Cstop offset='45%25' stop-color='%23e0e0e0'/%3E%3Cstop offset='60%25' stop-color='%23444444'/%3E%3Cstop offset='85%25' stop-color='%23999999'/%3E%3Cstop offset='100%25' stop-color='%23050505'/%3E%3C/linearGradient%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.6'/%3E%3Cstop offset='20%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='80%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3Cfilter id='shd' x='-20%25' y='-20%25' width='150%25' height='150%25'%3E%3CfeDropShadow dx='1.5' dy='2.5' stdDeviation='1' flood-color='%23000000' flood-opacity='0.65'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shd)'%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23metal)'/%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23shine)'/%3E%3Crect x='3' y='12' width='30' height='2' rx='1' ry='1' fill='%23ffffff' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
+  /* Menggunakan variabel CSS */
+  background-image: var(--wire-url);
   background-repeat: repeat-y;
-  background-size: 38px 32px; /* Pitch 32px persis selaras dengan lubang kertas */
+  background-size: 38px 32px;
+}
+
+/* --- WARNA KAWAT SPIRAL BUKU --- */
+
+/* Gold */
+.book-page.wire-gold::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='32'%3E%3Cdefs%3E%3ClinearGradient id='metal' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233a2500'/%3E%3Cstop offset='15%25' stop-color='%23996515'/%3E%3Cstop offset='35%25' stop-color='%23ffe680'/%3E%3Cstop offset='45%25' stop-color='%23d4af37'/%3E%3Cstop offset='60%25' stop-color='%235c4000'/%3E%3Cstop offset='85%25' stop-color='%23aa7c11'/%3E%3Cstop offset='100%25' stop-color='%23221500'/%3E%3C/linearGradient%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.6'/%3E%3Cstop offset='20%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='80%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3Cfilter id='shd' x='-20%25' y='-20%25' width='150%25' height='150%25'%3E%3CfeDropShadow dx='1.5' dy='2.5' stdDeviation='1' flood-color='%23000000' flood-opacity='0.65'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shd)'%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23metal)'/%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23shine)'/%3E%3Crect x='3' y='12' width='30' height='2' rx='1' ry='1' fill='%23ffffff' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Copper */
+.book-page.wire-copper::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='32'%3E%3Cdefs%3E%3ClinearGradient id='metal' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232b1105'/%3E%3Cstop offset='15%25' stop-color='%238c4320'/%3E%3Cstop offset='35%25' stop-color='%23ffbe9e'/%3E%3Cstop offset='45%25' stop-color='%23b87333'/%3E%3Cstop offset='60%25' stop-color='%234a210d'/%3E%3Cstop offset='85%25' stop-color='%239e552a'/%3E%3Cstop offset='100%25' stop-color='%23190802'/%3E%3C/linearGradient%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.6'/%3E%3Cstop offset='20%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='80%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3Cfilter id='shd' x='-20%25' y='-20%25' width='150%25' height='150%25'%3E%3CfeDropShadow dx='1.5' dy='2.5' stdDeviation='1' flood-color='%23000000' flood-opacity='0.65'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shd)'%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23metal)'/%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23shine)'/%3E%3Crect x='3' y='12' width='30' height='2' rx='1' ry='1' fill='%23ffffff' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Hitam Metalik */
+.book-page.wire-black::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='32'%3E%3Cdefs%3E%3ClinearGradient id='metal' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23050505'/%3E%3Cstop offset='15%25' stop-color='%23222222'/%3E%3Cstop offset='35%25' stop-color='%23888888'/%3E%3Cstop offset='45%25' stop-color='%23444444'/%3E%3Cstop offset='60%25' stop-color='%23111111'/%3E%3Cstop offset='85%25' stop-color='%23333333'/%3E%3Cstop offset='100%25' stop-color='%23000000'/%3E%3C/linearGradient%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.4'/%3E%3Cstop offset='20%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='80%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0.2'/%3E%3C/linearGradient%3E%3Cfilter id='shd' x='-20%25' y='-20%25' width='150%25' height='150%25'%3E%3CfeDropShadow dx='1.5' dy='2.5' stdDeviation='1' flood-color='%23000000' flood-opacity='0.75'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shd)'%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23metal)'/%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23shine)'/%3E%3Crect x='3' y='12' width='30' height='2' rx='1' ry='1' fill='%23ffffff' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Merah Metalik */
+.book-page.wire-red::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='32'%3E%3Cdefs%3E%3ClinearGradient id='metal' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23300000'/%3E%3Cstop offset='15%25' stop-color='%23800000'/%3E%3Cstop offset='35%25' stop-color='%23ff8080'/%3E%3Cstop offset='45%25' stop-color='%23cc0000'/%3E%3Cstop offset='60%25' stop-color='%23500000'/%3E%3Cstop offset='85%25' stop-color='%23990000'/%3E%3Cstop offset='100%25' stop-color='%231a0000'/%3E%3C/linearGradient%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.6'/%3E%3Cstop offset='20%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='80%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3Cfilter id='shd' x='-20%25' y='-20%25' width='150%25' height='150%25'%3E%3CfeDropShadow dx='1.5' dy='2.5' stdDeviation='1' flood-color='%23000000' flood-opacity='0.65'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shd)'%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23metal)'/%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23shine)'/%3E%3Crect x='3' y='12' width='30' height='2' rx='1' ry='1' fill='%23ffffff' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Biru Metalik */
+.book-page.wire-blue::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='32'%3E%3Cdefs%3E%3ClinearGradient id='metal' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23001a33'/%3E%3Cstop offset='15%25' stop-color='%23004080'/%3E%3Cstop offset='35%25' stop-color='%2380c1ff'/%3E%3Cstop offset='45%25' stop-color='%230066cc'/%3E%3Cstop offset='60%25' stop-color='%23002b55'/%3E%3Cstop offset='85%25' stop-color='%23004c99'/%3E%3Cstop offset='100%25' stop-color='%23000d1a'/%3E%3C/linearGradient%3E%3ClinearGradient id='shine' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='0.6'/%3E%3Cstop offset='20%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='80%25' stop-color='%23ffffff' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%23ffffff' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3Cfilter id='shd' x='-20%25' y='-20%25' width='150%25' height='150%25'%3E%3CfeDropShadow dx='1.5' dy='2.5' stdDeviation='1' flood-color='%23000000' flood-opacity='0.65'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shd)'%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23metal)'/%3E%3Crect x='2' y='11' width='32' height='10' rx='5' ry='5' fill='url(%23shine)'/%3E%3Crect x='3' y='12' width='30' height='2' rx='1' ry='1' fill='%23ffffff' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
 }
 
     /* --- KETEBALAN TUMPUKAN KERTAS DI SISI KANAN --- */
@@ -2480,7 +2512,7 @@ body.time-malam .readable-text {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3); /* Membaca teks jadi super tajam */
 }
 /* -------------------------------------------------
-   4. EFEK PAGI/SIANG (Sunlight & Komorebi)
+   4. EFEK PAGI/SIANG
    ------------------------------------------------- */
 body.time-pagi .daytime-sunlight-overlay { 
   opacity: 1; 
@@ -2628,29 +2660,79 @@ body.time-neon .readable-text {
   }
 }
 /* -------------------------------------------------
-   6. EFEK HUJAN / MENDUNG (Rainy Day Ambient)
+   6. EFEK RAINY (Hujan / Mendung Glum)
    ------------------------------------------------- */
-body.time-rainy .rainy-shadow-overlay {
-  opacity: 1; 
+body.time-rainy .rainy-day-overlay {
+  opacity: 1;
   visibility: visible;
 }
 
-.rainy-shadow-overlay {
-  background-color: rgba(20, 28, 38, 0.35);
+.rainy-day-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 19000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 900ms ease, visibility 900ms ease;
+
+  background-color: rgba(20, 28, 38, 0.25);
   background-image: 
-    radial-gradient(circle at 30% 20%, rgba(180, 205, 220, 0.22) 0%, rgba(40, 55, 70, 0.15) 55%, rgba(10, 15, 25, 0.65) 100%),
-    linear-gradient(135deg, rgba(200, 220, 235, 0.08) 0%, rgba(5, 12, 20, 0.45) 100%);
+    radial-gradient(circle at 50% 30%, rgba(180, 200, 220, 0.18) 0%, rgba(45, 60, 80, 0.3) 65%, rgba(12, 18, 25, 0.65) 100%),
+    linear-gradient(180deg, rgba(120, 145, 170, 0.1) 0%, rgba(15, 22, 32, 0.4) 100%);
+
+  transform: translateZ(0);
+  contain: paint;
 }
 
 body.time-rainy .desk-container {
-  box-shadow: inset 0 0 110px rgba(10, 20, 30, 0.7);
+  box-shadow: inset 0 0 100px rgba(10, 20, 30, 0.7);
 }
 
 body.time-rainy .book-container,
 body.time-rainy .desk-content,
 body.time-rainy .readable-text {
-  filter: contrast(1.06) brightness(1.02) saturate(0.85);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  filter: contrast(1.10) brightness(1.02);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* -------------------------------------------------
+   7. EFEK EMERALD (Spotlight Hijau Cyber/Bio)
+   ------------------------------------------------- */
+body.time-emerald .emerald-spotlight-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.emerald-spotlight-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 19000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 900ms ease, visibility 900ms ease;
+
+  background:
+    radial-gradient(circle at 15% 85%, rgba(0, 255, 136, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(0, 200, 150, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(5, 40, 25, 0.25) 0%, rgba(2, 12, 8, 0.7) 100%);
+
+  transform: translateZ(0);
+  contain: paint;
+}
+
+body.time-emerald .desk-container {
+  box-shadow: 
+    inset 0 0 70px rgba(0, 255, 136, 0.12),
+    inset 0 0 110px rgba(0, 20, 10, 0.8);
+}
+
+body.time-emerald .book-container,
+body.time-emerald .desk-content,
+body.time-emerald .readable-text {
+  filter: contrast(1.10) brightness(1.04);
+  text-shadow: 0 1px 2px rgba(0, 20, 10, 0.5);
 }
 /* -------------------------------------------------
    === ANIMASI BEBAS FLICKER & NO-RESCALE ===
@@ -2678,7 +2760,10 @@ body.time-rainy .readable-text {
 body.lighting-disabled .daytime-sunlight-overlay,
 body.lighting-disabled .sunset-shadow-overlay,
 body.lighting-disabled .midnight-shadow-overlay,
-body.lighting-disabled .nighttime-spotlight-overlay {
+body.lighting-disabled .nighttime-spotlight-overlay,
+body.lighting-disabled .neon-spotlight-overlay,
+body.lighting-disabled .rainy-day-overlay,
+body.lighting-disabled .emerald-spotlight-overlay {
   opacity: 0 !important;
   visibility: hidden !important;
 }
