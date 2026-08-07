@@ -2261,7 +2261,7 @@ body[data-shadow="window"] .window-shadow-overlay,
 body[data-shadow="net"] .net-shadow-overlay,
 body[data-shadow="leaf"] .leaf-shadow-overlay,
 body[data-shadow="branch"] .branch-shadow-overlay,
-body[data-shadow="curtain"] .curtain-shadow-overlay,
+body[data-shadow="wroughtiron"] .wroughtiron-shadow-overlay,
 body[data-shadow="perspective"] .perspective-shadow-overlay,
 body[data-shadow="arch"] .arch-shadow-overlay {
   opacity: 1;
@@ -2362,22 +2362,25 @@ body[data-shadow="arch"] .arch-shadow-overlay {
 }
 
 /* -------------------------------------------------
-   5. SHADOW: GORDEN (CURTAIN)
+   5. SHADOW: TERALIS (WROUGHTIRON)
    ------------------------------------------------- */
-.curtain-shadow-overlay::after {
-  inset: -20%;
-  width: 140%;
-  height: 140%;
-  background-image:
-    repeating-linear-gradient(
-      100deg,
-      rgba(40,45,50,0.48) 0 26px,
-      rgba(40,45,50,0.12) 26px 48px,
-      transparent 48px 92px
-    );
-  transform: rotate(-12deg);
-  filter: blur(10px);
-  animation-duration: 11s;
+.wroughtiron-shadow-overlay::after {
+  top: -30%;
+  left: -20%;
+  width: 160%;
+  height: 160%;
+  background-image: 
+    /* Lengkungan Teralis Utama (0.45 -> 0.79 & 0.40 -> 0.70) */
+    radial-gradient(circle at 50% 0%, transparent 35%, rgba(30, 35, 40, 0.79) 36%, rgba(30, 35, 40, 0.79) 40%, transparent 41%),
+    radial-gradient(circle at 50% 0%, transparent 55%, rgba(30, 35, 40, 0.70) 56%, rgba(30, 35, 40, 0.70) 60%, transparent 61%),
+    /* Motif Lengkung Ornamen Samping (0.35 -> 0.61) */
+    radial-gradient(circle at 20% 40%, transparent 20%, rgba(30, 35, 40, 0.61) 21%, rgba(30, 35, 40, 0.61) 25%, transparent 26%),
+    radial-gradient(circle at 80% 40%, transparent 20%, rgba(30, 35, 40, 0.61) 21%, rgba(30, 35, 40, 0.61) 25%, transparent 26%),
+    /* Garis Siluet Tegak (0.4 -> 0.70) */
+    linear-gradient(to right, transparent 0 48%, rgba(30, 35, 40, 0.70) 48% 52%, transparent 52% 100%);
+  transform: rotate(-15deg) skewX(-5deg);
+  filter: blur(16px);
+  animation-duration: 12s;
 }
 
 /* -------------------------------------------------
@@ -2389,15 +2392,14 @@ body[data-shadow="arch"] .arch-shadow-overlay {
   width: 180%;
   height: 180%;
   background-image: repeating-conic-gradient(
-    from 250deg at -10% 20%,
-    rgba(35, 40, 45, 1.0) 0deg 2.2deg,
-    transparent 2.2deg 7.5deg
+    from 220deg at -5% -20%,
+    rgba(32, 38, 45, 0.84) 0deg 2.2deg,
+    transparent 2.2deg 7.8deg
   );
-  transform: perspective(800px) rotateX(18deg) rotateY(-12deg) rotate(-10deg) scale(1.1);
-  filter: blur(16px);
-  animation-duration: 13s;
+  transform: perspective(750px) rotate(-22deg) skewY(-8deg);
+  filter: blur(15px);
+  animation-duration: 14s;
 }
-
 /* -------------------------------------------------
    7. SHADOW: ARCH
    ------------------------------------------------- */
@@ -2422,7 +2424,7 @@ body.lighting-disabled .window-shadow-overlay,
 body.lighting-disabled .net-shadow-overlay,
 body.lighting-disabled .leaf-shadow-overlay,
 body.lighting-disabled .branch-shadow-overlay,
-body.lighting-disabled .curtain-shadow-overlay,
+body.lighting-disabled .wroughtiron-shadow-overlay,
 body.lighting-disabled .perspective-shadow-overlay,
 body.lighting-disabled .arch-shadow-overlay {
   opacity: 0 !important;
@@ -2433,7 +2435,7 @@ body.lighting-disabled .arch-shadow-overlay {
 .net-shadow-overlay::after,
 .leaf-shadow-overlay::after,
 .branch-shadow-overlay::after,
-.curtain-shadow-overlay::after,
+.wroughtiron-shadow-overlay::after,
 .perspective-shadow-overlay::after,
 .arch-shadow-overlay::after {
   opacity: var(--shadow-opacity, 1);
